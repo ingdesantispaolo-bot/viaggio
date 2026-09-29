@@ -1,0 +1,102 @@
+/* THE LONG MERIDIAN - Core Design System & Layout */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg-dark: #0d0f12;
+  --bg-panel: rgba(18, 22, 28, 0.94);
+  --bg-cockpit: #121519;
+  --accent-amber: #ff9922;
+  --accent-cyan: #38bdf8;
+  --accent-danger: #ef4444;
+  --accent-green: #22c55e;
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-metal: #2a333d;
+  --border-highlight: #475569;
+  --font-tech: 'Share Tech Mono', monospace;
+  --font-display: 'Chakra Petch', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  font-family: var(--font-display);
+  color: var(--text-main);
+  touch-action: none;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 3D Viewport (Upper Section) */
+#canvas-container {
+  width: 100%;
+  height: 65%;
+  position: relative;
+  background-color: #120e0c;
+  overflow: hidden;
+}
+
+#canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Biome Intro Toast Overlay */
+.biome-toast {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 20, 25, 0.88);
+  border: 1px solid var(--accent-amber);
+  backdrop-filter: blur(8px);
+  padding: 10px 24px;
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  z-index: 50;
+}
+
+.biome-toast h2 {
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--accent-amber);
+  margin-bottom: 2px;
+}
+
+.biome-toast p {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Landscape / Desktop Adaptability */
+@media (orientation: landscape) and (min-height: 500px) {
+  #canvas-container {
+    height: 70%;
+  }
+  #cockpit-dashboard {
+    height: 30%;
+  }
+}

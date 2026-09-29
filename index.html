@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d0f12">
+  <title>THE LONG MERIDIAN - Northern Survival Corridor</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/hud.css">
+  <link rel="stylesheet" href="./src/styles/modal.css">
+
+  <!-- Three.js (Local offline library with fallback) -->
+  <script src="./libs/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Upper 65%: Three.js 3D Viewport -->
+    <div id="canvas-container"></div>
+
+    <!-- Lower 35%: Dashboard HUD generated dynamically by DashboardHUD.js -->
+  </div>
+
+  <!-- Standalone Game Bundle (Runs directly offline or online) -->
+  <script src="./bundle.js"></script>
+</body>
+</html>

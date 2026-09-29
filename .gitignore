@@ -1,0 +1,14 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Node/npm if used
+node_modules/
+npm-debug.log*
+
+# Scratch/temp logs
+*.log
+scratch/

@@ -1,0 +1,3860 @@
+/* THE LONG MERIDIAN - Enhanced Cockpit Dashboard Styles */
+
+#cockpit-dashboard {
+  width: 100%;
+  height: 38%;
+  min-height: 250px;
+  background: radial-gradient(circle at 50% 0%, #1e2530 0%, #0c0e12 100%);
+  border-top: 3px solid #2e3b48;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.9), inset 0 2px 4px rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+}
+
+/* 1. Top Status Bar */
+.cockpit-top-bar {
+  height: 32px;
+  background: rgba(10, 13, 18, 0.95);
+  border-bottom: 1px solid #232c36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  font-family: var(--font-tech);
+  font-size: 12px;
+}
+
+.top-bar-inner {
+  width: 100%;
+  max-width: 98%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.biome-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-amber);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.biome-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.biome-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-amber);
+  box-shadow: 0 0 10px var(--accent-amber);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.telemetry-readout {
+  display: flex;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.tele-item strong {
+  color: var(--accent-cyan);
+}
+
+.rad-safe {
+  color: var(--accent-green) !important;
+}
+
+.odometer-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-cyan);
+}
+
+.odo-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+#hud-odometer {
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+.odo-unit {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.time-display {
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+}
+
+/* 2. Main Console Frame - Full Width */
+.cockpit-console-frame {
+  width: 100%;
+  max-width: 98%;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 6px 14px;
+}
+
+/* Modular Pod Base */
+.console-pod {
+  background: linear-gradient(180deg, #171d24 0%, #0d1014 100%);
+  border: 1px solid #293440;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05), 0 4px 14px rgba(0, 0, 0, 0.6);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pod-header {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid #202832;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+/* 3. Left Pod: Steering & Driver Telemetry */
+.pod-left {
+  width: 19%;
+  min-width: 175px;
+  max-width: 250px;
+}
+
+.turn-signals-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #090c10;
+  border: 1px solid #202934;
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-bottom: 6px;
+}
+
+.blinker-lamp {
+  font-size: 16px;
+  color: #172d1f;
+  text-shadow: none;
+  transition: all 0.08s ease;
+  font-weight: 900;
+  user-select: none;
+}
+
+.blinker-lamp.active {
+  color: #22c55e;
+  text-shadow: 0 0 10px #22c55e, 0 0 18px #16a34a;
+}
+
+.hazard-button {
+  background: #1b1312;
+  border: 1px solid #7f1d1d;
+  color: #f87171;
+  border-radius: 4px;
+  font-family: var(--font-tech);
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hazard-button.active {
+  background: #7f1d1d;
+  color: #ffffff;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+.steering-assembly {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.steering-wheel-graphic {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #252e38 0%, #12161c 100%);
+  border: 5px solid #3d4a57;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), inset 0 2px 5px rgba(255, 255, 255, 0.12);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s ease-out;
+}
+
+.wheel-hub {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #1a2027;
+  border: 2.5px solid var(--accent-amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.hub-logo {
+  font-family: var(--font-tech);
+  font-size: 8px;
+  color: var(--accent-amber);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.wheel-spoke {
+  position: absolute;
+  background: #333f4c;
+}
+.spoke-left { width: 30px; height: 5px; left: 0; }
+.spoke-right { width: 30px; height: 5px; right: 0; }
+.spoke-bottom { width: 5px; height: 30px; bottom: 0; }
+
+.rack-telemetry-badge {
+  background: #090d12;
+  border: 1px solid #1e2834;
+  border-radius: 4px;
+  font-family: var(--font-tech);
+  font-size: 10px;
+  padding: 2px 8px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.rack-lbl {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.rack-telemetry-badge strong {
+  color: #38bdf8;
+  font-size: 11px;
+}
+
+.steering-touch-track {
+  width: 100%;
+  height: 44px;
+  background: #090c0f;
+  border: 1px solid #222a33;
+  border-radius: 22px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.9);
+  touch-action: none;
+}
+
+.steer-arrow {
+  font-size: 13px;
+  color: #475569;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+.steering-knob {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3d4957 0%, #1c2229 100%);
+  border: 2px solid #57687a;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.8);
+  position: absolute;
+  left: calc(50% - 19px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.knob-marker {
+  width: 4px;
+  height: 14px;
+  background-color: var(--accent-amber);
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--accent-amber);
+}
+
+.control-label {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* 4. Center Pod: Gauges, MFD & Switches */
+.pod-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cluster-sub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1e2630;
+  padding-bottom: 3px;
+}
+
+.cluster-brand-name {
+  font-family: var(--font-tech);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  letter-spacing: 1px;
+}
+
+.cluster-gear-badge {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  padding: 2px 10px;
+  border-radius: 4px;
+  border: 1px solid #2563eb;
+  color: #93c5fd;
+  background: rgba(30, 58, 138, 0.5);
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s ease;
+}
+
+.cluster-gear-badge.gear-reverse {
+  border-color: #ef4444;
+  color: #fca5a5;
+  background: rgba(185, 28, 28, 0.6);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+  animation: blink-alarm 0.7s infinite alternate;
+}
+
+.cluster-gear-badge.gear-ready-reverse {
+  border-color: #f59e0b;
+  color: #fde68a;
+  background: rgba(180, 83, 9, 0.6);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+}
+
+.cluster-gear-badge.gear-neutral {
+  border-color: #64748b;
+  color: #cbd5e1;
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.cluster-gear-badge.gear-drive {
+  border-color: #10b981;
+  color: #6ee7b7;
+  background: rgba(6, 78, 59, 0.5);
+}
+
+.cluster-drivetrain-tag {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border: 1px solid #2a3542;
+  border-radius: 3px;
+  padding: 2px 6px;
+  background: #0d1117;
+}
+
+/* ========================================================= */
+/* VINTAGE UPPER AUXILIARY EQUIPMENT RACK (Fills Upper Space) */
+/* ========================================================= */
+.vintage-aux-deck {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  background: #0a0d12;
+  border: 1px solid #202b38;
+  border-radius: 6px;
+  padding: 5px 8px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.aux-module {
+  flex: 1;
+  background: #11161f;
+  border: 1px solid #243140;
+  border-radius: 5px;
+  padding: 4px 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.aux-title-tiny {
+  font-family: var(--font-tech);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #64748b;
+  text-align: center;
+  border-bottom: 1px solid #1a2430;
+  padding-bottom: 2px;
+  margin-bottom: 3px;
+}
+
+/* 1. Climate louvers */
+.climate-louvers {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 3px;
+}
+
+.air-vent-grill {
+  width: 48px;
+  height: 20px;
+  background: #080b0e;
+  border: 1px solid #334155;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 2px;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.vent-slat {
+  width: 100%;
+  height: 2px;
+  background: #475569;
+  border-radius: 1px;
+}
+
+.vent-slider {
+  width: 5px;
+  height: 8px;
+  background: #cbd5e1;
+  border-radius: 1px;
+  position: absolute;
+  top: 6px;
+  left: 21px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.climate-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.climate-slider-bar {
+  flex: 1;
+  height: 5px;
+  background: linear-gradient(90deg, #0284c7 0%, #ea580c 100%);
+  border-radius: 3px;
+  position: relative;
+}
+
+.climate-thumb {
+  width: 7px;
+  height: 10px;
+  background: #f1f5f9;
+  border: 1px solid #0f172a;
+  border-radius: 2px;
+  position: absolute;
+  top: -2.5px;
+  left: 65%;
+}
+
+.climate-icon {
+  font-size: 10px;
+}
+
+.fan-knob-badge {
+  font-family: var(--font-tech);
+  font-size: 8px;
+  font-weight: 800;
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #93c5fd;
+  border-radius: 3px;
+  padding: 1px 4px;
+  cursor: pointer;
+}
+
+/* 2. CB Radio */
+.aux-cb-radio {
+  flex: 1.2;
+}
+
+.cb-faceplate {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.cb-screen {
+  background: #040808;
+  border: 1px solid #14532d;
+  border-radius: 3px;
+  padding: 2px 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.cb-ch {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 900;
+  color: #22c55e;
+  text-shadow: 0 0 6px #22c55e;
+}
+
+.cb-status {
+  font-family: var(--font-tech);
+  font-size: 8px;
+  font-weight: 700;
+  color: #86efac;
+}
+
+.cb-smeter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.smeter-lbl {
+  font-family: var(--font-tech);
+  font-size: 7px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.smeter-bar-strip {
+  flex: 1;
+  display: flex;
+  gap: 2.5px;
+}
+
+.s-dot {
+  flex: 1;
+  height: 3.5px;
+  background: #1e293b;
+  border-radius: 1px;
+}
+
+.s-dot.active {
+  background: #22c55e;
+  box-shadow: 0 0 4px #22c55e;
+}
+
+/* 3. Triple VDO Mini-Gauges */
+.aux-triple-gauges {
+  flex: 1.5;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  padding: 3px;
+}
+
+.mini-vdo-gauge {
+  flex: 1;
+  background: #090d12;
+  border: 1px solid #1f2937;
+  border-radius: 4px;
+  padding: 3px 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.vdo-label {
+  font-family: var(--font-tech);
+  font-size: 7.5px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.vdo-val {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.vdo-bar {
+  width: 100%;
+  height: 3.5px;
+  background: #1e293b;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 1.5px;
+}
+
+.vdo-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #38bdf8);
+}
+
+.vdo-road-text {
+  font-family: var(--font-tech);
+  font-size: 9px;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vdo-ambient-temp {
+  font-family: var(--font-tech);
+  font-size: 8px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* ========================================================= */
+/* MAIN CLUSTER GAUGES (Enlarged to 146px for zero dead space) */
+/* ========================================================= */
+.cluster-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1.1vw, 14px);
+  width: 100%;
+}
+
+.dial-housing {
+  background: radial-gradient(circle, #1a2129 0%, #0d1014 100%);
+  border: 2.5px solid #33404f;
+  border-radius: 50%;
+  padding: 3px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8), inset 0 2px 6px rgba(0, 0, 0, 0.8);
+  flex-shrink: 0;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gauge-dial {
+  width: clamp(110px, 8.8vw, 134px);
+  height: clamp(110px, 8.8vw, 134px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.dial-bg-plate {
+  fill: #10141a;
+  stroke: #252f3a;
+  stroke-width: 1.5;
+}
+
+.dial-track-groove {
+  fill: none;
+  stroke: #192028;
+  stroke-width: 4;
+}
+
+.tick {
+  stroke: #64748b;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.tick.redline {
+  stroke: var(--accent-danger);
+}
+
+.redline-arc {
+  fill: none;
+  stroke: var(--accent-danger);
+  stroke-width: 4;
+  opacity: 0.85;
+}
+
+.gauge-needle {
+  stroke: #ef4444;
+  stroke-width: 3.0;
+  stroke-linecap: round;
+  transform-origin: 60px 60px;
+  transform: rotate(-135deg);
+  transition: transform 0.05s linear;
+  filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.8));
+}
+
+.gauge-center-bezel {
+  fill: #334155;
+  stroke: #475569;
+  stroke-width: 1.5;
+}
+
+.gauge-center-screw {
+  fill: #94a3b8;
+}
+
+.dial-digital-box {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.dial-val {
+  font-family: var(--font-tech);
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.dial-unit {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+}
+
+/* ========================================================= */
+/* NIGHT INSTRUMENT CLUSTER BACKLIGHTING (Headlights Active) */
+/* ========================================================= */
+.dials-night-backlit .dial-housing {
+  border-color: #059669;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35), inset 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.dials-night-backlit .dial-bg-plate {
+  fill: #081511 !important;
+  transition: fill 0.3s ease;
+}
+
+.dials-night-backlit .tick {
+  stroke: #4ade80 !important;
+  filter: drop-shadow(0 0 3px rgba(74, 222, 128, 0.85));
+}
+
+.dials-night-backlit .tick.redline,
+.dials-night-backlit .redline-arc {
+  stroke: #f87171 !important;
+  filter: drop-shadow(0 0 4px rgba(248, 113, 113, 0.95));
+}
+
+.dials-night-backlit .dial-val {
+  color: #86efac !important;
+  text-shadow: 0 0 12px rgba(74, 222, 128, 0.9);
+}
+
+.dials-night-backlit .dial-unit {
+  color: #34d399 !important;
+}
+
+.dials-night-backlit .gauge-needle {
+  stroke: #ff4d4d !important;
+  filter: drop-shadow(0 0 6px #ff2222) !important;
+}
+
+.dials-night-backlit .clock-needle-hour,
+.dials-night-backlit .clock-needle-min {
+  stroke: #86efac !important;
+  filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.9)) !important;
+}
+
+.dials-night-backlit #incline-horizon-line {
+  stroke: #34d399 !important;
+  filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.85));
+}
+
+/* Center MFD (Multi-Function Display) */
+.mfd-screen {
+  flex: 1;
+  max-width: 490px;
+  background: #090c0f;
+  border: 1.5px solid #2b3947;
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+.mfd-vitals-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.mfd-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mfd-icon {
+  font-size: 14px;
+}
+
+.mfd-label {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  font-weight: 800;
+  color: #94a3b8;
+  width: 65px;
+}
+
+.mfd-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #151a21;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #202731;
+}
+
+.mfd-bar-fill {
+  height: 100%;
+  width: 100%;
+  transition: width 0.2s ease;
+}
+
+.fuel-bar { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.hull-bar { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.temp-bar { background: linear-gradient(90deg, #16a34a, #ef4444); }
+
+.mfd-val {
+  font-family: var(--font-tech);
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  min-width: 38px;
+  text-align: right;
+}
+
+/* Survivor Pills */
+.survivor-pills-row {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid #1c232c;
+  padding-top: 6px;
+  margin-top: 4px;
+}
+
+.pill-box {
+  flex: 1;
+  background: rgba(18, 24, 32, 0.85);
+  border: 1px solid #25313f;
+  border-radius: 4px;
+  text-align: center;
+  padding: 3px 0;
+}
+
+.pill-title {
+  display: block;
+  font-family: var(--font-tech);
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.pill-box strong {
+  font-family: var(--font-tech);
+  font-size: 13px;
+  font-weight: 900;
+  color: #f1f5f9;
+}
+
+/* Live Terrain & Surface Telemetry Bar in MFD */
+.terrain-radar-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #080c12;
+  border: 1.5px solid #22c55e;
+  border-radius: 5px;
+  padding: 4px 10px;
+  margin-top: 6px;
+  margin-bottom: 5px;
+  transition: all 0.25s ease;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.terrain-icon {
+  font-size: 14px;
+}
+
+.terrain-text {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.5px;
+}
+
+.terrain-badge {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  font-weight: 900;
+  border-radius: 3px;
+  padding: 2px 7px;
+  letter-spacing: 0.5px;
+}
+
+/* Right Pod Aux Row */
+.pod-aux-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #090c10;
+  border: 1px solid #202934;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-bottom: 6px;
+}
+
+.lighter-socket {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.lighter-knob {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #475569 0%, #1e293b 100%);
+  border: 2px solid #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 8.5px;
+  font-weight: 900;
+  color: #f59e0b;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+
+.lighter-knob.pushed {
+  transform: scale(0.85);
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+.glovebox-lock {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #334155;
+  border: 1.5px solid #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-keyway {
+  width: 2.5px;
+  height: 7px;
+  background: #0f172a;
+}
+
+.gear-status-display {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 900;
+  color: #22c55e;
+  letter-spacing: 1px;
+}
+
+/* Annunciator Warning Lamps Panel */
+.annunciator-panel {
+  display: flex;
+  gap: 4px;
+  border-top: 1px solid #1c232c;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.ann-lamp {
+  flex: 1;
+  background: #11151b;
+  border: 1px solid #232d38;
+  border-radius: 3px;
+  font-family: var(--font-tech);
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 2px;
+  transition: all 0.2s ease;
+}
+
+.ann-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #334155;
+}
+
+.ann-lamp.active-alarm {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fecaca;
+  font-weight: bold;
+  animation: blink-alarm 0.8s infinite alternate;
+}
+
+.ann-lamp.active-alarm .ann-dot {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+@keyframes blink-alarm {
+  0% { opacity: 0.35; }
+  100% { opacity: 1; filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.9)); }
+}
+
+.active-alarm-led {
+  background-color: #ef4444 !important;
+  box-shadow: 0 0 10px #ef4444 !important;
+  animation: blink-alarm 0.6s infinite alternate;
+}
+
+.btn-repair-switch {
+  border-color: #f59e0b !important;
+}
+
+/* Switches Deck - Fill Entire Horizontal Space */
+.heavy-switches-deck {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: stretch;
+  margin-top: 6px;
+}
+
+.cockpit-toggle-btn {
+  flex: 1;
+  max-width: none;
+  min-width: 68px;
+  height: 52px;
+  background: linear-gradient(180deg, #2d3845 0%, #161c24 100%);
+  border: 1.5px solid #445468;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.65);
+  position: relative;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+  padding: 4px 4px;
+}
+
+.cockpit-toggle-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.cockpit-toggle-btn:hover {
+  border-color: #64748b;
+  filter: brightness(1.1);
+}
+
+.toggle-light-ring {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #2b333d;
+  margin-bottom: 2px;
+  transition: all 0.2s ease;
+}
+
+.toggle-light-ring.on {
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.toggle-light-ring.on.active-engine {
+  background-color: var(--accent-green);
+  box-shadow: 0 0 10px var(--accent-green);
+}
+
+.toggle-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.toggle-title {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: 0.6px;
+}
+
+.btn-engine {
+  border-color: #ef4444;
+}
+
+.btn-mode-switch {
+  border-color: var(--accent-amber);
+}
+
+/* 5. Right Pod: Pedals & Transmission (Reduced footprint) */
+.pod-right {
+  width: 14%;
+  min-width: 105px;
+  max-width: 140px;
+  justify-content: space-between;
+}
+
+.pedals-deck {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  align-items: stretch;
+  margin-bottom: 6px;
+}
+
+.cockpit-pedal {
+  flex: 1;
+  background: linear-gradient(180deg, #333e4b 0%, #181d22 100%);
+  border: 2px solid #445263;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 3px;
+  cursor: pointer;
+  touch-action: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+  transition: transform 0.06s ease, filter 0.06s ease;
+}
+
+.cockpit-pedal.pressed {
+  transform: scale(0.95) translateY(3px);
+  filter: brightness(1.25);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+.pedal-ribs {
+  width: 65%;
+  height: 14px;
+  background: repeating-linear-gradient(
+    180deg,
+    #1a2027,
+    #1a2027 3px,
+    #2a3440 3px,
+    #2a3440 6px
+  );
+  border-radius: 2px;
+}
+
+.pedal-name {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.pedal-gas {
+  border-bottom: 4px solid var(--accent-green);
+}
+
+.pedal-brake {
+  border-bottom: 4px solid var(--accent-danger);
+}
+
+.handbrake-bar {
+  width: 100%;
+  height: 28px;
+  background: #161c22;
+  border: 1px solid #2e3a47;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-tech);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.1s ease;
+}
+
+.handbrake-bar.active {
+  background: var(--accent-danger);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+/* Proximity Scavenge Banner */
+.proximity-banner {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 24, 32, 0.95);
+  border: 1px solid var(--accent-amber);
+  backdrop-filter: blur(12px);
+  border-radius: 8px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9);
+  z-index: 40;
+}
+
+.banner-icon {
+  font-size: 26px;
+}
+
+.banner-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--accent-amber);
+}
+
+.banner-subtitle {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.banner-action-btn {
+  background: linear-gradient(180deg, var(--accent-amber) 0%, #d97706 100%);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  color: #000;
+  font-family: var(--font-display);
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+}
+
+/* Tablet Portrait Specific Responsive Tweaks */
+@media (max-width: 900px) {
+  .cockpit-console-frame {
+    gap: 6px;
+    padding: 4px 8px;
+  }
+  .dial-housing {
+    padding: 2px;
+  }
+  .gauge-dial {
+    width: 78px;
+    height: 78px;
+  }
+  .dial-val {
+    font-size: 15px;
+  }
+  .mfd-screen {
+    padding: 4px 6px;
+  }
+  .steering-wheel-graphic {
+    width: 56px;
+    height: 56px;
+  }
+  .pedals-deck {
+    gap: 6px;
+  }
+}
+
+/* Emergency Breakdown Diagnostic Alert Banner */
+.breakdown-alert-banner {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 12, 14, 0.92);
+  border: 1.5px solid #ef4444;
+  border-radius: 8px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 900;
+  box-shadow: 0 4px 25px rgba(239, 68, 68, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: pulse-breakdown-border 1.5s infinite alternate;
+  max-width: 90%;
+  backdrop-filter: blur(8px);
+}
+
+@keyframes pulse-breakdown-border {
+  0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+  100% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.7); }
+}
+
+.breakdown-icon-col {
+  font-size: 22px;
+  animation: wobble-icon 1s infinite ease-in-out;
+}
+
+@keyframes wobble-icon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.breakdown-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.breakdown-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: #fca5a5;
+  letter-spacing: 0.8px;
+}
+
+.breakdown-desc {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #cbd5e1;
+}
+
+.breakdown-req {
+  font-family: var(--font-tech);
+  font-size: 9px;
+  color: #fbbf24;
+  font-weight: bold;
+}
+
+.breakdown-fix-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: bold;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(34, 197, 94, 0.5);
+  transition: all 0.2s ease;
+}
+
+.breakdown-fix-btn:active {
+  transform: scale(0.95);
+}
+
+.breakdown-fix-btn.missing-supplies {
+  background: linear-gradient(135deg, #991b1b, #dc2626);
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.4);
+}
+
+/* Quick HUD Toast */
+.hud-quick-toast {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid #38bdf8;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-family: var(--font-tech);
+  font-size: 12px;
+  font-weight: 600;
+  color: #f8fafc;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 12px rgba(56, 189, 248, 0.4);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  transition: all 0.4s ease;
+}
+
+/* ========================================================
+   SETTLEMENT HUB, SMART BARTER & MERIDIAN ATLAS STYLES
+   ======================================================== */
+
+.settlement-banner-active {
+  border-color: #10b981 !important;
+  background: rgba(6, 78, 59, 0.92) !important;
+  box-shadow: 0 4px 25px rgba(16, 185, 129, 0.45) !important;
+}
+
+.settlement-window {
+  max-width: 780px !important;
+  width: 92% !important;
+  min-height: 520px;
+}
+
+.settlement-nav-tabs {
+  display: flex;
+  gap: 6px;
+  background: #0b1118;
+  padding: 6px 12px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.tab-btn {
+  flex: 1;
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: #f8fafc;
+  background: #334155;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
+}
+
+.lore-box, .tactical-advice-box {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.tactical-advice-box {
+  border-left: 4px solid #f59e0b;
+  background: rgba(30, 27, 20, 0.7);
+}
+
+.lore-section-title, .tactical-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.tactical-title {
+  color: #fbbf24;
+}
+
+.lore-text, .tactical-text {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.settlement-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.s-stat {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.s-stat strong {
+  color: #f8fafc;
+  display: block;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.highlight-demand {
+  color: #f87171 !important;
+}
+
+.highlight-export {
+  color: #34d399 !important;
+}
+
+/* Smart Barter Columns Layout */
+.barter-feedback-banner {
+  background: rgba(2, 6, 23, 0.85);
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: #38bdf8;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.barter-columns-layout {
+  display: flex;
+  gap: 12px;
+}
+
+.barter-col {
+  flex: 1;
+  background: rgba(11, 17, 24, 0.9);
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.col-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.barter-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.barter-item-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #131d2a;
+  border: 1px solid #233346;
+  border-radius: 4px;
+  padding: 6px 10px;
+  transition: all 0.15s ease;
+}
+
+.barter-item-card:hover {
+  border-color: #38bdf8;
+}
+
+.barter-item-card.export-card {
+  border-left: 3px solid #10b981;
+}
+
+.barter-item-card.needed-card {
+  border-left: 3px solid #ef4444;
+}
+
+.b-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+}
+
+.b-details {
+  flex: 1;
+}
+
+.b-name {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.b-cost {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.b-cost strong {
+  color: #fbbf24;
+}
+
+.badge-surplus {
+  font-size: 9px;
+  background: #065f46;
+  color: #6ee7b7;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+.badge-need {
+  font-size: 9px;
+  background: #7f1d1d;
+  color: #fca5a5;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+.b-action-btn {
+  background: #1e293b;
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.b-action-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.btn-buy-item {
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.btn-buy-item:hover {
+  background: #059669;
+  color: #ffffff;
+}
+
+/* Services */
+.services-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.service-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 14px 18px;
+}
+
+.service-icon {
+  font-size: 32px;
+}
+
+.service-info {
+  flex: 1;
+}
+
+.service-info h4 {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.service-info p {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.btn-service {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+  padding: 8px 14px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ========================================================
+   MERIDIAN ATLAS & ROUTE GAZETTEER STYLES
+   ======================================================== */
+
+.atlas-window {
+  max-width: 880px !important;
+  width: 94% !important;
+  height: 80vh !important;
+  max-height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+.atlas-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 12px;
+  padding: 12px;
+}
+
+.atlas-sectors-sidebar {
+  width: 32%;
+  min-width: 220px;
+  background: #0a0e14;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.atlas-sector-item {
+  background: #111822;
+  border: 1px solid #1f2a37;
+  border-radius: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.atlas-sector-item:hover {
+  background: #1c2738;
+  border-color: #38bdf8;
+}
+
+.atlas-sector-item.active {
+  background: linear-gradient(135deg, #1e3a5f, #0f2540);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.sector-badge {
+  font-family: var(--font-tech);
+  font-size: 9px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.8px;
+}
+
+.sector-title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 2px 0;
+}
+
+.sector-pk {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.sector-settlement {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #34d399;
+  margin-top: 3px;
+}
+
+.atlas-dossier-panel {
+  flex: 1;
+  background: #0b1118;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dossier-header-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111827;
+  border-bottom: 1px solid #1e293b;
+  padding: 12px 16px;
+}
+
+.dossier-titles h2 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #f8fafc;
+  letter-spacing: 0.8px;
+  margin: 0;
+}
+
+.dossier-sub {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.dossier-badge {
+  background: #047857;
+  color: #ecfdf5;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.dossier-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dossier-block {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.block-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.block-text {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.threat-block {
+  border-left: 4px solid #ef4444;
+}
+
+.threat-block .block-title {
+  color: #f87171;
+}
+
+.recommended-gear-row {
+  margin-top: 8px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  background: rgba(2, 6, 23, 0.6);
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.gear-tag {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.recommended-gear-row strong {
+  color: #f8fafc;
+  margin-left: 6px;
+}
+
+.econ-two-cols {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.econ-box {
+  flex: 1;
+  background: #0b1118;
+  border: 1px solid #1e293b;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.export-box {
+  border-top: 3px solid #10b981;
+}
+
+.demand-box {
+  border-top: 3px solid #ef4444;
+}
+
+.econ-title {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.econ-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.econ-list li {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.econ-list .icon {
+  margin-right: 6px;
+}
+
+.econ-list .discount {
+  color: #34d399;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.econ-list .surge {
+  color: #f87171;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.atlas-status-note {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   CLASSIC EUROPEAN VEHICLES & COCKPIT CUSTOM DASHBOARD STYLES
+   ========================================================================== */
+
+/* Cluster Sub-Header (Brand & Drivetrain Badge) */
+.cluster-sub-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cluster-brand-name {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+  text-shadow: 0 0 6px rgba(148, 163, 184, 0.3);
+}
+
+.cluster-drivetrain-tag {
+  font-family: var(--font-tech);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
+  box-shadow: 0 0 8px rgba(14, 165, 233, 0.2);
+}
+
+/* Dedicated Turbo Boost Manometer */
+.turbo-dial-housing {
+  background: radial-gradient(circle, #1a1e24 0%, #0d0f12 100%);
+  border: 2px solid #475569;
+  border-radius: 50%;
+  padding: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), inset 0 2px 5px rgba(0, 0, 0, 0.9);
+  animation: dial-fade-in 0.3s ease-out;
+}
+
+@keyframes dial-fade-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.turbo-dial {
+  width: 82px;
+  height: 82px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#dial-turbo-val {
+  font-size: 16px;
+  color: #f97316;
+  text-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+}
+
+/* Diesel Glow Plug Indicator */
+.ann-glow {
+  color: #64748b;
+  border: 1px solid #334155;
+  transition: all 0.2s ease;
+}
+
+.ann-glow.active-glow {
+  color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.18) !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  animation: glow-pulse 1s infinite alternate;
+}
+
+@keyframes glow-pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1.0; }
+}
+
+/* Garage Button */
+.btn-garage-switch {
+  border-color: #38bdf8 !important;
+}
+
+.btn-garage-switch:hover {
+  background: rgba(56, 189, 248, 0.15) !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Workshop & Garage Modal Expansion */
+.large-garage-window {
+  max-width: 1100px !important;
+  width: 95% !important;
+  max-height: 90vh !important;
+}
+
+.modal-tabs-bar {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid #24303c;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.modal-tab-btn {
+  background: rgba(18, 24, 32, 0.85);
+  border: 1px solid #334155;
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: var(--font-tech);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-tab-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+.modal-tab-btn.active {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  color: #38bdf8;
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+/* Active Vehicle Summary Banner */
+.active-vehicle-overview {
+  background: linear-gradient(180deg, #161e27 0%, #0d131a 100%);
+  border: 1px solid #2e3e50;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.active-badge-col {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.active-flag {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.active-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.active-brand {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: var(--accent-amber);
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+
+.active-model-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.active-category-pill {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 8px;
+  border-radius: 10px;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.active-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 8px;
+}
+
+.stat-pill {
+  background: rgba(10, 15, 22, 0.8);
+  border: 1px solid #233040;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbd5e1;
+}
+
+.stat-lbl {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.stat-cluster {
+  color: #38bdf8 !important;
+}
+
+/* Garage Catalog Grid */
+.garage-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.garage-car-card {
+  background: linear-gradient(180deg, #151b22 0%, #0d1117 100%);
+  border: 1px solid #283545;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.garage-car-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  transform: translateY(-2px);
+}
+
+.garage-car-card.car-selected {
+  border: 2px solid #22c55e !important;
+  background: linear-gradient(180deg, #16241c 0%, #0d1712 100%) !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.3) !important;
+}
+
+.car-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.car-title-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.car-flag {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.car-maker {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: var(--accent-amber);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.car-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.car-badge-category {
+  font-family: var(--font-tech);
+  font-size: 9px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.car-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+}
+
+.spec-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.cell-label {
+  font-size: 9px;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.cell-val {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.highlight-stat {
+  color: #f59e0b;
+}
+
+.highlight-cargo {
+  color: #38bdf8;
+}
+
+.awd-badge {
+  color: #34d399;
+}
+
+.rwd-badge {
+  color: #fb923c;
+}
+
+.car-notes-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 8px;
+  font-family: var(--font-tech);
+  font-size: 10px;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+.car-history-note {
+  margin: 0 0 4px 0;
+}
+
+.car-history-note strong {
+  color: #94a3b8;
+}
+
+.car-dalton-note {
+  margin: 0;
+  color: #a7f3d0;
+}
+
+.car-dalton-note strong {
+  color: #34d399;
+}
+
+.car-card-actions {
+  margin-top: 4px;
+}
+
+.garage-action-btn {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-current-active {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid #22c55e;
+  color: #86efac;
+  cursor: default;
+}
+
+.btn-choose-car {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.btn-choose-car:hover {
+  background: linear-gradient(180deg, #0369a1 0%, #075985 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+/* --- Fleet Progression & Barn Finds Styling --- */
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fleet-progress-pill {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid #3b82f6;
+  color: #93c5fd;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.fleet-overview-card {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.fleet-stat-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.stat-big {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.stat-sub {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.stash-notice-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid #eab308;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: #fef08a;
+}
+
+.btn-retrieve-stash {
+  background: #ca8a04;
+  border: 1px solid #fde047;
+  color: #0f172a;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-retrieve-stash:hover {
+  background: #eab308;
+}
+
+/* Card States */
+.garage-car-card.car-derelict {
+  border-color: #b45309;
+  background: linear-gradient(180deg, #1c150c 0%, #120d07 100%);
+}
+
+.garage-car-card.car-locked {
+  border-color: #334155;
+  background: linear-gradient(180deg, #0f1319 0%, #090c10 100%);
+  opacity: 0.72;
+}
+
+.header-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.status-badge {
+  font-family: var(--font-tech);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.badge-active {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid #22c55e;
+  color: #86efac;
+}
+
+.badge-unlocked {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid #38bdf8;
+  color: #bae6fd;
+}
+
+.badge-derelict {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid #f59e0b;
+  color: #fcd34d;
+}
+
+.badge-locked {
+  background: rgba(100, 116, 139, 0.2);
+  border: 1px solid #64748b;
+  color: #94a3b8;
+}
+
+/* Barn Find Restoration Box */
+.derelict-recovery-box {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--font-tech);
+}
+
+.derelict-location-tag {
+  font-size: 11px;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+
+.derelict-story-text {
+  font-size: 10px;
+  color: #cbd5e1;
+  font-style: italic;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.derelict-reqs-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+
+.derelict-reqs-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.req-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+
+.req-met {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid #22c55e;
+  color: #86efac;
+}
+
+.req-missing {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.locked-discovery-box {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 10px;
+  font-family: var(--font-tech);
+}
+
+.radio-hint-header {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.radio-hint-text {
+  font-size: 10px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.radio-hint-text strong {
+  color: #94a3b8;
+}
+
+.btn-can-restore {
+  background: linear-gradient(180deg, #d97706 0%, #b45309 100%) !important;
+  border: 1px solid #fcd34d !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4) !important;
+}
+
+.btn-can-restore:hover {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.btn-missing-parts {
+  background: rgba(180, 83, 9, 0.15) !important;
+  border: 1px solid #78350f !important;
+  color: #d97706 !important;
+  cursor: not-allowed !important;
+}
+
+.btn-locked-car {
+  background: rgba(30, 41, 59, 0.4) !important;
+  border: 1px solid #334155 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+}
+
+/* Category Filters in Workshop */
+.upgrade-category-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cat-pill {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid #334155;
+  color: #94a3b8;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cat-pill:hover {
+  border-color: #38bdf8;
+  color: #f1f5f9;
+}
+
+.cat-pill.active {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+/* Upgrade Card Enhancements */
+.up-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.up-icon {
+  font-size: 20px;
+}
+
+.up-category-badge {
+  font-family: var(--font-tech);
+  font-size: 9px;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.up-stat-benefit {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid #22c55e;
+  color: #86efac;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+
+.up-cost-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-tech);
+  margin: 6px 0;
+}
+
+.cost-label {
+  font-size: 9px;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.cost-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.up-cost-chip {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.chip-ok {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid #22c55e;
+  color: #86efac;
+}
+
+.chip-missing {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.btn-can-install {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%) !important;
+  border: 1px solid #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
+}
+
+.turbo-chip {
+  border-color: #eab308 !important;
+  background: rgba(234, 179, 8, 0.1) !important;
+}
+
+/* ==========================================================================
+   THE LONG MERIDIAN - HIGH-FIDELITY VEHICLE CUSTOM COCKPIT THEMES
+   Authentic European Classic Instrument Clusters (1960s - 1990s)
+   ========================================================================== */
+
+/* 1. FIAT PANDA 4x4 STEYR-PUCH (1983 - Giugiaro Minimalist Utilitarian) */
+.dash-theme-panda_4x4 {
+  background: radial-gradient(circle at 50% 0%, #1e242a 0%, #0d1013 100%) !important;
+}
+.dash-theme-panda_4x4 .pod-center {
+  background: linear-gradient(180deg, #181d22 0%, #0e1114 100%) !important;
+  border-color: #2c3540 !important;
+}
+.dash-theme-panda_4x4 .cluster-brand-name {
+  color: #38bdf8 !important;
+  font-family: var(--font-tech) !important;
+}
+.dash-theme-panda_4x4 .cluster-drivetrain-tag {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-color: #22c55e !important;
+  color: #86efac !important;
+}
+.dash-theme-panda_4x4 .dial-housing {
+  border-color: #334155 !important;
+  background: radial-gradient(circle, #1a222a 0%, #0b0e12 100%) !important;
+}
+
+/* Steyr-Puch 4WD Mechanical Lever Console */
+.steyr-lever-console {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #090c0f;
+  border: 1px solid #1f2730;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-top: 4px;
+}
+.steyr-lever-graphic {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.steyr-boot {
+  width: 22px;
+  height: 28px;
+  background: repeating-linear-gradient(180deg, #1f242b 0px, #1f242b 4px, #121519 4px, #121519 8px);
+  border: 1px solid #333d47;
+  border-radius: 4px;
+  position: relative;
+}
+.steyr-knob {
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle, #ef4444 0%, #991b1b 100%);
+  border-radius: 50%;
+  border: 1px solid #fca5a5;
+  position: absolute;
+  top: -6px;
+  left: 3px;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+.steyr-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-tech);
+  font-size: 9px;
+  font-weight: 700;
+}
+.steyr-lamp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.4);
+}
+.steyr-lamp.active-steyr {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+.steyr-lamp.active-primina {
+  color: #fde047;
+  background: rgba(234, 179, 8, 0.2);
+  border: 1px solid #eab308;
+}
+
+/* 2. LANCIA DELTA HF INTEGRALE EVOLUZIONE (1991 - Veglia Competizione Giallo Corsa) */
+.dash-theme-delta_integrale {
+  background: radial-gradient(circle at 50% 0%, #201a18 0%, #0d0c0c 100%) !important;
+}
+.dash-theme-delta_integrale .pod-center {
+  background: repeating-linear-gradient(45deg, #151414 0px, #151414 4px, #100f0f 4px, #100f0f 8px) !important;
+  border: 1px solid #3d2f1f !important;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(234, 179, 8, 0.08) !important;
+}
+.dash-theme-delta_integrale .cluster-brand-name {
+  color: #eab308 !important;
+  text-shadow: 0 0 8px rgba(234, 179, 8, 0.6) !important;
+  font-weight: 800 !important;
+}
+.dash-theme-delta_integrale .dial-housing {
+  border-color: #854d0e !important;
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.15) !important;
+}
+.dash-theme-delta_integrale .dial-bg-plate {
+  fill: #0c0b0a !important;
+}
+.dash-theme-delta_integrale .tick.major {
+  stroke: #eab308 !important;
+}
+.dash-theme-delta_integrale .gauge-needle {
+  stroke: #ef4444 !important;
+  filter: drop-shadow(0 0 4px #ef4444);
+}
+
+/* Torsen AWD Dynamic Torque Split Bar */
+.torsen-split-widget {
+  background: #0d0e12;
+  border: 1px solid #2e261a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 4px;
+  font-family: var(--font-tech);
+}
+.torsen-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #eab308;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.torsen-bar-housing {
+  height: 8px;
+  background: #1c1917;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+}
+.torsen-front-fill {
+  background: linear-gradient(90deg, #38bdf8 0%, #0284c7 100%);
+  height: 100%;
+  transition: width 0.08s ease-out;
+}
+.torsen-rear-fill {
+  background: linear-gradient(90deg, #eab308 0%, #ef4444 100%);
+  height: 100%;
+  flex: 1;
+}
+.torsen-center-mark {
+  width: 2px;
+  height: 100%;
+  background: #ffffff;
+  position: absolute;
+  left: 47%;
+  box-shadow: 0 0 4px #ffffff;
+}
+
+/* 3. MERCEDES-BENZ W123 300TD (1980 - VDO Stuttgart Walnut & Chrome) */
+.dash-theme-mercedes_w123 {
+  background: radial-gradient(circle at 50% 0%, #241c16 0%, #0c0a08 100%) !important;
+}
+.dash-theme-mercedes_w123 .pod-center {
+  background: linear-gradient(180deg, #2a1b12 0%, #170e0a 100%) !important;
+  border: 1px solid #573926 !important;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 6px 18px rgba(0, 0, 0, 0.9) !important;
+}
+.dash-theme-mercedes_w123 .cluster-brand-name {
+  color: #fdba74 !important;
+  letter-spacing: 2px !important;
+}
+.dash-theme-mercedes_w123 .dial-housing {
+  border: 3px solid #cbd5e1 !important;
+  box-shadow: 0 0 10px rgba(203, 213, 225, 0.3), inset 0 2px 5px rgba(0, 0, 0, 0.9) !important;
+}
+.dash-theme-mercedes_w123 .gauge-needle {
+  stroke: #fb923c !important;
+}
+
+/* Bosch Glowing Coil Glow-Plug Indicator */
+.bosch-glow-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #110d0a;
+  border: 1px solid #452a1a;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 4px;
+}
+.glow-coil-graphic {
+  width: 28px;
+  height: 20px;
+  border: 2px solid #57331e;
+  border-radius: 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.glow-coil-active {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 14px #ea580c, inset 0 0 8px #f97316 !important;
+  animation: glow-pulse 1.2s infinite alternate ease-in-out;
+}
+@keyframes glow-pulse {
+  0% { opacity: 0.6; filter: drop-shadow(0 0 2px #ea580c); }
+  100% { opacity: 1.0; filter: drop-shadow(0 0 8px #f97316); }
+}
+.glow-coil-filament {
+  width: 16px;
+  height: 4px;
+  background: #3a2214;
+  border-radius: 2px;
+}
+.glow-coil-active .glow-coil-filament {
+  background: #ffedd5 !important;
+  box-shadow: 0 0 8px #fff7ed;
+}
+
+/* 4. MERCEDES-BENZ G-WAGEN W460 (1979 - VDO Military Off-Road) */
+.dash-theme-mercedes_gwagen {
+  background: radial-gradient(circle at 50% 0%, #1f2720 0%, #0d120e 100%) !important;
+}
+.dash-theme-mercedes_gwagen .pod-center {
+  background: linear-gradient(180deg, #1c261e 0%, #101611 100%) !important;
+  border: 1px solid #364839 !important;
+}
+.dash-theme-mercedes_gwagen .cluster-brand-name {
+  color: #86efac !important;
+}
+
+/* 3x Mechanical Differential Lock Console */
+.gwagen-diff-locks {
+  display: flex;
+  justify-content: space-around;
+  background: #090e0a;
+  border: 1px solid #243327;
+  border-radius: 6px;
+  padding: 6px;
+  margin-top: 4px;
+}
+.diff-lock-lever {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-tech);
+  font-size: 8px;
+  color: #64748b;
+}
+.diff-switch-body {
+  width: 16px;
+  height: 24px;
+  background: #1a241c;
+  border: 1px solid #364839;
+  border-radius: 3px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.diff-switch-toggle {
+  width: 10px;
+  height: 12px;
+  background: #475569;
+  border-radius: 2px;
+  position: absolute;
+  bottom: 2px;
+  transition: all 0.2s ease;
+}
+.diff-lock-engaged .diff-switch-toggle {
+  bottom: 10px;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+.diff-lock-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #334155;
+}
+.diff-lock-engaged .diff-lock-led {
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+/* 3D Off-Road Inclinometer / Clinometro Widget */
+.inclinometer-widget {
+  background: #090e0b;
+  border: 1px solid #233126;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-tech);
+}
+.incline-dial {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #19241b 0%, #0c120e 100%);
+  border: 1px solid #3a4f3e;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.incline-horizon {
+  width: 100%;
+  height: 2px;
+  background: #22c55e;
+  position: absolute;
+  box-shadow: 0 0 4px #22c55e;
+  transition: transform 0.08s ease-out;
+}
+.incline-car-silhouette {
+  width: 22px;
+  height: 10px;
+  border: 1px solid #ffffff;
+  border-radius: 2px;
+  position: absolute;
+}
+.incline-values {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 9px;
+  color: #86efac;
+}
+
+/* 5. LAND ROVER DEFENDER 110 (1990 - Smiths Expedition UK) */
+.dash-theme-defender_110 {
+  background: radial-gradient(circle at 50% 0%, #1e2621 0%, #0b0f0d 100%) !important;
+}
+.dash-theme-defender_110 .pod-center {
+  background: linear-gradient(180deg, #1b241e 0%, #0f1511 100%) !important;
+  border: 1px solid #2d3b32 !important;
+}
+.dash-theme-defender_110 .dial-housing {
+  border-color: #3b5042 !important;
+}
+.dash-theme-defender_110 .gauge-needle {
+  stroke: #22c55e !important;
+}
+
+/* Dual Battery / Winch Voltmeter */
+.defender-volts-widget {
+  background: #090e0c;
+  border: 1px solid #202c24;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-tech);
+}
+.volts-label { font-size: 8px; color: #86efac; }
+.volts-val { font-size: 13px; font-weight: 800; color: #22c55e; text-shadow: 0 0 6px rgba(34, 197, 94, 0.4); }
+
+/* 6. VOLVO 245 POLAR ESTATE (1988 - Yazaki / VDO Nordic Safety) */
+.dash-theme-volvo_245 {
+  background: radial-gradient(circle at 50% 0%, #16222f 0%, #0a0f16 100%) !important;
+}
+.dash-theme-volvo_245 .pod-center {
+  background: linear-gradient(180deg, #131c26 0%, #0a0e14 100%) !important;
+  border: 1px solid #23374d !important;
+}
+.dash-theme-volvo_245 .cluster-brand-name {
+  color: #38bdf8 !important;
+}
+.dash-theme-volvo_245 .dial-housing {
+  border-color: #0284c7 !important;
+}
+.dash-theme-volvo_245 .gauge-needle {
+  stroke: #38bdf8 !important;
+}
+
+/* Volvo Lambdasond & Frost Alert */
+.volvo-safety-widget {
+  display: flex;
+  justify-content: space-around;
+  background: #070b10;
+  border: 1px solid #1a2a3b;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  font-family: var(--font-tech);
+}
+.volvo-lamp-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #475569;
+}
+.volvo-lamp-chip.active-lambda {
+  color: #f59e0b;
+  text-shadow: 0 0 6px #f59e0b;
+}
+.volvo-lamp-chip.active-frost {
+  color: #38bdf8;
+  text-shadow: 0 0 8px #38bdf8;
+  animation: frost-shimmer 2s infinite ease-in-out;
+}
+@keyframes frost-shimmer {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1.0; }
+}
+
+/* 7. AUDI UR-QUATTRO 20V (1989 - Audi Sport High-Tech Amber/Red) */
+.dash-theme-audi_quattro {
+  background: radial-gradient(circle at 50% 0%, #291512 0%, #0f0706 100%) !important;
+}
+.dash-theme-audi_quattro .pod-center {
+  background: linear-gradient(180deg, #20100d 0%, #120907 100%) !important;
+  border: 1px solid #572018 !important;
+}
+.dash-theme-audi_quattro .cluster-brand-name {
+  color: #f97316 !important;
+}
+.dash-theme-audi_quattro .gauge-needle {
+  stroke: #ef4444 !important;
+}
+
+/* Quattro Pneumatic Diff Lock Schematic */
+.quattro-schematic-widget {
+  background: #0e0706;
+  border: 1px solid #3d1410;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-tech);
+}
+.quattro-chassis-svg { width: 45px; height: 26px; }
+.quattro-status-text { font-size: 8px; color: #f97316; }
+
+/* 8. BMW 325iX E30 (1988 - Motorenwerke München Amber) */
+.dash-theme-bmw_e30_ix {
+  background: radial-gradient(circle at 50% 0%, #26160e 0%, #0e0805 100%) !important;
+}
+.dash-theme-bmw_e30_ix .pod-center {
+  background: linear-gradient(180deg, #1f110b 0%, #100805 100%) !important;
+  border: 1px solid #542914 !important;
+}
+.dash-theme-bmw_e30_ix .cluster-brand-name {
+  color: #f97316 !important;
+}
+.dash-theme-bmw_e30_ix .gauge-needle {
+  stroke: #ea580c !important;
+}
+
+/* BMW Service Interval (SI) 7-LED Ladder */
+.bmw-si-widget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0a0604;
+  border: 1px solid #381a0d;
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-top: 4px;
+  font-family: var(--font-tech);
+}
+.si-title { font-size: 8px; color: #ea580c; }
+.si-leds-track { display: flex; gap: 3px; }
+.si-led { width: 5px; height: 8px; border-radius: 1px; opacity: 0.3; }
+.si-led.green { background: #22c55e; }
+.si-led.yellow { background: #eab308; }
+.si-led.red { background: #ef4444; }
+.si-led.lit { opacity: 1.0; box-shadow: 0 0 6px currentColor; }
+
+/* 9. ALFA ROMEO GIULIA SUPER 1.6 "BISCIONE" (1967 - Cannocchiale & Radica) */
+.dash-theme-alfa_giulia {
+  background: radial-gradient(circle at 50% 0%, #221a14 0%, #0d0906 100%) !important;
+}
+.dash-theme-alfa_giulia .pod-center {
+  background: linear-gradient(180deg, #301f14 0%, #140c07 100%) !important;
+  border: 2px solid #6b4328 !important;
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.9) !important;
+}
+.dash-theme-alfa_giulia .cluster-brand-name {
+  color: #fef08a !important;
+  font-family: 'Times New Roman', serif !important;
+  letter-spacing: 2px !important;
+}
+.dash-theme-alfa_giulia .dial-housing {
+  border: 3px solid #e2e8f0 !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4), inset 0 3px 8px rgba(0, 0, 0, 0.9) !important;
+}
+.dash-theme-alfa_giulia .gauge-needle {
+  stroke: #ffffff !important;
+}
+
+/* Alfa Oil Pressure & Manual Choke Widget */
+.alfa-vintage-aux-widget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0d0805;
+  border: 1px solid #4a2914;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  font-family: var(--font-tech);
+}
+.alfa-oil-label { font-size: 8px; color: #fde047; }
+.alfa-oil-num { font-size: 12px; font-weight: 800; color: #ffffff; }
+.alfa-choke-knob {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  color: #cbd5e1;
+}
+.choke-handle {
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle, #e2e8f0 0%, #64748b 100%);
+  border: 1px solid #d97706;
+  border-radius: 50%;
+}
+
+/* 10. PEUGEOT 504 DANGEL (1980 - Jaeger Safari Compass) */
+.dash-theme-peugeot_504_dangel {
+  background: radial-gradient(circle at 50% 0%, #24201a 0%, #0d0c0a 100%) !important;
+}
+.dash-theme-peugeot_504_dangel .pod-center {
+  background: linear-gradient(180deg, #1c1813 0%, #0f0d0a 100%) !important;
+  border: 1px solid #453926 !important;
+}
+.dash-theme-peugeot_504_dangel .gauge-needle {
+  stroke: #f59e0b !important;
+}
+
+/* Analog Safari Raid Compass Widget */
+.safari-compass-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0a0907;
+  border: 1px solid #332a1c;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  font-family: var(--font-tech);
+}
+.compass-rose {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #eab308;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s ease-out;
+}
+.compass-needle {
+  width: 2px;
+  height: 24px;
+  background: linear-gradient(180deg, #ef4444 50%, #e2e8f0 50%);
+  position: absolute;
+}
+.compass-cardinal { font-size: 11px; font-weight: 800; color: #f59e0b; }
+
+/* 11. VOLKSWAGEN GOLF COUNTRY SYNCRO (1990 - VW Acid Green) */
+.dash-theme-golf_country {
+  background: radial-gradient(circle at 50% 0%, #15241b 0%, #080f0b 100%) !important;
+}
+.dash-theme-golf_country .pod-center {
+  background: linear-gradient(180deg, #101c15 0%, #080e0a 100%) !important;
+  border: 1px solid #203d29 !important;
+}
+.dash-theme-golf_country .cluster-brand-name {
+  color: #4ade80 !important;
+}
+.dash-theme-golf_country .gauge-needle {
+  stroke: #22c55e !important;
+}
+
+/* ==========================================================================
+   CUSTOM STEERING WHEELS PER CAR MODEL
+   ========================================================================== */
+.wheel-rim.wheel-alfa {
+  background: radial-gradient(circle, #8a4b18 0%, #4a2308 100%) !important;
+  border: 4px solid #3b1c04 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9), inset 0 2px 4px rgba(255, 255, 255, 0.25) !important;
+}
+.wheel-rim.wheel-alfa .wheel-spoke {
+  background: #cbd5e1 !important;
+}
+.wheel-rim.wheel-alfa .wheel-hub {
+  border-color: #22c55e !important;
+  background: #14532d !important;
+}
+
+.wheel-rim.wheel-delta {
+  background: radial-gradient(circle, #1a1a1a 0%, #050505 100%) !important;
+  border: 4px solid #262626 !important;
+  position: relative;
+}
+.wheel-rim.wheel-delta::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  width: 8px;
+  height: 4px;
+  background: #eab308;
+  box-shadow: 0 0 6px #eab308;
+}
+.wheel-rim.wheel-delta .wheel-hub {
+  border-color: #eab308 !important;
+}
+
+.wheel-rim.wheel-bmw .wheel-hub {
+  border-color: #38bdf8 !important;
+}
+.wheel-rim.wheel-bmw .spoke-bottom::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 6px;
+  height: 2px;
+  background: linear-gradient(90deg, #38bdf8 33%, #1e40af 33%, #1e40af 66%, #ef4444 66%);
+}
+
+.wheel-rim.wheel-mercedes .wheel-hub {
+  border-color: #cbd5e1 !important;
+}
+
+/* Veglia Analog Clock Needles (Fiat Panda 4x4) */
+.clock-needle-hour {
+  stroke: #ffffff !important;
+  stroke-width: 3.5 !important;
+  stroke-linecap: square !important;
+  transform-origin: 60px 60px;
+  transition: transform 0.2s ease-out;
+}
+.clock-needle-min {
+  stroke: #f97316 !important;
+  stroke-width: 2.2 !important;
+  stroke-linecap: round !important;
+  transform-origin: 60px 60px;
+  transition: transform 0.2s ease-out;
+}
+
+/* Auxiliary 52mm Turbo Boost Gauge Housing */
+.turbo-mini-gauge {
+  width: 58px;
+  height: 58px;
+  background: radial-gradient(circle, #1a2129 0%, #0a0d10 100%);
+  border: 2px solid #eab308;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), inset 0 1px 4px rgba(0,0,0,0.9);
+  margin-top: 4px;
+}
+.turbo-mini-gauge .gauge-svg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.turbo-mini-val {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 800;
+  color: #facc15;
+  margin-top: 14px;
+  z-index: 2;
+}
+.turbo-mini-unit {
+  font-family: var(--font-tech);
+  font-size: 7px;
+  color: #94a3b8;
+  z-index: 2;
+  letter-spacing: 0.5px;
+}
+
+/* BMW Instant Econometer (L/100km) under tachometer */
+.bmw-econometer {
+  width: 82px;
+  height: 18px;
+  background: #080605;
+  border: 1px solid #381a0d;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  margin-top: 4px;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-tech);
+}
+.econ-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #22c55e 0%, #eab308 50%, #ef4444 100%);
+  opacity: 0.75;
+  transition: width 0.08s ease-out;
+}
+.econ-labels {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  color: #fdba74;
+  z-index: 2;
+  font-weight: bold;
+}
+
+/* Land Rover Defender LT230 Transfer Case Schematic */
+.lt230-transfer-schematic {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #080d0a;
+  border: 1px solid #1a291f;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  font-family: var(--font-tech);
+  font-size: 8px;
+}
+.lt230-chip {
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #111a14;
+  border: 1px solid #233729;
+  color: #64748b;
+}
+.lt230-chip.active-hi {
+  color: #86efac;
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.15);
+}
+.lt230-chip.active-lock {
+  color: #fca5a5;
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+/* Golf Country Syncro Viscous Slip Lamp & Aux Switch */
+.golf-syncro-widget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #08110b;
+  border: 1px solid #162e1d;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  font-family: var(--font-tech);
+}
+.syncro-slip-lamp {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8px;
+  color: #475569;
+  font-weight: bold;
+}
+.syncro-slip-lamp.slip-active {
+  color: #4ade80;
+  text-shadow: 0 0 8px #4ade80;
+  animation: syncro-flash 0.4s infinite alternate;
+}
+@keyframes syncro-flash {
+  0% { opacity: 0.4; }
+  100% { opacity: 1.0; }
+}
+.golf-bullbar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  color: #86efac;
+}
+.bullbar-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* ==========================================================================
+   STORY CAMPAIGN HUD TRACKER & CB RADIO OVERLAY
+   ========================================================================== */
+.story-objective-banner {
+  height: 28px;
+  background: linear-gradient(90deg, rgba(22, 28, 38, 0.98) 0%, rgba(13, 17, 24, 0.98) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  margin: 3px auto 2px auto;
+  width: 98%;
+  max-width: 98%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7), inset 0 0 12px rgba(245, 158, 11, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 25;
+}
+
+.story-objective-banner:hover {
+  border-color: #f59e0b;
+  background: linear-gradient(90deg, rgba(30, 38, 52, 0.98) 0%, rgba(17, 23, 33, 0.98) 100%);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+}
+
+.story-ch-badge {
+  background: #b45309;
+  color: #fff;
+  font-family: var(--font-tech);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.story-obj-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  padding: 0 10px;
+  overflow: hidden;
+}
+
+.story-target-icon {
+  font-size: 14px;
+  animation: pulse-target 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse-target {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.story-obj-desc {
+  font-size: 12px;
+  color: #f8fafc;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  letter-spacing: 0.3px;
+}
+
+.story-badge-action {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: #fbbf24;
+  font-weight: 800;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Floating Incoming CB Radio Transmission Overlay */
+.cb-radio-dispatch-overlay {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 640px;
+  background: rgba(10, 15, 22, 0.98);
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(34, 197, 94, 0.4);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: cb-slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cb-slide-down {
+  0% { opacity: 0; transform: translate(-50%, -20px) scale(0.96); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.cb-overlay-header {
+  height: 32px;
+  background: #111a24;
+  border-bottom: 1px solid #1c2e22;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.cb-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cb-red-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: cb-blink-rec 0.8s infinite alternate;
+}
+
+@keyframes cb-blink-rec {
+  0% { opacity: 0.3; }
+  100% { opacity: 1.0; }
+}
+
+.cb-rec-text {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  font-weight: 800;
+  color: #22c55e;
+  letter-spacing: 1px;
+}
+
+.cb-channel-badge {
+  background: #15803d;
+  color: #fff;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.cb-dismiss-btn {
+  background: transparent;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  font-family: var(--font-tech);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cb-dismiss-btn:hover {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-color: #64748b;
+}
+
+.cb-overlay-body {
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.cb-avatar-box {
+  width: 44px;
+  height: 44px;
+  background: #182230;
+  border: 1.5px solid #22c55e;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.25);
+  flex-shrink: 0;
+}
+
+.cb-text-box {
+  flex: 1;
+}
+
+.cb-speaker-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cb-speaker-line strong {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+}
+
+.cb-callsign-tag {
+  font-family: monospace;
+  font-size: 10px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.cb-message-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #86efac;
+  font-family: monospace;
+  letter-spacing: 0.2px;
+}
+
+/* Objective Completed Achievement Toast */
+.story-achievement-toast {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #15803d 0%, #166534 100%);
+  border: 1.5px solid #4ade80;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(74, 222, 128, 0.4);
+  border-radius: 6px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 96;
+  animation: toast-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toast-pop {
+  0% { opacity: 0; transform: translate(-50%, -15px) scale(0.9); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.toast-trophy {
+  font-size: 24px;
+}
+
+.toast-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.toast-header {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 800;
+  color: #fef08a;
+  letter-spacing: 1px;
+}
+
+.toast-desc {
+  font-size: 12px;
+  color: #f0fdf4;
+  font-weight: 600;
+}
+
+.btn-diary-switch {
+  border-color: #f59e0b !important;
+}
+
+.btn-diary-switch:hover {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+}
+
+
