@@ -20,6 +20,7 @@ func _ready():
     if camera and vehicle:
         camera.target_node = vehicle
         camera.road_generator = road_gen
+        camera.setup_initial_position()
         
     if hazard_mgr and road_gen:
         hazard_mgr.road_generator = road_gen

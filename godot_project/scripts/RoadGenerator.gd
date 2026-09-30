@@ -1,9 +1,9 @@
 extends Node3D
 class_name RoadGenerator
 
-# THE LONG MERIDIAN - Procedural Crowned Highway Generator (Godot 4)
-# Constructs a continuous, wide crowned highway ribbon with physical collision,
-# asphalt shader materials, drainage ditches, and roadside delineator posts.
+# THE LONG MERIDIAN - Procedural Crowned Highway & Countryside Generator (Godot 4)
+# Constructs a continuous crowned highway ribbon with physical collision,
+# stylized asphalt shader, grassy meadows, roadside guide posts, and pines.
 
 @export var road_material: ShaderMaterial
 @export var chunk_length: float = 120.0
@@ -15,6 +15,8 @@ var next_chunk_z: float = 0.0
 var last_chunk_x: float = 0.0
 var last_chunk_angle: float = 0.0
 
+var grass_material: StandardMaterial3D
+
 func _ready():
     # If no custom shader material assigned, load stylized asphalt shader
     if not road_material:
@@ -22,6 +24,11 @@ func _ready():
         road_material = ShaderMaterial.new()
         road_material.shader = shader
         
+    grass_material = StandardMaterial3D.new()
+    grass_material.albedo_color = Color(0.28, 0.42, 0.25, 1.0)
+    grass_material.roughness = 0.88
+    grass_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+    
     # Generate initial visible stretch of 6 chunks ahead
     for i in range(6):
         generate_chunk()
@@ -50,12 +57,18 @@ func generate_chunk():
     # Calculate geometric spine points with gentle highway curves and rolling hills
     for s in range(road_segments + 1):
         var z = start_z + float(s) * step_z
-        var y = sin(z * 0.015) * 2.2 + cos(z * 0.005) * 1.4
-        var width = base_width + sin(z * 0.035) * 0.6
+        var y = 0.0
+        var width = base_width
         
+        # Keep initial spawn area (first 50 meters) perfectly flat and straight
+        if z > 50.0:
+            var curve_z = z - 50.0
+            y = sin(curve_z * 0.015) * 2.2 + (cos(curve_z * 0.005) - 1.0) * 1.4
+            width = base_width + sin(curve_z * 0.035) * 0.6
+            
         points.append({ "x": cur_x, "y": y, "z": z, "width": width })
         
-        if s < road_segments:
+        if s < road_segments and z > 50.0:
             var curve_delta = (sin(z * 0.012) * 0.6 + sin(z * 0.004) * 0.9) * 0.055
             cur_angle += curve_delta
             cur_x += sin(cur_angle) * step_z * 0.42
@@ -79,18 +92,18 @@ func build_chunk_node(points: Array) -> Node3D:
     var root = Node3D.new()
     var num_pts = points.size()
     
+    # 1. Road surface
     var surface_tool = SurfaceTool.new()
     surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
     surface_tool.set_material(road_material)
     
+    # 2. Side meadows (grass)
+    var grass_tool = SurfaceTool.new()
+    grass_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+    grass_tool.set_material(grass_material)
+    
     var collision_faces = PackedVector3Array()
     
-    # 5 vertices across cross-section:
-    # 0: Left shoulder (u=0.0)
-    # 1: Left fog line (u=0.122)
-    # 2: Center crown (u=0.50, y+0.08)
-    # 3: Right fog line (u=0.878)
-    # 4: Right shoulder (u=1.0)
     for i in range(num_pts - 1):
         var p1 = points[i]
         var p2 = points[i + 1]
@@ -115,19 +128,35 @@ func build_chunk_node(points: Array) -> Node3D:
         var v2_3 = Vector3(p2.x + phw2, p2.y + 0.045, p2.z)
         var v2_4 = Vector3(p2.x + hw2, p2.y, p2.z)
         
-        # 4 quad segments across width (8 triangles)
+        # 4 road quad segments across width (8 triangles)
         add_quad(surface_tool, collision_faces, v1_0, v2_0, v2_1, v1_1, 0.0, 0.122, uv_y1, uv_y2)
         add_quad(surface_tool, collision_faces, v1_1, v2_1, v2_2, v1_2, 0.122, 0.500, uv_y1, uv_y2)
         add_quad(surface_tool, collision_faces, v1_2, v2_2, v2_3, v1_3, 0.500, 0.878, uv_y1, uv_y2)
         add_quad(surface_tool, collision_faces, v1_3, v2_3, v2_4, v1_4, 0.878, 1.000, uv_y1, uv_y2)
+        
+        # Left grass meadow (width 42m)
+        var grass_l1 = Vector3(p1.x - hw1 - 42.0, p1.y - 0.4, p1.z)
+        var grass_l2 = Vector3(p2.x - hw2 - 42.0, p2.y - 0.4, p2.z)
+        add_quad(grass_tool, collision_faces, grass_l1, grass_l2, v2_0, v1_0, 0.0, 1.0, uv_y1, uv_y2)
+        
+        # Right grass meadow (width 42m)
+        var grass_r1 = Vector3(p1.x + hw1 + 42.0, p1.y - 0.4, p1.z)
+        var grass_r2 = Vector3(p2.x + hw2 + 42.0, p2.y - 0.4, p2.z)
+        add_quad(grass_tool, collision_faces, v1_4, v2_4, grass_r2, grass_r1, 0.0, 1.0, uv_y1, uv_y2)
 
     surface_tool.generate_normals()
     var mesh = surface_tool.commit()
-    
     var mesh_instance = MeshInstance3D.new()
     mesh_instance.mesh = mesh
     mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     root.add_child(mesh_instance)
+    
+    grass_tool.generate_normals()
+    var grass_mesh = grass_tool.commit()
+    var grass_instance = MeshInstance3D.new()
+    grass_instance.mesh = grass_mesh
+    grass_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    root.add_child(grass_instance)
     
     # Physics static body with concave collision shape for wheel raycasts
     var static_body = StaticBody3D.new()
@@ -138,7 +167,44 @@ func build_chunk_node(points: Array) -> Node3D:
     static_body.add_child(col_shape)
     root.add_child(static_body)
     
+    # Roadside delineator posts and pines
+    spawn_roadside_props(root, points)
+    
     return root
+
+func spawn_roadside_props(root: Node3D, points: Array):
+    var post_mat = StandardMaterial3D.new()
+    post_mat.albedo_color = Color(0.92, 0.92, 0.92)
+    
+    var pine_mat = StandardMaterial3D.new()
+    pine_mat.albedo_color = Color(0.18, 0.32, 0.20)
+    
+    for i in range(0, points.size() - 1, 4):
+        var p = points[i]
+        var hw = p.width * 0.5
+        
+        # Delineator posts on left and right shoulder
+        for side in [-1.0, 1.0]:
+            var post = MeshInstance3D.new()
+            var cyl = CylinderMesh.new()
+            cyl.top_radius = 0.06; cyl.bottom_radius = 0.06; cyl.height = 0.9
+            cyl.material = post_mat
+            post.mesh = cyl
+            post.position = Vector3(p.x + side * (hw + 0.4), p.y + 0.45, p.z)
+            root.add_child(post)
+            
+            # Stylized pine tree in outer meadow
+            if i % 8 == 0:
+                var pine = Node3D.new()
+                var p_mesh = MeshInstance3D.new()
+                var cone = CylinderMesh.new()
+                cone.top_radius = 0.1; cone.bottom_radius = 1.6; cone.height = 4.2
+                cone.material = pine_mat
+                p_mesh.mesh = cone
+                p_mesh.position.y = 2.1
+                pine.add_child(p_mesh)
+                pine.position = Vector3(p.x + side * (hw + 9.0 + randf_range(-2.0, 4.0)), p.y - 0.2, p.z)
+                root.add_child(pine)
 
 func add_quad(st: SurfaceTool, col_faces: PackedVector3Array, a: Vector3, b: Vector3, c: Vector3, d: Vector3, u1: float, u2: float, v1: float, v2: float):
     # Triangle 1 (a, b, c)

@@ -8,20 +8,30 @@ class_name CameraController
 @export var target_node: Node3D
 @export var road_generator: Node3D
 
-@export var base_offset: Vector3 = Vector3(0.0, 20.8, -17.2)
-@export var base_lookahead: float = 21.0
-@export var pos_damping: float = 6.2
-@export var rot_damping: float = 4.5
+@export var base_offset: Vector3 = Vector3(0.0, 19.5, -16.0)
+@export var base_lookahead: float = 22.0
+@export var pos_damping: float = 6.8
+@export var rot_damping: float = 4.8
 
 var current_heading: float = 0.0
 var trauma: float = 0.0
 var shake_offset: Vector3 = Vector3.ZERO
+var initialized: bool = false
 
 func _ready():
+    current = true
     fov = 48.0
     if target_node:
-        position = target_node.position + base_offset
-        look_at(target_node.position + Vector3(0, 1.2, base_lookahead), Vector3.UP)
+        setup_initial_position()
+
+func setup_initial_position():
+    if not target_node: return
+    current = true
+    current_heading = 0.0
+    var target_pos = target_node.global_position
+    global_position = Vector3(target_pos.x, target_pos.y + base_offset.y, target_pos.z + base_offset.z)
+    look_at(Vector3(target_pos.x, target_pos.y + 1.2, target_pos.z + base_lookahead), Vector3.UP)
+    initialized = true
 
 func add_trauma(amount: float):
     trauma = clamp(trauma + amount, 0.0, 1.0)
@@ -29,6 +39,9 @@ func add_trauma(amount: float):
 func _process(delta: float):
     if not target_node:
         return
+        
+    if not initialized:
+        setup_initial_position()
         
     var target_pos = target_node.global_position
     var speed_ms = 0.0
@@ -41,23 +54,25 @@ func _process(delta: float):
     var target_fov = 48.0 + speed_ratio * 4.5
     fov = lerp(fov, target_fov, delta * 4.0)
     
-    # 2. Heading interpolation (blend road angle 70% and vehicle yaw 30%)
+    # 2. Heading interpolation (blend road curvature 70% and vehicle heading 30%)
     var road_angle = 0.0
     if road_generator and road_generator.has_method("get_road_info_at"):
         var r_info = road_generator.get_road_info_at(target_pos.z)
         if r_info.has("angle"):
             road_angle = r_info.angle
             
-    var vehicle_yaw = target_node.rotation.y
-    var effective_heading = road_angle * 0.70 + vehicle_yaw * 0.30
+    # Forward vector in world coordinates
+    var fwd = -target_node.global_transform.basis.z
+    var vehicle_heading = atan2(fwd.x, fwd.z)
+    var effective_heading = road_angle * 0.70 + vehicle_heading * 0.30
     
     var angle_diff = wrapf(effective_heading - current_heading, -PI, PI)
     current_heading += angle_diff * clamp(delta * rot_damping, 0.0, 1.0)
     
     # 3. Dynamic distance & lookahead
     var dynamic_dist = abs(base_offset.z) + speed_ratio * 3.5
-    var dynamic_height = base_offset.y + speed_ratio * 2.8
-    var dynamic_lookahead = base_lookahead + speed_ratio * 10.0
+    var dynamic_height = base_offset.y + speed_ratio * 2.5
+    var dynamic_lookahead = base_lookahead + speed_ratio * 9.0
     
     var sin_h = sin(current_heading)
     var cos_h = cos(current_heading)
@@ -87,7 +102,7 @@ func _process(delta: float):
         shake_offset = Vector3.ZERO
         
     # 5. Position & LookAt Damping
-    global_position.z = lerp(global_position.z, desired_pos.z, delta * 22.0)
+    global_position.z = lerp(global_position.z, desired_pos.z, delta * 24.0)
     global_position.x = lerp(global_position.x, desired_pos.x, delta * pos_damping)
     global_position.y = lerp(global_position.y, desired_pos.y, delta * pos_damping * 1.2)
     

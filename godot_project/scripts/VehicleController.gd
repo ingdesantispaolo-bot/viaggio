@@ -8,8 +8,8 @@ class_name VehicleController
 signal telemetry_updated(speed_kmh, rpm_norm, gear_str, fuel_l, temp_c, pitch_deg, roll_deg, is_4wd)
 
 @export_group("Drivetrain Specs")
-@export var max_engine_force: float = 460.0
-@export var max_brake_force: float = 65.0
+@export var max_engine_force: float = 880.0
+@export var max_brake_force: float = 95.0
 @export var max_steer_angle_deg: float = 29.0
 @export var is_4wd_engaged: bool = true
 @export var primina_crawler: bool = false
@@ -80,7 +80,7 @@ func _physics_process(delta: float):
     if Input.is_action_just_pressed("toggle_4wd"):
         is_4wd_engaged = !is_4wd_engaged
 
-    // Speed calculation
+    # Speed calculation
     current_speed_kmh = linear_velocity.length() * 3.6
     
     # 2. Progressive non-linear steering filter (speed-dependent)
@@ -95,9 +95,16 @@ func _physics_process(delta: float):
     # 4. Engine Torque & Drivetrain Distribution
     var current_ratio = GEAR_RATIOS[current_gear - 1]
     var engine_torque = throttle_input * max_engine_force * (current_ratio / 2.5)
+    var is_reversing = false
+    
+    # Reverse gear if holding brake at standstill
+    if brake_input > 0.3 and current_speed_kmh < 3.0:
+        is_reversing = true
+        engine_torque = -brake_input * max_engine_force * 0.55
+        gear_name = "R"
     
     # Fuel consumption
-    if throttle_input > 0.05:
+    if throttle_input > 0.05 or is_reversing:
         current_fuel = max(0.0, current_fuel - delta * 0.0035 * (engine_rpm / 3000.0))
         if current_fuel <= 0.0:
             engine_torque = 0.0
@@ -117,7 +124,7 @@ func _physics_process(delta: float):
         wheel_rr.engine_force = 0.0
         
     # 5. Braking & Handbrake
-    var brake_torque = brake_input * max_brake_force
+    var brake_torque = 0.0 if is_reversing else (brake_input * max_brake_force)
     if handbrake:
         brake_torque = max_brake_force * 1.8
         wheel_rl.brake = brake_torque
