@@ -1,0 +1,139 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/VehicleController.gd" id="1_script"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chassis"]
+size = Vector3(1.68, 0.95, 3.4)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Body"]
+albedo_color = Color(0.24, 0.36, 0.28, 1)
+roughness = 0.32
+metallic = 0.55
+clearcoat_enabled = true
+clearcoat = 0.65
+
+[sub_resource type="StandardMaterial3D" id="Mat_Glass"]
+albedo_color = Color(0.08, 0.11, 0.15, 0.85)
+roughness = 0.08
+metallic = 0.85
+transparency = 1
+
+[sub_resource type="StandardMaterial3D" id="Mat_Tire"]
+albedo_color = Color(0.09, 0.09, 0.10, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_Amber"]
+albedo_color = Color(1.0, 0.6, 0.0, 1)
+emission_enabled = true
+emission = Color(1.0, 0.6, 0.0, 1)
+emission_energy_multiplier = 2.5
+
+[sub_resource type="BoxMesh" id="Mesh_Body"]
+material = SubResource("Mat_Body")
+size = Vector3(1.65, 0.72, 3.3)
+
+[sub_resource type="BoxMesh" id="Mesh_Cabin"]
+material = SubResource("Mat_Glass")
+size = Vector3(1.45, 0.68, 1.95)
+
+[sub_resource type="CylinderMesh" id="Mesh_Wheel"]
+material = SubResource("Mat_Tire")
+top_radius = 0.32
+bottom_radius = 0.32
+height = 0.22
+radial_segments = 12
+
+[sub_resource type="BoxMesh" id="Mesh_Hazard"]
+material = SubResource("Mat_Amber")
+size = Vector3(0.12, 0.08, 0.06)
+
+[node name="Vehicle" type="VehicleBody3D"]
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
+shape = SubResource("BoxShape3D_chassis")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58, 0)
+mesh = SubResource("Mesh_Body")
+
+[node name="CabinMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.18, 0.15)
+mesh = SubResource("Mesh_Cabin")
+
+[node name="WheelFL" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0.32, -1.15)
+use_as_steering = true
+use_as_traction = true
+
+[node name="WheelMesh" type="MeshInstance3D" parent="WheelFL"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("Mesh_Wheel")
+
+[node name="WheelFR" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0.32, -1.15)
+use_as_steering = true
+use_as_traction = true
+
+[node name="WheelMesh" type="MeshInstance3D" parent="WheelFR"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("Mesh_Wheel")
+
+[node name="WheelRL" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0.32, 1.15)
+use_as_traction = true
+
+[node name="WheelMesh" type="MeshInstance3D" parent="WheelRL"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("Mesh_Wheel")
+
+[node name="WheelRR" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0.32, 1.15)
+use_as_traction = true
+
+[node name="WheelMesh" type="MeshInstance3D" parent="WheelRR"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("Mesh_Wheel")
+
+[node name="HeadlightL" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, -0.62, 0.65, -1.68)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 4.0
+spot_range = 42.0
+spot_angle = 32.0
+
+[node name="HeadlightR" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0.62, 0.65, -1.68)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 4.0
+spot_range = 42.0
+spot_angle = 32.0
+
+[node name="TaillightL" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.68, 0.72, 1.68)
+light_color = Color(1, 0.1, 0.1, 1)
+light_energy = 1.0
+omni_range = 3.5
+
+[node name="TaillightR" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68, 0.72, 1.68)
+light_color = Color(1, 0.1, 0.1, 1)
+light_energy = 1.0
+omni_range = 3.5
+
+[node name="HazardFL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76, 0.65, -1.65)
+mesh = SubResource("Mesh_Hazard")
+
+[node name="HazardFR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76, 0.65, -1.65)
+mesh = SubResource("Mesh_Hazard")
+
+[node name="HazardRL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76, 0.72, 1.65)
+mesh = SubResource("Mesh_Hazard")
+
+[node name="HazardRR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76, 0.72, 1.65)
+mesh = SubResource("Mesh_Hazard")

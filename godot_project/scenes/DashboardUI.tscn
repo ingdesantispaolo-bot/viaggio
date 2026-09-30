@@ -1,0 +1,163 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/DashboardUI.gd" id="1_script"]
+
+[node name="DashboardUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -180.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="SpeedBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 60.0
+offset_top = -65.0
+offset_right = 240.0
+offset_bottom = 65.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/SpeedBox"]
+layout_mode = 2
+text = "TACHIMETRO"
+
+[node name="LabelSpeed" type="Label" parent="Panel/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "  0"
+
+[node name="LabelUnit" type="Label" parent="Panel/SpeedBox"]
+layout_mode = 2
+text = "KM / H"
+
+[node name="RpmBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 270.0
+offset_top = -65.0
+offset_right = 430.0
+offset_bottom = 65.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/RpmBox"]
+layout_mode = 2
+text = "CONTAGIRI"
+
+[node name="LabelRPM" type="Label" parent="Panel/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "0.9"
+
+[node name="LabelUnit" type="Label" parent="Panel/RpmBox"]
+layout_mode = 2
+text = "RPM x1000"
+
+[node name="GearBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -60.0
+offset_right = 160.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="LabelTitle" type="Label" parent="Panel/GearBox"]
+layout_mode = 2
+text = "VEGLIA BORLETTI - TRASMISSIONE"
+horizontal_alignment = 1
+
+[node name="LabelGear" type="Label" parent="Panel/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "D1"
+horizontal_alignment = 1
+
+[node name="Label4WD" type="Label" parent="Panel/GearBox"]
+layout_mode = 2
+text = "4WD STEYR INSERITA [50:50]"
+horizontal_alignment = 1
+
+[node name="TelemetryBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -60.0
+offset_right = -180.0
+offset_bottom = 60.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LabelFuel" type="Label" parent="Panel/TelemetryBox"]
+layout_mode = 2
+text = "SERBATOIO CARBURANTE"
+
+[node name="ProgressFuel" type="ProgressBar" parent="Panel/TelemetryBox"]
+layout_mode = 2
+max_value = 35.0
+value = 28.5
+
+[node name="LabelTemp" type="Label" parent="Panel/TelemetryBox"]
+layout_mode = 2
+text = "82°C (LIQUIDO REFRIGERANTE)"
+
+[node name="ClinoBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -50.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LabelClinoTitle" type="Label" parent="Panel/ClinoBox"]
+layout_mode = 2
+text = "CLINOMETRO"
+
+[node name="LabelClino" type="Label" parent="Panel/ClinoBox"]
+layout_mode = 2
+text = "PITCH: 00° | ROLL: 00°"
+
+[node name="BtnFullscreen" type="Button" parent="Panel"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -110.0
+offset_top = 10.0
+offset_right = -15.0
+offset_bottom = 35.0
+grow_horizontal = 0
+text = "FULLSCREEN [F11]"
