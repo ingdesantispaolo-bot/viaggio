@@ -32,5 +32,18 @@
 
   <!-- Standalone Game Bundle (Runs directly offline or online) -->
   <script src="./bundle.js"></script>
+  <script>
+    // Desktop Fullscreen Mode toggle (F11 or Alt+Enter)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F11' || (e.altKey && e.key === 'Enter')) {
+        e.preventDefault();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    });
+  </script>
 </body>
 </html>
