@@ -65,14 +65,14 @@ export class StoryDiaryModal {
           <div class="diary-tab-pane" id="pane-diary-notes" style="display: none;">
             <div class="notes-intro-banner">
               <span class="engineer-stamp">APPUNTI DI VIAGGIO • ING. PAOLO</span>
-              <p>Osservazioni tecniche su metallurgia sottozero, cicli termici dei motori d'epoca e segreti dei relitti lungo la Dalton Highway.</p>
+              <p>Osservazioni tecniche su cinematica dei terreni, dissipazione termica dei freni e segreti dei relitti lungo il Grande Meridiano.</p>
             </div>
             <div class="engineer-notes-grid" id="engineer-notes-grid"></div>
           </div>
         </div>
 
         <div class="modal-footer diary-footer">
-          <div class="diary-status-motto">HAUL ROAD EXPEDITION LOG • TRANS-ALASKA PIPELINE SYSTEM</div>
+          <div class="diary-status-motto">SPEDIZIONE IL GRANDE MERIDIANO • ATTRAVERSO GLI 8 BIOMI NATURALI DELLA TERRA</div>
           <button class="btn-primary-action" id="btn-close-diary-bottom">TORNA AL COCKPIT</button>
         </div>
       </div>
@@ -220,7 +220,7 @@ export class StoryDiaryModal {
         <div class="dossier-tag-row">
           <span class="dossier-ch-badge">CAPITOLO ${ch.number}</span>
           <span class="dossier-status-pill ${isCompleted ? 'completed' : isCurrent ? 'current' : 'locked'}">
-            ${isCompleted ? 'COMPLETATO' : isCurrent ? 'ATTIVO SULLA DALTON' : 'NON ANCORA RAGGIUNTO'}
+            ${isCompleted ? 'COMPLETATO' : isCurrent ? 'ATTIVO SULLA ROTTA' : 'NON ANCORA RAGGIUNTO'}
           </span>
         </div>
         <h2 class="dossier-ch-title">${ch.bannerIcon} ${ch.title}</h2>
@@ -283,7 +283,7 @@ export class StoryDiaryModal {
       list.innerHTML = `
         <div class="empty-radio-box">
           <div class="empty-icon">📻</div>
-          <div class="empty-text">Nessuna trasmissione ricevuta. Accendi il motore e mettiti in marcia lungo la Dalton per captare i segnali sul Canale 19!</div>
+          <div class="empty-text">Nessuna trasmissione ricevuta. Accendi il motore e mettiti in marcia lungo il Grande Meridiano per captare i segnali sul Canale 19!</div>
         </div>
       `;
       return;

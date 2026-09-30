@@ -12,7 +12,7 @@ export class MeridianAtlasModal {
     this.audioEngine = audioEngine;
 
     this.isOpen = false;
-    this.selectedBiomeId = 'rusty_periphery';
+    this.selectedBiomeId = 'mediterranean_coast';
     this.element = null;
 
     this.buildModal();
@@ -26,7 +26,7 @@ export class MeridianAtlasModal {
     this.element.innerHTML = `
       <div class="game-modal-window atlas-window">
         <div class="modal-header">
-          <div class="modal-title">🗺️ ATLANTE DELLA DALTON HIGHWAY (ALASKA ROUTE 11)</div>
+          <div class="modal-title">🗺️ ATLANTE DELLA SPEDIZIONE IL GRANDE MERIDIANO (TRANS-EARTH CORRIDOR)</div>
           <button class="modal-close-btn" id="btn-close-atlas">✕</button>
         </div>
 
@@ -38,10 +38,10 @@ export class MeridianAtlasModal {
           <div class="atlas-dossier-panel">
             <div class="dossier-header-strip">
               <div class="dossier-titles">
-                <h2 id="dossier-biome-name">FOX & GOLDSTREAM VALLEY</h2>
-                <div class="dossier-sub" id="dossier-biome-sub">Settore 0 — MP 0 - 56 [PK 0.0 - 0.65 KM]</div>
+                <h2 id="dossier-biome-name">COSTA MEDITERRANEA</h2>
+                <div class="dossier-sub" id="dossier-biome-sub">Settore 0 — [PK 0.0 - 0.65 KM]</div>
               </div>
-              <div class="dossier-badge" id="dossier-settlement-badge">FOX JUNCTION</div>
+              <div class="dossier-badge" id="dossier-settlement-badge">PORTO DI SAN VITO</div>
             </div>
 
             <div class="dossier-scroll-content">
@@ -79,7 +79,7 @@ export class MeridianAtlasModal {
         </div>
 
         <div class="modal-footer">
-          <div class="atlas-status-note">THE HAUL ROAD LOGBOOK — ALASKA DEPT OF TRANSPORTATION & TAPS CORRIDOR</div>
+          <div class="atlas-status-note">IL GRANDE MERIDIANO — SPEDIZIONE ATTRAVERSO GLI 8 BIOMI NATURALI DELLA TERRA (5.200M)</div>
           <button class="btn-primary-action" id="btn-close-atlas-bottom">TORNA AL COCKPIT</button>
         </div>
       </div>

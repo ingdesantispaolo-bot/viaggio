@@ -39,15 +39,22 @@ export class SurvivalState {
       this.health = Math.max(0, this.health - delta * 1.5);
     }
 
-    // Environmental Exposure (Cold / Radiation)
+    // Environmental Exposure (Cold / Heat / Radiation)
     if (!isInsideVehicle) {
       if (currentBiome.coldDanger) {
         this.bodyTemp = Math.max(32.0, this.bodyTemp - delta * 0.15);
         if (this.bodyTemp < 35.0) {
           this.health = Math.max(0, this.health - delta * CONFIG.SURVIVAL.FREEZING_TEMP_DAMAGE);
         }
+      } else if (currentBiome.heatDanger) {
+        // Desert heat exhaustion: accelerated thirst & hyperthermia
+        this.thirst = Math.max(0, this.thirst - CONFIG.SURVIVAL.THIRST_RATE * 2.2 * delta);
+        this.bodyTemp = Math.min(41.5, this.bodyTemp + delta * 0.12);
+        if (this.bodyTemp > 39.0) {
+          this.health = Math.max(0, this.health - delta * 1.6);
+        }
       } else {
-        // Recover body temp gradually
+        // Recover body temp gradually toward normal 37.0°C
         this.bodyTemp = THREE.MathUtils.lerp(this.bodyTemp, 37.0, delta * 0.2);
       }
 
@@ -58,7 +65,10 @@ export class SurvivalState {
         }
       }
     } else {
-      // Inside vehicle provides shelter & warmth
+      // Inside vehicle provides shelter, shade & cabin ventilation
+      if (currentBiome.heatDanger) {
+        this.thirst = Math.max(0, this.thirst - CONFIG.SURVIVAL.THIRST_RATE * 1.35 * delta);
+      }
       this.bodyTemp = THREE.MathUtils.lerp(this.bodyTemp, 37.0, delta * 0.4);
     }
 
@@ -70,14 +80,17 @@ export class SurvivalState {
   }
 
   consumeItem(itemId) {
-    if (itemId === 'ration_pack' || itemId === 'canned_stew') {
-      this.hunger = Math.min(CONFIG.SURVIVAL.MAX_HUNGER, this.hunger + 45);
+    if (itemId === 'ration_pack' || itemId === 'canned_stew' || itemId === 'dried_dates') {
+      this.hunger = Math.min(CONFIG.SURVIVAL.MAX_HUNGER, this.hunger + (itemId === 'dried_dates' ? 35 : 45));
       this.health = Math.min(CONFIG.SURVIVAL.MAX_HEALTH, this.health + 10);
       this.audioEngine.playLootPickup();
       return true;
     }
-    if (itemId === 'water_bottle' || itemId === 'water_purified') {
+    if (itemId === 'water_bottle' || itemId === 'water_purified' || itemId === 'coconut_water' || itemId === 'hot_tea') {
       this.thirst = Math.min(CONFIG.SURVIVAL.MAX_THIRST, this.thirst + 55);
+      if (itemId === 'hot_tea') {
+        this.bodyTemp = Math.min(38.0, this.bodyTemp + 0.8);
+      }
       this.audioEngine.playLootPickup();
       return true;
     }

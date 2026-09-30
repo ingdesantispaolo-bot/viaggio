@@ -98,11 +98,56 @@ export class RoadGenerator {
     const surface = this.biomeManager.getCurrentSurface(startZ);
     const biome = this.biomeManager.currentBiome;
 
-    // Generous 24m highway width across all biomes (2 wide lanes + emergency shoulders)
+    // Calibrated highway width & elevation profiles across all 8 natural biomes
     let baseWidth = CONFIG.WORLD.BASE_ROAD_WIDTH || 24.0;
-    if (biome.id === 'iron_gorge') baseWidth = 20.0; // Mountain canyon pass
-    else if (biome.id === 'black_pine_woods') baseWidth = 24.0;
-    else if (biome.id === 'permafrost_highlands') baseWidth = 23.0;
+    let hillAmplitude = 1.8;
+    let curveIntensity = 0.06;
+
+    switch (biome.id) {
+      case 'mediterranean_coast':
+        baseWidth = 23.0;
+        hillAmplitude = 1.6;
+        curveIntensity = 0.07; // Scenic coastal bends
+        break;
+      case 'temperate_forest':
+        baseWidth = 24.0;
+        hillAmplitude = 2.4; // Rolling deciduous hills
+        curveIntensity = 0.055;
+        break;
+      case 'arid_desert':
+        baseWidth = 26.0; // Wide open desert corridor
+        hillAmplitude = 1.4; // Soft rolling dunes
+        curveIntensity = 0.04; // Long high-speed straights
+        break;
+      case 'savanna_steppe':
+        baseWidth = 25.0;
+        hillAmplitude = 1.5;
+        curveIntensity = 0.045;
+        break;
+      case 'tropical_rainforest':
+        baseWidth = 21.0; // Dense jungle channel
+        hillAmplitude = 2.0;
+        curveIntensity = 0.08; // Twisting river valley bends
+        break;
+      case 'alpine_peaks':
+        baseWidth = 19.5; // Mountain pass ledge
+        hillAmplitude = 4.2; // Steep alpine grade & passes
+        curveIntensity = 0.095; // Winding hairpins
+        break;
+      case 'boreal_taiga':
+        baseWidth = 24.0;
+        hillAmplitude = 1.8;
+        curveIntensity = 0.05;
+        break;
+      case 'polar_tundra':
+        baseWidth = 23.0; // Raised permafrost embankment
+        hillAmplitude = 1.2;
+        curveIntensity = 0.045;
+        break;
+      default:
+        baseWidth = 24.0;
+        break;
+    }
 
     const points = [];
     let curX = this.lastChunkX;
@@ -110,14 +155,13 @@ export class RoadGenerator {
 
     for (let s = 0; s <= segments; s++) {
       const z = startZ + s * stepZ;
-      const y = Math.sin(z * 0.018) * 1.1 + Math.cos(z * 0.006) * 1.8;
+      const y = Math.sin(z * 0.016) * hillAmplitude + Math.cos(z * 0.005) * (hillAmplitude * 0.6);
       const width = baseWidth + Math.sin(z * 0.035) * 0.8;
 
       points.push({ x: curX, y: y, z: z, width: width });
 
       if (s < segments) {
-        // Gentle, sweeping highway curves typical of real northern corridors
-        const curvatureDelta = (Math.sin(z * 0.012) * 0.5 + Math.sin(z * 0.004) * 1.1) * 0.06;
+        const curvatureDelta = (Math.sin(z * 0.012) * 0.5 + Math.sin(z * 0.004) * 1.1) * curveIntensity;
         curAngle += curvatureDelta;
         curX += Math.sin(curAngle) * stepZ * 0.45;
       }

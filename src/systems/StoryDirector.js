@@ -41,38 +41,38 @@ export class StoryDirector {
         id: 'ch_1',
         index: 0,
         number: 'I',
-        title: 'La Partenza da Fox & La Valle Dorata',
-        subtitle: 'Battesimo del Freddo nel Distretto Minerario [PK 0.0 - 0.65 KM]',
-        bannerIcon: '⛏️',
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        speakerAvatar: '🐻',
-        briefing: `Paolo, qui parla Orso Polare sul Canale 19. Il terminale petrolifero e scientifico di Deadhorse (70° Parallelo) è rimasto al buio per un blackout catastrofico. Nessun camion moderno con centraline elettroniche riesce a partire: l'impulso magnetico ha bruciato i semiconduttori. Tu hai una Fiat Panda 4x4 Steyr-Puch con motore aste e bilancieri: completamente analogica e leggera. Raccogli scorte a Fox e muoviti verso nord prima che la notte artica congeli il corridoio!`,
+        title: 'Le Coste del Mediterraneo & Il Porto di San Vito',
+        subtitle: 'L\'Avvio della Spedizione Trans-Continentale [PK 0.0 - 0.65 KM]',
+        bannerIcon: '🌊',
+        speaker: 'SOFIA MARETTI (CAPO SPEDIZIONE)',
+        speakerAvatar: '🧭',
+        briefing: `Ingegnere Paolo, qui parla Sofia Maretti sul Canale 19. Il blackout satellitare globale ha spento le centraline elettroniche in tutto il mondo: solo i veicoli a cinematica analogica possono viaggiare. La tua Fiat Panda 4x4 Steyr-Puch con motore ad aste e bilancieri è pronta sul molo di San Vito. Fai scorte d'olio, calibra i carburatori Weber e mettiti in marcia verso nord lungo le scogliere prima che cali la nebbia marina!`,
         targetPK: 650,
         rewards: {
           scrap: 35,
           items: [{ id: 'refined_fuel', count: 1 }, { id: 'first_aid_bandage', count: 2 }],
-          description: '35 Rottami • 1x Tanica Gasolio 20L • 2x Bende Mediche'
+          description: '35 Rottami • 1x Tanica Benzina 20L • 2x Bende Mediche'
         },
         objectives: [
           {
             id: 'ch1_obj_drive',
-            text: 'Mettiti in marcia e supera i primi 200 metri della Dalton Highway',
+            text: 'Mettiti in marcia e percorri i primi 200 metri lungo la costiera',
             type: 'distance',
             target: 200,
             unit: 'M',
             check: (ctx) => ctx.z >= 200
           },
           {
-            id: 'ch1_obj_visit_fox',
-            text: 'Raggiungi Fox Junction (PK 0.22 km) e ispeziona l\'insediamento minerario',
+            id: 'ch1_obj_visit_san_vito',
+            text: 'Raggiungi il Porto di San Vito (PK 0.22 km) e fai scorta al villaggio marinaro',
             type: 'visit_settlement',
-            targetKey: 'fox_junction',
+            targetKey: 'san_vito_harbor',
             targetPK: 220,
-            check: (ctx) => ctx.z >= 220 || ctx.visitedSettlements.has('fox_junction')
+            check: (ctx) => ctx.z >= 220 || ctx.visitedSettlements.has('san_vito_harbor') || ctx.visitedSettlements.has('fox_junction')
           },
           {
             id: 'ch1_obj_scrap',
-            text: 'Raccogli o baratta almeno 15 unità di rottami per rinforzi d\'emergenza',
+            text: 'Raccogli o baratta almeno 15 unità di rottami metallici per i rinforzi',
             type: 'scrap',
             target: 15,
             check: (ctx) => ctx.inventoryScrap >= 15
@@ -91,49 +91,48 @@ export class StoryDirector {
         id: 'ch_2',
         index: 1,
         number: 'II',
-        title: 'Il Gigante d\'Acciaio dello Yukon',
-        subtitle: 'Il Ponte E.L. Patton & La Pump Station 6 [PK 0.65 - 1.4 KM]',
+        title: 'Il Cuore Verde della Foresta Temperata & Il Mulino di Valbruna',
+        subtitle: 'Radici Umide, Querce Secolari & Il Bialbero Italiano [PK 0.65 - 1.30 KM]',
         bannerIcon: '🌲',
-        speaker: 'MASTRO JAREK (MECCANICO CAPO)',
+        speaker: 'MASTRO JAREK (MECCANICO DEL MULINO)',
         speakerAvatar: '🔧',
-        briefing: `Ingegnere Paolo! Ti sento gracchiante sul CB. Sono Jarek, vecchio meccanico polacco della Pump Station 6 sul fiume Yukon. Il ponte è ancora in piedi ma la foresta di picea nera sta cedendo per il disgelo dei versanti. La stazione ha bisogno di componenti per le valvole dell'oleodotto. Se mi porti rottami e pezzi di ricambio, ti consegno le coordinate di un vecchio granaio dove riposa una perla italiana: un'Alfa Giulia Super 1.6 Twin Cam abbandonata!`,
-        targetPK: 1400,
+        briefing: `Paolo! Ti ricevo forte e chiaro sul CB Midland Alan 48! Sono Jarek, vecchio meccanico del mulino idraulico di Valbruna. Il fondo nel bosco di faggi è morbido e scivoloso. Se mi porti rottami per riparare la turbina idraulica, ti mostrerò il fienile dove riposa una regina del Biscione: un'Alfa Romeo Giulia Super 1.6 Twin Cam pronta per tornare a ruggire!`,
+        targetPK: 1300,
         rewards: {
           scrap: 60,
           items: [{ id: 'toolkit', count: 1 }, { id: 'cured_timber', count: 2 }],
-          unlockVehicleHint: 'Alfa Romeo Giulia Super (Coordinate Granaio Yukon)',
-          description: '60 Rottami • 1x Cassetta Attrezzi Completa • Indizio Relitto Alfa Giulia'
+          unlockVehicleHint: 'Alfa Romeo Giulia Super (Coordinate Fienile di Valbruna)',
+          description: '60 Rottami • 1x Cassetta Attrezzi Completa • Sblocco Relitto Alfa Giulia Super'
         },
         objectives: [
           {
-            id: 'ch2_obj_cross_bridge',
-            text: 'Attraversa l\'imponente ponte d\'acciaio E.L. Patton sul fiume Yukon (PK 0.87 km)',
-            type: 'distance',
-            target: 870,
-            unit: 'M',
-            check: (ctx) => ctx.z >= 870
-          },
-          {
-            id: 'ch2_obj_visit_yukon',
-            text: 'Fermati alla Pump Station 6 dello Yukon e contatta Mastro Jarek',
+            id: 'ch2_obj_visit_valbruna',
+            text: 'Raggiungi il Mulino di Valbruna sul torrente montano (PK 0.87 km)',
             type: 'visit_settlement',
-            targetKey: 'yukon_crossing',
+            targetKey: 'valbruna_mill',
             targetPK: 870,
-            check: (ctx) => ctx.z >= 870 || ctx.visitedSettlements.has('yukon_crossing')
+            check: (ctx) => ctx.z >= 870 || ctx.visitedSettlements.has('valbruna_mill') || ctx.visitedSettlements.has('yukon_crossing')
           },
           {
             id: 'ch2_obj_scavenge_lumber',
-            text: 'Ispeziona il piazzale dei boscaioli (PK 1.04 km) per recuperare mastice e legname',
+            text: 'Ispeziona il piazzale boscaioli (PK 1.04 km) per recuperare legname stagionato',
             type: 'distance',
             target: 1040,
             check: (ctx) => ctx.z >= 1040
           },
           {
-            id: 'ch2_obj_reach_1300',
-            text: 'Avanza oltre il PK 1.35 km penetrando nella taiga dello Yukon',
+            id: 'ch2_obj_fuel_reserve',
+            text: 'Assicurati di avere almeno 20 litri di carburante nel serbatoio',
+            type: 'fuel',
+            target: 20,
+            check: (ctx) => ctx.fuelLevel >= 20
+          },
+          {
+            id: 'ch2_obj_reach_1250',
+            text: 'Avanza oltre il PK 1.25 km penetrando verso la soglia delle grandi terre aride',
             type: 'distance',
-            target: 1350,
-            check: (ctx) => ctx.z >= 1350
+            target: 1250,
+            check: (ctx) => ctx.z >= 1250
           }
         ]
       },
@@ -142,48 +141,46 @@ export class StoryDirector {
         id: 'ch_3',
         index: 2,
         number: 'III',
-        title: 'Il Pantano di Coldfoot & i Piedi Freddi',
-        subtitle: 'La Fossa Alluvionale del Muskeg & Slate Creek [PK 1.4 - 2.1 KM]',
-        bannerIcon: '🌧️',
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        speakerAvatar: '🐻',
-        briefing: `Attenzione a tutte le unità lungo il corridoio: le piane del fiume Koyukuk sono una trappola mortale. Il fango muskeg scioglie le banchine. Se corri sopra i 35 all'ora fuori asfalto spacchi il telaio per lo spanciamento! A Coldfoot Truck Stop un convoglio Mack si è impantanato. Portagli aiuto e fai scorta di carburante e pneumatici tassellati prima che il freddo si trasformi in gelo polare.`,
-        targetPK: 2100,
+        title: 'La Fornace del Gran Deserto & L\'Oasi di El Kantara',
+        subtitle: 'Dune Mobili, 48°C all\'Ombra & Sete del Radiatore [PK 1.30 - 1.95 KM]',
+        bannerIcon: '🐪',
+        speaker: 'TARIQ IBN-BATTUTA (GUIDA CAROVANIERA)',
+        speakerAvatar: '🏜️',
+        briefing: `Ingegnere, sei entrato nell'inferno del Gran Deserto. La sabbia finissima si insinua nei filtri aria e l'aria rovente a 48°C fa bollire il liquido di raffreddamento in salita. All'Oasi di El Kantara (PK 1.52 km) puoi riempire le taniche d'acqua potabile e barattare datteri e pezzi d'acciaio. Non accelerare bruscamente o scaverai la tua fossa nella sabbia viva!`,
+        targetPK: 1950,
         rewards: {
           scrap: 80,
-          items: [{ id: 'spare_tire', count: 1 }, { id: 'waterproofing_wax', count: 2 }],
-          unlockVehicleHint: 'Peugeot 504 Dangel 4x4 (Disponibile nel Parco Veicoli)',
-          description: '80 Rottami • 1x Pneumatico M+S Rinforzato • 2x Cera Impermeabilizzante'
+          items: [{ id: 'water_purified', count: 2 }, { id: 'spare_tire', count: 1 }],
+          description: '80 Rottami • 2x Bottiglioni Acqua Purificata • 1x Pneumatico Rinforzato Sabbia'
         },
         objectives: [
           {
-            id: 'ch3_obj_reach_coldfoot',
-            text: 'Raggiungi il celebre Coldfoot Truck Stop a Slate Creek (PK 1.52 km)',
+            id: 'ch3_obj_reach_oasis',
+            text: 'Raggiungi l\'Oasi di El Kantara tra le palme e l\'antico pozzo (PK 1.52 km)',
             type: 'visit_settlement',
-            targetKey: 'coldfoot_camp',
+            targetKey: 'elkantara_oasis',
             targetPK: 1520,
-            check: (ctx) => ctx.z >= 1520 || ctx.visitedSettlements.has('coldfoot_camp')
+            check: (ctx) => ctx.z >= 1520 || ctx.visitedSettlements.has('elkantara_oasis') || ctx.visitedSettlements.has('coldfoot_camp')
           },
           {
-            id: 'ch3_obj_inspect_overturned',
-            text: 'Individua l\'autocisterna Mack semi-affondata nel fango a PK 1.82 km',
+            id: 'ch3_obj_inspect_wreck',
+            text: 'Individua l\'autocarro Berliet sabbiato tra le dune a PK 1.72 km',
             type: 'distance',
-            target: 1820,
-            check: (ctx) => ctx.z >= 1820
+            target: 1720,
+            check: (ctx) => ctx.z >= 1720
           },
           {
-            id: 'ch3_obj_fuel_reserve',
-            text: 'Assicurati di avere almeno 25 litri di carburante per la salita del Circolo Polare',
-            type: 'fuel',
-            target: 25,
-            check: (ctx) => ctx.fuelLevel >= 25
+            id: 'ch3_obj_thirst_check',
+            text: 'Mantieni l\'idratazione corporea e non farti sopraffare dal caldo del deserto',
+            type: 'survival',
+            check: (ctx) => ctx.thirst >= 40
           },
           {
-            id: 'ch3_obj_reach_2050',
-            text: 'Valica le piane alluvionali di Koyukuk e tocca il PK 2.05 km',
+            id: 'ch3_obj_reach_1900',
+            text: 'Attraversa l\'erg sabbioso e tocca la soglia della savana a quota PK 1.90 km',
             type: 'distance',
-            target: 2050,
-            check: (ctx) => ctx.z >= 2050
+            target: 1900,
+            check: (ctx) => ctx.z >= 1900
           }
         ]
       },
@@ -192,47 +189,48 @@ export class StoryDirector {
         id: 'ch_4',
         index: 3,
         number: 'IV',
-        title: 'L\'Orizzonte Ionico del 66° Parallelo',
-        subtitle: 'La Base Radar DEW Line White Alice & Circolo Polare [PK 2.1 - 2.8 KM]',
-        bannerIcon: '📡',
-        speaker: 'ELENA VANCE (SCIENZIATA DEADHORSE)',
-        speakerAvatar: '👩‍🔬',
-        briefing: `...crk... Paolo! Ricevo il segnale CB del tuo Alan 48! Qui è Elena Vance dal terminale di Prudhoe Bay. Le aurore solari hanno innescato una tempesta ionica micidiale. Gli alternatori rischiano il sovraccarico e le luci ballano. A Chandalar Shelf (PK 2.17 km) c'è la vecchia parabola troposferica White Alice della Guerra Fredda: riallinea i ripetitori per consentirci di guidarti attraverso il valico montuoso!`,
-        targetPK: 2800,
+        title: 'La Savana Infinita & L\'Avamposto del Serengeti',
+        subtitle: 'Piste di Laterite Rossa & La Leggenda del Dangel 4x4 [PK 1.95 - 2.60 KM]',
+        bannerIcon: '🦁',
+        speaker: 'RANGER KIBWE (GUARDAPARCO SERENGETI)',
+        speakerAvatar: '🦒',
+        briefing: `Jambo Paolo! Qui è il Ranger Kibwe dall'avamposto del Serengeti. La terra rossa lateritica è piena di buche e corrugazioni ondulate che spaccano i braccetti delle sospensioni. Mantieni una traiettoria fluida tra i baobab secolari. Nel nostro hangar c'è un leggendario Peugeot 504 Dangel 4x4: portaci ricambi per il generatore solare e ti consegneremo le coordinate!`,
+        targetPK: 2600,
         rewards: {
           scrap: 110,
-          items: [{ id: 'graphene_battery', count: 1 }, { id: 'electronics', count: 2 }],
-          unlockVehicleHint: 'BMW Serie 3 E30 Rally Spec (Relitto Altopiano)',
-          description: '110 Rottami • 1x Batteria al Grafene • 2x Componenti Elettronici Schermati'
+          items: [{ id: 'reinforced_coil', count: 1 }, { id: 'graphene_battery', count: 1 }],
+          unlockVehicleHint: 'Peugeot 504 Dangel 4x4 (Disponibile nel Parco Fuoristrada)',
+          description: '110 Rottami • 1x Molla Sospensione Rinforzata • Sblocco Peugeot 504 Dangel'
         },
         objectives: [
           {
-            id: 'ch4_obj_arctic_circle',
-            text: 'Vapora il Cancello del Circolo Polare Artico (Latitudine 66° 33\' N, PK 2.17 km)',
-            type: 'distance',
-            target: 2170,
-            check: (ctx) => ctx.z >= 2170
+            id: 'ch4_obj_reach_serengeti',
+            text: 'Raggiungi l\'Avamposto Ranger del Serengeti e rifornisciti alla torre (PK 2.17 km)',
+            type: 'visit_settlement',
+            targetKey: 'serengeti_outpost',
+            targetPK: 2170,
+            check: (ctx) => ctx.z >= 2170 || ctx.visitedSettlements.has('serengeti_outpost') || ctx.visitedSettlements.has('chandalar_shelf')
           },
           {
-            id: 'ch4_obj_dew_line',
-            text: 'Raggiungi la gigantesca Parabola Radar White Alice di Chandalar Shelf (PK 2.32 km)',
+            id: 'ch4_obj_baobab_pass',
+            text: 'Oltrepassa il bosco monumentale dei grandi Baobab a PK 2.34 km',
             type: 'distance',
-            target: 2320,
-            check: (ctx) => ctx.z >= 2320
+            target: 2340,
+            check: (ctx) => ctx.z >= 2340
           },
           {
-            id: 'ch4_obj_trooper_gate',
-            text: 'Supera il posto di blocco Alaska State Troopers del Parallelo 66° (PK 2.48 km)',
-            type: 'distance',
-            target: 2480,
-            check: (ctx) => ctx.z >= 2480
+            id: 'ch4_obj_scrap_stock',
+            text: 'Accumula almeno 35 unità di rottami per fortificare i bracci delle ruote',
+            type: 'scrap',
+            target: 35,
+            check: (ctx) => ctx.inventoryScrap >= 35
           },
           {
-            id: 'ch4_obj_reach_2750',
-            text: 'Sopravvivi alle tempeste ioniche e raggiungi i piedi delle montagne Brooks (PK 2.75 km)',
+            id: 'ch4_obj_reach_2550',
+            text: 'Supera la steppa dorata e preparati all\'ingresso nella foresta equatoriale (PK 2.55 km)',
             type: 'distance',
-            target: 2750,
-            check: (ctx) => ctx.z >= 2750
+            target: 2550,
+            check: (ctx) => ctx.z >= 2550
           }
         ]
       },
@@ -241,48 +239,48 @@ export class StoryDirector {
         id: 'ch_5',
         index: 4,
         number: 'V',
-        title: 'Il Calvario dell\'Atigun Pass (The Shelf)',
-        subtitle: '1.444 Metri sul Continental Divide & Falesie di Ardesia [PK 2.8 - 3.4 KM]',
-        bannerIcon: '⛰️',
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        speakerAvatar: '🐻',
-        briefing: `Paolo, stai per affrontare 'The Shelf', il passo più alto e feroce dell'Alaska. 12% di pendenza continua, ardesia affilata come rasoi e raffiche a 140 km/h. Se il radiatore sale a 110 gradi fondi la testata prima del tornante. Inserisci la trazione integrale o la marcia corta, evita i massi caduti dalla parete e non fermarti mai sulla pendenza o scivolerai a valle!`,
-        targetPK: 3400,
+        title: 'L\'Inferno Smeraldo della Foresta Pluviale Equatoriale',
+        subtitle: 'Monsoni Torrenziali, Fango Argilloso & Stazione Rio Verde [PK 2.60 - 3.25 KM]',
+        bannerIcon: '🌿',
+        speaker: 'DOTT.SSA MAYA GOMEZ (STAZIONE RIO VERDE)',
+        speakerAvatar: '👩‍🔬',
+        briefing: `Paolo! Le piogge monsoniche hanno gonfiato i guadi della giungla equatoriale! Il fango argilloso ha un coefficiente di trazione bassissimo: inserisci la trazione integrale e fai cantare il motore per non allagare lo scarico. La stazione botanica di Rio Verde su palafitte (PK 2.82 km) ha bisogno di medicinali e cinghie di trasmissione. Guida con precisione chirurgica!`,
+        targetPK: 3250,
         rewards: {
-          scrap: 150,
-          items: [{ id: 'reinforced_coil', count: 1 }, { id: 'armor_plate', count: 2 }],
-          unlockVehicleHint: 'Land Rover Defender 110 Tdi (Veicolo del Soccorso Alpino DOT)',
-          description: '150 Rottami • 1x Balestra da Carico Pesante • 2x Piastre Blindate'
+          scrap: 140,
+          items: [{ id: 'waterproofing_wax', count: 2 }, { id: 'armor_plate', count: 2 }],
+          unlockVehicleHint: 'BMW Serie 3 E30 Rally (Relitto Esploratori Rio Verde)',
+          description: '140 Rottami • 2x Cera Idrorepellente • 2x Piastre Blindatura Fondo'
         },
         objectives: [
           {
-            id: 'ch5_obj_reach_atigun_camp',
-            text: 'Conquista l\'Atigun Pass High Camp incastonato nelle falesie scistose (PK 2.82 km)',
+            id: 'ch5_obj_reach_rioverde',
+            text: 'Raggiungi la Stazione Scientifica di Rio Verde su palafitte (PK 2.82 km)',
             type: 'visit_settlement',
-            targetKey: 'atigun_camp',
+            targetKey: 'rioverde_station',
             targetPK: 2820,
-            check: (ctx) => ctx.z >= 2820 || ctx.visitedSettlements.has('atigun_camp')
+            check: (ctx) => ctx.z >= 2820 || ctx.visitedSettlements.has('rioverde_station') || ctx.visitedSettlements.has('atigun_camp')
           },
           {
-            id: 'ch5_obj_inspect_quarry',
-            text: 'Oltrepassa la cava frantumatori di ardesia DOT sul valico (PK 2.96 km)',
+            id: 'ch5_obj_cross_canopy',
+            text: 'Attraversa il guado alluvionale sotto le chiome dei giganti della giungla (PK 3.02 km)',
             type: 'distance',
-            target: 2960,
-            check: (ctx) => ctx.z >= 2960
+            target: 3020,
+            check: (ctx) => ctx.z >= 3020
           },
           {
-            id: 'ch5_obj_climb_summit',
-            text: 'Supera il punto più alto del Continental Divide (1.444m, PK 3.12 km) senza distruggere lo scafo',
+            id: 'ch5_obj_hull_health',
+            text: 'Sopravvivi alle correnti e mantieni l\'integrità dello scafo sopra il 50%',
             type: 'distance_hull',
             target: 3120,
-            check: (ctx) => ctx.z >= 3120 && ctx.hullPercent >= 45
+            check: (ctx) => ctx.z >= 3120 && ctx.hullPercent >= 50
           },
           {
-            id: 'ch5_obj_reach_3350',
-            text: 'Scendi lungo il versante nord del valico toccando quota PK 3.35 km',
+            id: 'ch5_obj_reach_3200',
+            text: 'Sbuca dalla densa coltre pluviale ai piedi della catena montuosa alpina (PK 3.20 km)',
             type: 'distance',
-            target: 3350,
-            check: (ctx) => ctx.z >= 3350
+            target: 3200,
+            check: (ctx) => ctx.z >= 3200
           }
         ]
       },
@@ -291,133 +289,261 @@ export class StoryDirector {
         id: 'ch_6',
         index: 5,
         number: 'VI',
-        title: 'L\'Ultima Corsa sul Mare di Beaufort',
-        subtitle: 'Prudhoe Bay, Ghiaccio Nero a -45°C & Vittoria Polare [PK 3.4 - 3.8+ KM]',
-        bannerIcon: '❄️',
-        speaker: 'ELENA VANCE & L\'INTERO CONVOGLIO',
-        speakerAvatar: '🏆',
-        briefing: `Paolo! Sei sbucato dalle montagne Brooks! Ti vediamo dai binocoli della torre di Deadhorse! Il termometro segna -46°C e la bufera di neve ha coperto la strada di ghiaccio vivo. Non spegnere il motore per nessun motivo, altrimenti l'olio diventa catrame solido in tre minuti! Porta la macchina all'hangar centrale di Deadhorse: sei a un passo dalla leggenda della Haul Road!`,
-        targetPK: 3800,
+        title: 'La Muraglia di Granito delle Cime Alpine',
+        subtitle: 'Pendenze al 14%, Tornanti a Gomito & Rifugio Aquile [PK 3.25 - 3.90 KM]',
+        bannerIcon: '⛰️',
+        speaker: 'GOTTFRIED (SOCCORSO ALPINO VALICHI)',
+        speakerAvatar: '🧗',
+        briefing: `Grüß Gott, Ingegnere! Qui parla Gottfried dal Rifugio del Valico delle Aquile. Sei a quota 2.600 metri: tornanti a gomito con pendenze al 14%, ghiaioni instabili e falesie di granito a picco. In discesa usa sempre il freno motore e la seconda marcia per non cuocere i tamburi! Al rifugio (PK 3.47 km) c'è la galleria paravalanghe dove troverai riparo dai massi e una Land Rover Defender del soccorso alpino!`,
+        targetPK: 3900,
         rewards: {
-          scrap: 250,
-          items: [{ id: 'cryo_coolant', count: 2 }, { id: 'thermal_lining', count: 2 }],
-          unlockVehicleHint: 'Lancia Delta HF Integrale Evoluzione (Campione del Mondo Rally)',
-          description: '250 Rottami • 2x Glicole Criogenico • SBLOCCO SUPREMO LANCIA DELTA INTEGRALE'
+          scrap: 180,
+          items: [{ id: 'toolkit', count: 1 }, { id: 'cryo_coolant', count: 1 }],
+          unlockVehicleHint: 'Land Rover Defender 110 Tdi (Veicolo del Soccorso Alpino)',
+          description: '180 Rottami • 1x Cassetta Attrezzi da Corsa • Sblocco Defender 110 Tdi'
         },
         objectives: [
           {
-            id: 'ch6_obj_reach_deadhorse',
-            text: 'Raggiungi il monumentale Deadhorse Terminal sulle sponde dell\'Oceano Artico (PK 3.47 km)',
+            id: 'ch6_obj_reach_aquile',
+            text: 'Conquista il Valico delle Aquile e fermati al rifugio alpino (PK 3.47 km)',
             type: 'visit_settlement',
-            targetKey: 'deadhorse_terminal',
+            targetKey: 'valico_aquile',
             targetPK: 3470,
-            check: (ctx) => ctx.z >= 3470 || ctx.visitedSettlements.has('deadhorse_terminal')
+            check: (ctx) => ctx.z >= 3470 || ctx.visitedSettlements.has('valico_aquile') || ctx.visitedSettlements.has('deadhorse_terminal')
           },
           {
-            id: 'ch6_obj_polar_shelter',
-            text: 'Oltrepassa la capsula rifugio spazzaneve Arctic Cat a PK 3.62 km',
+            id: 'ch6_obj_avalanche_tunnel',
+            text: 'Attraversa la galleria paravalanghe in cemento armato a PK 3.65 km',
             type: 'distance',
-            target: 3620,
-            check: (ctx) => ctx.z >= 3620
+            target: 3650,
+            check: (ctx) => ctx.z >= 3650
           },
           {
-            id: 'ch6_obj_radio_lighthouse',
-            text: 'Taglia il traguardo al Faro Radio Terminale del Mar Glaciale Artico (PK 3.78 km)',
+            id: 'ch6_obj_brake_temp',
+            text: 'Scendi lungo il versante nord senza far salire eccessivamente la temperatura motore',
             type: 'distance',
             target: 3780,
             check: (ctx) => ctx.z >= 3780
           },
           {
-            id: 'ch6_obj_complete_expedition',
-            text: 'Consegna la spedizione artica e conquista il titolo supremo di Leggenda della Dalton!',
+            id: 'ch6_obj_reach_3850',
+            text: 'Valica le creste granitiche e scendi verso le immense foreste boreali (PK 3.85 km)',
+            type: 'distance',
+            target: 3850,
+            check: (ctx) => ctx.z >= 3850
+          }
+        ]
+      },
+
+      {
+        id: 'ch_7',
+        index: 6,
+        number: 'VII',
+        title: 'La Grande Taiga Boreale & Il Deposito Nord',
+        subtitle: 'Abeti Neri, Piste di Tronchi & Il Regno dei Camion Pesanti [PK 3.90 - 4.55 KM]',
+        bannerIcon: '🪓',
+        speaker: 'JACK MILLER "ORSO POLARE"',
+        speakerAvatar: '🐻',
+        briefing: `Ingegnere Paolo! Qui è Jack Miller 'Orso Polare'. Siamo nella taiga boreale profonda. 650 metri di piste forestali in mezzo a milioni di abeti e betulle siberiane. Al Deposito Forestale Taiga Nord (PK 4.12 km) c'è la forgia e una cisterna di gasolio artico con punto di scorrimento a -50°C. Rifornisciti e controlla i cuscinetti: il settore successivo è la tundra artica e il ghiaccio vivo!`,
+        targetPK: 4550,
+        rewards: {
+          scrap: 220,
+          items: [{ id: 'thermal_lining', count: 2 }, { id: 'refined_fuel', count: 2 }],
+          description: '220 Rottami • 2x Isolante Termico Abitacolo • 2x Taniche Carburante Invernale'
+        },
+        objectives: [
+          {
+            id: 'ch7_obj_reach_taiga',
+            text: 'Raggiungi il Deposito Forestale Taiga Nord tra i carichi di legname (PK 4.12 km)',
+            type: 'visit_settlement',
+            targetKey: 'taiga_nord',
+            targetPK: 4120,
+            check: (ctx) => ctx.z >= 4120 || ctx.visitedSettlements.has('taiga_nord')
+          },
+          {
+            id: 'ch7_obj_inspect_logyard',
+            text: 'Oltrepassa il cantiere meccanizzato della picea a PK 4.28 km',
+            type: 'distance',
+            target: 4280,
+            check: (ctx) => ctx.z >= 4280
+          },
+          {
+            id: 'ch7_obj_fuel_full',
+            text: 'Fai il pieno completo di carburante per affrontare il deserto bianco polare',
+            type: 'fuel',
+            target: 25,
+            check: (ctx) => ctx.fuelLevel >= 25
+          },
+          {
+            id: 'ch7_obj_reach_4500',
+            text: 'Oltrepassa il limite della vegetazione arborea verso la tundra glaciale (PK 4.50 km)',
+            type: 'distance',
+            target: 4500,
+            check: (ctx) => ctx.z >= 4500
+          }
+        ]
+      },
+
+      {
+        id: 'ch_8',
+        index: 7,
+        number: 'VIII',
+        title: 'L\'Ultima Frontiera: La Tundra Polare & La Base 80',
+        subtitle: 'L\'80° Parallelo, Lastroni di Vetrone & Il Traguardo Supremo [PK 4.55 - 5.20+ KM]',
+        bannerIcon: '❄️',
+        speaker: 'DOTT.SSA ELENA VANCE & IL CONVOGLIO MONDIALE',
+        speakerAvatar: '🏆',
+        briefing: `PAOLO! TI SENTIAMO LIMPIDISSIMO SUL CANALE 19! Sei all'80° Parallelo Nord! La bufera artica soffia a -46°C e la strada è una lastra di verglas continuo. Segui le paline catarifrangenti rosse e bianche! Alla Base Polare 80 (PK 4.77 km) abbiamo acceso il Faro del Grande Meridiano! Taglia il traguardo: l'ingegneria meccanica analogica italiana ha unito tutti i biomi del mondo!`,
+        targetPK: 5200,
+        rewards: {
+          scrap: 350,
+          items: [{ id: 'cryo_coolant', count: 2 }, { id: 'graphene_battery', count: 2 }],
+          unlockVehicleHint: 'Lancia Delta HF Integrale Evoluzione (Campione del Mondo)',
+          description: '350 Rottami • SBLOCCO SUPREMO DELLA LANCIA DELTA HF INTEGRALE EVOLUZIONE'
+        },
+        objectives: [
+          {
+            id: 'ch8_obj_reach_base80',
+            text: 'Raggiungi la Base Polare 80 e le sue cupole geodetiche riscaldate (PK 4.77 km)',
+            type: 'visit_settlement',
+            targetKey: 'polar_base_80',
+            targetPK: 4770,
+            check: (ctx) => ctx.z >= 4770 || ctx.visitedSettlements.has('polar_base_80')
+          },
+          {
+            id: 'ch8_obj_metar_shelter',
+            text: 'Oltrepassa la stazione meteo METAR e i radar polari a PK 4.94 km',
+            type: 'distance',
+            target: 4940,
+            check: (ctx) => ctx.z >= 4940
+          },
+          {
+            id: 'ch8_obj_radio_lighthouse',
+            text: 'Raggiungi il Grande Faro Terminale del Meridiano Polare (PK 5.10 km)',
+            type: 'distance',
+            target: 5100,
+            check: (ctx) => ctx.z >= 5100
+          },
+          {
+            id: 'ch8_obj_complete_expedition',
+            text: 'Trionfa nella Spedizione Trans-Continentale e consacra la Leggenda del Grande Meridiano!',
             type: 'victory',
-            check: (ctx) => ctx.z >= 3800
+            check: (ctx) => ctx.z >= 5180
           }
         ]
       }
     ];
 
-    // Predefined Radio Dispatches Scripted along the Highway
+    // Predefined Radio Dispatches Scripted along the 8 Biomes Corridor
     this.scriptedTransmissions = [
       {
         id: 'tx_intro',
         triggerZ: 15,
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        avatar: '🐻',
-        callsign: 'CH 19 • DALTON CONVOY DISPATCH',
-        text: 'Attenzione a tutte le unità, qui è Orso Polare sul Canale 19. Paolo, mi ricevi? Il convoglio per Prudhoe Bay conta su di te. Tieni gli occhi sulla temperatura dell\'acqua e non farti ingannare dalla banchina: a nord di Fox la strada non ha pietà!'
+        speaker: 'SOFIA MARETTI (CAPO SPEDIZIONE)',
+        avatar: '🧭',
+        callsign: 'CH 19 • TRANS-EARTH DISPATCH',
+        text: 'Paolo, mi ricevi sul Canale 19? Qui Sofia Maretti dal molo di San Vito. Il convoglio trans-continentale del Grande Meridiano parte adesso. Tieni gli occhi sulla temperatura acqua e ascolta il motore: 5.200 metri di traversata attraverso tutti i biomi della Terra ci attendono!'
       },
       {
-        id: 'tx_fox_arrival',
+        id: 'tx_san_vito_arrival',
         triggerZ: 215,
-        speaker: 'SERAFINO (CAPO MINATORE FOX)',
-        avatar: '⛏️',
-        callsign: 'CH 19 • FOX JUNCTION MINERS',
-        text: 'Ehi, la Panda 4x4 d\'epoca! Sentivo il rombo del 4 cilindri da chilometri. Se ti servono gasolio o rottami d\'acciaio scendi pure all\'officina di Dredge 8. Fai il pieno prima del fiume!'
+        speaker: 'CAPITANO NEREO (PORTO DI SAN VITO)',
+        avatar: '⚓',
+        callsign: 'CH 19 • HARBOR TRAFFIC',
+        text: 'Ehi, Ingegnere! Riconosco l\'inconfondibile sibilo della Fiat Panda 4x4 Steyr-Puch! Fai scorta di bende e carburante qui al porto prima che la strada si inoltri nelle fitte foreste dell\'entroterra!'
       },
       {
-        id: 'tx_yukon_approach',
-        triggerZ: 820,
-        speaker: 'MASTRO JAREK (PUMP STATION 6)',
+        id: 'tx_valbruna_approach',
+        triggerZ: 850,
+        speaker: 'MASTRO JAREK (MULINO VALBRUNA)',
         avatar: '🔧',
-        callsign: 'CH 19 • YUKON RIVER CAMP',
-        text: 'Paolo! Eccoti sul ponte E.L. Patton! Guarda che colosso di travi d\'acciaio sopra lo Yukon. Vieni alla Pump Station 6, ti ho messo da parte una chiave a cricchetto e la mappa per un relitto Alfa Romeo!'
+        callsign: 'CH 19 • VALBRUNA MILL',
+        text: 'Paolo! Sei nel fitto della foresta temperata! Le querce e i faggi filtrano la luce. Ti ho preparato i ricambi al mulino ad acqua e ti ho aperto il fienile dell\'Alfa Romeo Giulia bialbero!'
       },
       {
-        id: 'tx_coldfoot_warning',
-        triggerZ: 1450,
+        id: 'tx_desert_warning',
+        triggerZ: 1480,
+        speaker: 'TARIQ IBN-BATTUTA (GUIDA DESERTO)',
+        avatar: '🏜️',
+        callsign: 'CH 19 • SAHARA CARAVAN',
+        text: 'Attenzione Ingegnere! Sei entrato nel grande bacino sabbioso. Temperatura asfalto oltre i 55°C! All\'Oasi di El Kantara puoi rinfrescarti e bere acqua pura: non far bollire il radiatore!'
+      },
+      {
+        id: 'tx_serengeti_arrival',
+        triggerZ: 2150,
+        speaker: 'RANGER KIBWE (SERENGETI OUTPOST)',
+        avatar: '🦒',
+        callsign: 'CH 19 • SAVANNA RANGER POST',
+        text: 'Karibu Paolo! Sei tra le acacie a ombrello e i baobab del Serengeti! Sulla terra battuta lateritica mantieni il gas costante. La Peugeot 504 Dangel 4x4 da safari ti aspetta all\'avamposto!'
+      },
+      {
+        id: 'tx_rainforest_alert',
+        triggerZ: 2800,
+        speaker: 'DOTT.SSA MAYA GOMEZ (RIO VERDE)',
+        avatar: '🌿',
+        callsign: 'CH 19 • TROPICAL LAB POST',
+        text: 'Paolo! Sta iniziando il monsone equatoriale! L\'argilla rossa è diventata saponosa: inserisci la trazione integrale e la Primina corta! Ti guideremo con i fari della stazione su palafitte!'
+      },
+      {
+        id: 'tx_alpine_climb',
+        triggerZ: 3450,
+        speaker: 'GOTTFRIED (VALICO DELLE AQUILE)',
+        avatar: '🧗',
+        callsign: 'CH 19 • ALPINE RESCUE',
+        text: 'Ingegnere, sei sopra quota 2.500 metri! Pendenza 14%, falesie di granito e gallerie paravalanghe. Usa marce basse e fai raffreddare i freni: la vista dal rifugio è maestosa!'
+      },
+      {
+        id: 'tx_taiga_nord',
+        triggerZ: 4100,
         speaker: 'JACK MILLER "ORSO POLARE"',
         avatar: '🐻',
-        callsign: 'CH 19 • DALTON CONVOY DISPATCH',
-        text: 'Ingegnere, sei entrato nelle piane del Koyukuk! Qui è dove i cercatori si presero i piedi freddi ("cold feet") nel 1898. Fango viscoso a destra e sinistra: mantieni il volante dritto e non frenare di colpo!'
+        callsign: 'CH 19 • BOREAL CONVOY',
+        text: 'Paolo! Benvenuto nella grande taiga boreale! Milioni di abeti neri e betulle ti circondano. Rifornisciti con il nostro gasolio artico a Taiga Nord: il gran balzo verso il polo ha inizio!'
       },
       {
-        id: 'tx_arctic_circle',
-        triggerZ: 2160,
-        speaker: 'SGT. O\'CONNOR (ALASKA TROOPERS)',
-        avatar: '🛡️',
-        callsign: 'CH 19 • ARCTIC CIRCLE CHECKPOINT',
-        text: 'Unità in transito, benvenuto nel Circolo Polare Artico (66° 33\' Nord). Da qui in avanti le tempeste ioniche azzerano i cellulari. Affidati solo all\'ago della bussola e al CB!'
-      },
-      {
-        id: 'tx_atigun_alert',
-        triggerZ: 2790,
-        speaker: 'ELENA VANCE (DEADHORSE TERMINAL)',
+        id: 'tx_polar_beacon',
+        triggerZ: 4750,
+        speaker: 'DOTT.SSA ELENA VANCE (BASE 80)',
         avatar: '👩‍🔬',
-        callsign: 'CH 19 • POLAR SCIENCE POST',
-        text: 'Paolo... le nostre sonde registrano venti da 120 km/h sull\'Atigun Pass! Il valico è ghiacciato. Se hai la primina inserita usala, e tieni d\'occhio l\'indicatore della temperatura!'
+        callsign: 'CH 19 • POLAR BASE 80',
+        text: 'PAOLO! TI VEDIAMO DAI RADAR! La Panda 4x4 sta ruggendo sul vetrone a -46°C! Abbiamo acceso il grande faro del Meridiano! Sei a pochi chilometri dal traguardo finale!'
       },
       {
-        id: 'tx_victory_deadhorse',
-        triggerZ: 3750,
-        speaker: 'ELENA VANCE & JACK MILLER',
+        id: 'tx_victory_meridian',
+        triggerZ: 5160,
+        speaker: 'CONVOGLIO MONDIALE DEL GRANDE MERIDIANO',
         avatar: '🏆',
-        callsign: 'CH 19 • BEAUFORT SEA FLEET',
-        text: 'CE L\'HAI FATTA! La Fiat Panda 4x4 ha battuto la Dalton Highway! I generatori di Prudhoe Bay sono salvi! Hai scritto la storia della Haul Road, Ingegnere!'
+        callsign: 'CH 19 • GLOBAL FLEET',
+        text: 'VITTORIA! HAI ATTRAVERSATO TUTTI E GLI 8 BIOMI NATURALI DELLA TERRA! Dal Mediterraneo ai ghiacci del polo: la meccanica analogica italiana ha trionfato! Sei la leggenda del Grande Meridiano!'
       }
     ];
 
-    // Paolo's Technical Notes
+    // Paolo's Technical & Engineering Field Notes
     this.engineerNotes = [
       {
         title: 'La Primina della Fiat Panda 4x4 Steyr-Puch',
-        category: 'MECCANICA D\'EPOCA',
-        text: 'Sviluppata a Graz dalla Steyr-Daimler-Puch nel 1983. Non ha un riduttore a due leve come i fuoristrada pesanti, bensì una prima marcia ultra-corta (rapporto 1:3.91) abbinata a un differenziale conico elicoidale. Sul fango muskeg e sulla neve profonda della Dalton, consente di arrampicarsi a 4 km/h senza bruciare la frizione. Un capolavoro di essenzialità.'
+        category: 'CINEMATICA ANALOGICA',
+        text: 'Sviluppata a Graz dalla Steyr-Daimler-Puch nel 1983. Invece di un pesante riduttore a due leve, sfrutta una prima marcia ultra-corta (rapporto 1:3.91) abbinata a un differenziale conico elicoidale con innesto a crabot manuale. Sui fanghi argillosi della giungla equatoriale e sulla neve polare, consente di avanzare a 3.5 km/h senza sfrizionare. Un capolavoro di razionalità ingegneristica.'
       },
       {
-        title: 'Comportamento Termico dell\'Asfalto & Verglas',
-        category: 'FISICA STRADALE',
-        text: 'Tra il Milepost 56 e il 175 il fondo stradale passa da bitume fessurato a ghiaia mista a cloruro di calcio. A temperature inferiori a -4°C l\'umidità della taiga condensa istantaneamente creando il temibile ghiaccio nero ("black ice"). Il coefficiente di aderenza scende da 0.95 a 0.35. Toccare il pedale del freno con le ruote curvate significa testacoda assicurato.'
+        title: 'Galleggiamento & Coefficiente d\'Attrito su Sabbie Sahariane',
+        category: 'FISICA DEI TERRENI',
+        text: 'Nel bioma desertico, la sabbia quarzosa granulare presenta un attrito dinamico attorno a 0.58. La tentazione è sgasare, ma il momento torcente eccessivo scava buche e fa spanciare il veicolo. Il trucco dell\'ingegnere: mantenere il motore sul regime di coppia (3.000 rpm), pressione pneumatici ridotta a 1.2 bar e traiettorie rotonde senza brusche sterzate.'
       },
       {
-        title: 'Il Segreto dell\'Alfa Romeo Giulia Super nella Taiga',
-        category: 'RELITTI NASCOSTI',
-        text: 'Mastro Jarek mi ha confidato che un geologo italiano della TAPS negli anni \'70 importò una Giulia Super 1.6 Biscione per percorrere i cantieri dello Yukon. Il motore bialbero a due carburatori doppio corpo Weber 40 DCOE necessita di riscaldare bene i condotti d\'aspirazione per non congelare i getti del minimo.'
+        title: 'Dinamica di Guida su Fango Equatoriale & Tole Ondulée',
+        category: 'ASSETTO & SOSPENSIONI',
+        text: 'Sulle piste africane e nei guadi della foresta pluviale le corrugazioni ad alta frequenza rischiano di distruggere gli steli degli ammortizzatori per cavitazione dell\'olio. Superata la velocità critica di 48 km/h, la frequenza propria della cassa vettura si disaccoppia dal fondo, consentendo di galleggiare sulle creste delle ondulazioni.'
       },
       {
-        title: 'La Battaglia per il Passo Atigun (1.444 Metri)',
-        category: 'STRATEGIA DI VALICO',
-        text: 'Il Continental Divide separa i bacini idrografici del Pacifico da quelli dell\'Oceano Artico. La salita dal versante sud presenta strapiombi senza guardrail. Il trucco dell\'ingegnere: dosare l\'acceleratore al 60% per evitare slittamenti e non far salire il manometro della temperatura olio oltre i 3.8 bar.'
+        title: 'Dissipazione Termica sui Tornanti Alpini al 14%',
+        category: 'TERMODINAMICA FRENI',
+        text: 'Nella discesa dal Valico delle Aquile i tamburi posteriori possono raggiungere i 380°C causando il vapor lock del liquido freni DOT4. Scalare sempre in seconda marcia sfruttando l\'elevato rapporto di compressione del motore per frenare con la contropressione nei collettori di scarico.'
+      },
+      {
+        title: 'Aderenza su Vetrone & Paline Rifrangenti Polari',
+        category: 'SUPERFICI ARTICHE',
+        text: 'A -46°C nella tundra, il ghiaccio vivo non fonde sotto il battistrada ma forma scaglie vitree con grip inferiore al 35%. L\'unico punto di riferimento in caso di bufera o whiteout sono le paline catarifrangenti bicolore posizionate ogni 22 metri a bordo banchina.'
       }
     ];
   }

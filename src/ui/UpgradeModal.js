@@ -38,7 +38,7 @@ export class UpgradeModal {
 
         <!-- Navigation Tabs -->
         <div class="modal-tabs-bar">
-          <button class="modal-tab-btn active" id="tab-btn-garage">🏎️ PARCO VEICOLI & RESTAURI DALTON</button>
+          <button class="modal-tab-btn active" id="tab-btn-garage">🏎️ PARCO VEICOLI & RESTAURI DEL MERIDIANO</button>
           <button class="modal-tab-btn" id="tab-btn-upgrades">🛠️ OFFICINA MODULARE & TUNING (14 UPGRADE)</button>
         </div>
 
@@ -71,7 +71,7 @@ export class UpgradeModal {
 
         <div class="modal-footer" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
           <span class="footer-tip" id="workshop-footer-tip" style="flex:1;">
-            💡 Restaura i relitti storici trovati lungo la Dalton Highway con i pezzi recuperati nei POI. Puoi cambiare auto in qualsiasi momento: il carico in eccesso viene custodito nel Deposito di Tappa.
+            💡 Restaura i relitti storici trovati lungo il Grande Meridiano con i pezzi recuperati nei POI. Puoi cambiare auto in qualsiasi momento: il carico in eccesso viene custodito nel Deposito di Tappa.
           </span>
           <button class="btn-demo-unlock" id="btn-unlock-all-fleet" style="background:#1e293b;border:1px solid #38bdf8;color:#38bdf8;font-size:10px;font-family:var(--font-tech);padding:5px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;">🔓 SBLOCCA TUTTI I MODELLI (COLLAUDO CRUSCOTTI)</button>
         </div>
@@ -257,7 +257,7 @@ export class UpgradeModal {
         </div>
         <div class="fleet-stat-box">
           <span class="stat-big">${(this.upgradeSystem.maxPKReached / 1000).toFixed(1)} km</span>
-          <span class="stat-sub">Record Chilometrico Dalton</span>
+          <span class="stat-sub">Record Chilometrico Spedizione</span>
         </div>
         <div class="fleet-stat-box">
           <span class="stat-big">${stashCount > 0 ? `📦 ${stashCount} Oggetti` : 'Nessuno'}</span>
@@ -409,7 +409,7 @@ export class UpgradeModal {
 
         <div class="car-notes-box">
           <p class="car-history-note"><strong>STORIA:</strong> ${car.description}</p>
-          <p class="car-dalton-note"><strong>COMPORTAMENTO DALTON:</strong> ${car.tacticalDaltonAdvice}</p>
+          <p class="car-dalton-note"><strong>DINAMICA DI GUIDA & BIOMI:</strong> ${car.tacticalDaltonAdvice}</p>
         </div>
 
         ${restorationHtml}

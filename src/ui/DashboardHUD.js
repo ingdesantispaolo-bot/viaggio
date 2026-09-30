@@ -59,7 +59,7 @@ export class DashboardHUD {
         <div class="story-ch-badge" id="story-ch-badge">CAPITOLO I</div>
         <div class="story-obj-body">
           <span class="story-target-icon">🎯</span>
-          <span class="story-obj-desc" id="story-obj-text">Mettiti in marcia e supera i primi 200 metri della Dalton Highway</span>
+          <span class="story-obj-desc" id="story-obj-text">Mettiti in marcia e percorri i primi 200 metri lungo la costiera</span>
         </div>
         <div class="story-badge-action">DIARIO 📖</div>
       </div>
@@ -139,7 +139,7 @@ export class DashboardHUD {
               <div class="cb-faceplate">
                 <div class="cb-screen">
                   <span class="cb-ch">CH 19</span>
-                  <span class="cb-status" id="cb-channel-name">DALTON CONVOY • EMGCY</span>
+                  <span class="cb-status" id="cb-channel-name">MERIDIAN CONVOY • EMGCY</span>
                 </div>
                 <div class="cb-smeter">
                   <span class="smeter-lbl">SIGNAL</span>
@@ -298,8 +298,8 @@ export class DashboardHUD {
           <div class="cb-avatar-box" id="cb-avatar">🐻</div>
           <div class="cb-text-box">
             <div class="cb-speaker-line">
-              <strong id="cb-speaker-name">JACK MILLER "ORSO POLARE"</strong>
-              <span class="cb-callsign-tag" id="cb-callsign">DALTON CONVOY DISPATCH</span>
+              <strong id="cb-speaker-name">SOFIA MARETTI (CAPO SPEDIZIONE)</strong>
+              <span class="cb-callsign-tag" id="cb-callsign">TRANS-EARTH DISPATCH</span>
             </div>
             <p class="cb-message-text" id="cb-message">Messaggio in arrivo...</p>
           </div>
@@ -1596,7 +1596,7 @@ export class DashboardHUD {
           cbDisplay.style.textShadow = '0 0 10px #22c55e';
           if (cbSignal) cbSignal.style.width = '100%';
         } else {
-          cbDisplay.textContent = 'CH 19 [ DALTON CONVOY • EMGCY ] 27.185 MHz';
+          cbDisplay.textContent = 'CH 19 [ MERIDIAN CONVOY • EMGCY ] 27.185 MHz';
           cbDisplay.style.color = '#22c55e';
           cbDisplay.style.textShadow = '0 0 6px #22c55e';
           if (cbSignal) cbSignal.style.width = '75%';

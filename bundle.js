@@ -21,264 +21,356 @@ const CONFIG = {
     ROAD_Y: 0,
   },
 
-  // Biomes definitions based on the real-world Dalton Highway (Alaska Route 11 / The Haul Road)
+  // Real-World Natural Biomes of Planet Earth: The Grand Trans-Earth Meridian Expedition
   BIOMES: {
-    RUSTY_PERIPHERY: {
-      id: 'rusty_periphery',
+    MEDITERRANEAN_COAST: {
+      id: 'mediterranean_coast',
       sectorIndex: 0,
-      name: 'Fox & Goldstream Valley',
-      subname: 'Distretto Minerario di Fairbanks [MP 0 - 56]',
-      loreTitle: 'Cintura della Corsa all\'Oro & Scali della Alaska Railroad',
-      history: 'Storico distretto minerario dell\'entroterra alaskano, sviluppatosi attorno alla valle aurifera di Goldstream e alla gigantesca Gold Dredge No. 8 scoperta dopo la corsa all\'oro del 1902. Le officine della vecchia ferrovia Alaska Railroad conservano scorte di gasolio pesante e carpenteria industriale, ma l\'acqua di falda è compromessa dai residui di estrazione.',
-      settlementName: 'Fox Junction & Gold Dredge 8',
-      settlementPK: 220, // meters from start (Milepost ~11)
-      colorSky: 0x221a18,
-      colorFog: 0x1f1614,
-      colorGround: 0x2c2621,
-      colorRoad: 0x3d3936,
-      fogDensity: 0.018,
-      ambientIntensity: 0.45,
-      sunIntensity: 0.6,
-      sunColor: 0xffd4aa,
-      roadRoughness: 0.4,
-      tractionFactor: 0.95,
-      weatherTypes: ['smog', 'acid_drizzle', 'clear'],
-      hazardFrequency: 0.35,
-      musicMood: 'industrial_drone',
-      environmentalThreat: 'Polveri ferrose e residui della miniera: sporcano i radiatori e accelerano il surriscaldamento a pieno carico.',
-      primaryExport: ['refined_fuel', 'scrap_metal', 'engine_oil'],
-      criticalNeed: ['water_purified', 'canned_stew', 'medkit'],
-      recommendedGear: 'Filtro di aspirazione pulito, scorte d\'acqua pura per la taiga'
+      name: 'Riviera dei Pini & Coste Rocciose',
+      subname: 'Costa Mediterranea & Macchia Aromatica [PK 0.0 - 0.65 KM]',
+      loreTitle: 'Falesie Calcaree, Pini Marittimi & Asfalto sul Mare',
+      history: 'Punto di partenza della Spedizione Planetaria del Grande Meridiano. La strada costiera si snoda a picco sul mare azzurro cobalto, tra pinete marittime profumate di resina, ulivi saraceni e muretti a secco in pietra viva. La brezza salmastra rinfresca i motori, ma il calcare polveroso si deposita sui filtri dell\'aria.',
+      settlementName: 'Porto San Vito & Vecchia Tonnara',
+      settlementPK: 220,
+      colorSky: 0x38bdf8,
+      colorFog: 0x7dd3fc,
+      colorGround: 0x854d0e,
+      colorRoad: 0x334155,
+      fogDensity: 0.012,
+      ambientIntensity: 0.62,
+      sunIntensity: 1.25,
+      sunColor: 0xfffbeb,
+      roadRoughness: 0.35,
+      tractionFactor: 1.0,
+      weatherTypes: ['clear', 'sea_breeze', 'heatwave'],
+      hazardFrequency: 0.3,
+      musicMood: 'mediterranean_breeze',
+      environmentalThreat: 'Banchine strette a strapiombo sulle scogliere e polvere calcarea bianca scivolosa nelle curve veloci.',
+      primaryExport: ['refined_fuel', 'water_purified', 'toolkit'],
+      criticalNeed: ['spare_tire', 'scrap_metal', 'engine_oil'],
+      recommendedGear: 'Assetto stradale preciso, filtro aria a bagno d\'olio per la polvere calcarea'
     },
-    BLACK_PINE_WOODS: {
-      id: 'black_pine_woods',
+    TEMPERATE_FOREST: {
+      id: 'temperate_forest',
       sectorIndex: 1,
-      name: 'Yukon River Taiga',
-      subname: 'Ponte E.L. Patton & Stevens Village [MP 56 - 115]',
-      loreTitle: 'Foreste di Picea Nera & Bacino del Fiume Yukon',
-      history: 'Il tratto in cui la Dalton Highway incontra il monumentale fiume Yukon, attraversato dall\'imponente E.L. Patton Bridge lungo 700 metri su cui corre la Trans-Alaska Pipeline. La Pump Station 6 sorge accanto all\'antico insediamento Athabaskan di Stevens Village. I taglialegna e i nativi ricavano mastice sigillante e legname denso dalla picea nera, ma mancano di carburante raffinato.',
-      settlementName: 'Yukon River Camp & Pump Station 6',
-      settlementPK: 870, // meters (Milepost ~56)
-      colorSky: 0x0b1410,
-      colorFog: 0x08120d,
-      colorGround: 0x152219,
-      colorRoad: 0x242e20,
-      fogDensity: 0.024,
-      ambientIntensity: 0.35,
-      sunIntensity: 0.4,
-      sunColor: 0x88ccaa,
-      roadRoughness: 0.7,
-      tractionFactor: 0.8,
-      weatherTypes: ['heavy_mist', 'rain', 'overcast'],
-      hazardFrequency: 0.45,
-      musicMood: 'dark_forest',
-      environmentalThreat: 'Ceppi e radici affioranti lungo le banchine umide: impatti violenti se si superano i 65 km/h, nebbia fluviale ghiacciata.',
-      primaryExport: ['antiseptic_resin', 'cured_timber', 'first_aid_bandage'],
-      criticalNeed: ['fuel_canister', 'toolkit', 'scrap_metal'],
-      recommendedGear: 'Fari ausiliari da tetto contro la nebbia fluviale, sospensioni alte'
-    },
-    FLOODED_MARSHLAND: {
-      id: 'flooded_marshland',
-      sectorIndex: 2,
-      name: 'Koyukuk Flats & Coldfoot',
-      subname: 'Piane Alluvionali & Slate Creek [MP 115 - 200]',
-      loreTitle: 'Pantano Subartico e Sosta Camionisti di Coldfoot',
-      history: 'Fondata nel 1898 durante la corsa all\'oro di Slate Creek, quando i cercatori "got cold feet" (ebbero i piedi freddi) e abbandonarono l\'impresa. Negli anni \'70 divenne il punto di sosta vitale per i camionisti dell\'oleodotto. Il terreno circostante è dominato dal famigerato "muskeg": torbiera alluvionale e fango che intrappolano anche gli autocarri a trazione integrale.',
-      settlementName: 'Coldfoot Truck Stop & Slate Creek',
-      settlementPK: 1520, // meters (Milepost ~175)
-      colorSky: 0x101b22,
-      colorFog: 0x0d161d,
-      colorGround: 0x142028,
-      colorRoad: 0x1f2930,
+      name: 'Valli Appenniniche & Querce Frondose',
+      subname: 'Foresta Temperata di Latifoglie & Fiumi [PK 0.65 - 1.30 KM]',
+      loreTitle: 'Boschi di Querce e Faggi, Ponti in Pietra & Valli Nebbiose',
+      history: 'Il convoglio penetra nella grande foresta temperata di fondovalle. Querce secolari e faggi creano una galleria verde d\'ombra screziata dal sole. I corsi d\'acqua sono scavalcati da storici ponti ad arco in pietra d\'arenaria. Al mattino la nebbia fluviale ristagna nei fondovalle rendendo l\'asfalto umido e viscido.',
+      settlementName: 'Mulino di Valbruna & Segheria Idraulica',
+      settlementPK: 870,
+      colorSky: 0x0f172a,
+      colorFog: 0x164e63,
+      colorGround: 0x14532d,
+      colorRoad: 0x1e293b,
       fogDensity: 0.022,
-      ambientIntensity: 0.4,
-      sunIntensity: 0.5,
-      sunColor: 0x90c8e0,
-      roadRoughness: 0.6,
-      tractionFactor: 0.65,
-      weatherTypes: ['torrential_rain', 'dense_fog'],
-      hazardFrequency: 0.5,
-      musicMood: 'aquatic_melancholy',
-      environmentalThreat: 'Fango acquitrinoso "muskeg" e aquaplaning: altissima resistenza al rotolamento, affondamento ruote e surriscaldamento motore.',
-      primaryExport: ['peat_filter', 'waterproofing_wax', 'water_purified'],
-      criticalNeed: ['spare_tire', 'electronics', 'engine_oil'],
-      recommendedGear: 'Pneumatici M+S tassellati, cera impermeabilizzante per giunti'
-    },
-    GLASS_CRATER: {
-      id: 'glass_crater',
-      sectorIndex: 3,
-      name: 'Arctic Circle & Chandalar',
-      subname: 'Parallelo 66° 33\' N & DEW Line [MP 200 - 270]',
-      loreTitle: 'Altopiano del Circolo Polare & Antenne Radar della Guerra Fredda',
-      history: 'Il punto in cui la Dalton Highway varca ufficialmente la latitudine 66° 33\' 48" Nord, entrando nel Circolo Polare Artico. A Chandalar Shelf si trovano i resti della stazione radar della DEW Line (Distant Early Warning) del sistema White Alice. Gli ingegneri superstiti custodiscono batterie al grafene e circuiti schermati contro le tempeste geomagnetiche dell\'aurora.',
-      settlementName: 'Chandalar Shelf - Base Radar White Alice',
-      settlementPK: 2170, // meters (Milepost ~244)
-      colorSky: 0x160d26,
-      colorFog: 0x130a21,
-      colorGround: 0x1b122c,
-      colorRoad: 0x2c1a45,
-      fogDensity: 0.02,
-      ambientIntensity: 0.35,
-      sunIntensity: 0.7,
-      sunColor: 0xd494ff,
+      ambientIntensity: 0.48,
+      sunIntensity: 0.95,
+      sunColor: 0xfef08a,
       roadRoughness: 0.5,
       tractionFactor: 0.88,
-      weatherTypes: ['ion_storm', 'aurora_static'],
-      hazardFrequency: 0.6,
-      radiationDanger: true,
-      musicMood: 'anomalous_pulse',
-      environmentalThreat: 'Tempeste geomagnetiche e interferenze ioniche dell\'Aurora: disturbi all\'alternatore, cali di tensione e blackout delle luci.',
-      primaryExport: ['graphene_battery', 'rad_shield_plate', 'electronics'],
-      criticalNeed: ['canned_stew', 'water_purified', 'first_aid_bandage'],
-      recommendedGear: 'Cavi elettrici schermati, fusibili ausiliari'
+      weatherTypes: ['heavy_mist', 'rain', 'overcast'],
+      hazardFrequency: 0.4,
+      musicMood: 'dark_forest',
+      environmentalThreat: 'Fogliame fradicio sul manto stradale che riduce l\'aderenza in frenata; fitti banchi di nebbia fluviale.',
+      primaryExport: ['cured_timber', 'first_aid_bandage', 'water_purified'],
+      criticalNeed: ['fuel_canister', 'spark_plugs', 'scrap_metal'],
+      recommendedGear: 'Tergicristalli efficienti, fari fendinebbia gialli vintage'
     },
-    IRON_GORGE: {
-      id: 'iron_gorge',
-      sectorIndex: 4,
-      name: 'Atigun Pass & Brooks Range',
-      subname: 'Passo Atigun 1.444m - Continental Divide [MP 270 - 340]',
-      loreTitle: 'Valico Alpino delle Montagne Brooks & Falesie di Roccia Nera',
-      history: 'Il punto più alto e pericoloso dell\'intera rete stradale alaskana: il valico dell\'Atigun Pass a 1.444 metri di quota attraverso la catena montuosa delle Brooks Range. Noto tra i camionisti come "The Shelf", presenta pendenze del 12% su sterrato battuto, strapiombi di centinaia di metri, caduta massi di ardesia tagliente e venti sferzanti a 140 km/h.',
-      settlementName: 'Atigun Pass High Camp - Cava dei Convogli',
-      settlementPK: 2820, // meters (Milepost ~290)
-      colorSky: 0x241410,
-      colorFog: 0x20100d,
-      colorGround: 0x3a2219,
-      colorRoad: 0x482f25,
-      fogDensity: 0.016,
-      ambientIntensity: 0.5,
-      sunIntensity: 0.75,
-      sunColor: 0xff9966,
-      roadRoughness: 0.85,
-      tractionFactor: 0.75,
-      weatherTypes: ['gale_winds', 'rock_dust'],
-      hazardFrequency: 0.55,
+    ARID_DESERT: {
+      id: 'arid_desert',
+      sectorIndex: 2,
+      name: 'Grande Erg Sahariano & Oasi di Fuoco',
+      subname: 'Deserto Arido, Dune Ondulate & Piste Reg [PK 1.30 - 1.95 KM]',
+      loreTitle: 'Oceano di Sabbia Dorata, Tempeste di Polvere & Calore +45°C',
+      history: 'La transizione nel deserto più vasto e implacabile del pianeta. Una distesa infinita di dune di sabbia finissima, lastroni di roccia erosa dal vento (reg) e specchi d\'acqua salmastra nelle oasi carovaniere. Il termometro tocca i 46°C: la temperatura dell\'acqua motore schizza alle stelle se non si modula il gas.',
+      settlementName: 'Oasi di El-Kantara & Forte Carovaniero',
+      settlementPK: 1520,
+      colorSky: 0x78350f,
+      colorFog: 0xb45309,
+      colorGround: 0xd97706,
+      colorRoad: 0x92400e,
+      fogDensity: 0.015,
+      ambientIntensity: 0.75,
+      sunIntensity: 1.45,
+      sunColor: 0xffedd5,
+      roadRoughness: 0.65,
+      tractionFactor: 0.72,
+      weatherTypes: ['heatwave', 'sandstorm', 'clear'],
+      hazardFrequency: 0.5,
+      heatDanger: true,
       musicMood: 'desert_wind',
-      environmentalThreat: 'Pietraia tagliente da franamento e raffiche di burrasca: lacerazione improvvisa dei battistrada e instabilità dello sterzo.',
-      primaryExport: ['reinforced_coil', 'tungsten_drill_bit', 'armor_plate'],
-      criticalNeed: ['fuel_canister', 'refined_fuel', 'canned_stew'],
-      recommendedGear: 'Rostro corazzato paramassi, gomme con mescola anti-taglio'
+      environmentalThreat: 'Calore estremo che minaccia di far bollire il radiatore; dune ventate mobili che possono insabbiare le ruote.',
+      primaryExport: ['waterproofing_wax', 'refined_fuel', 'engine_oil'],
+      criticalNeed: ['water_bottle', 'water_purified', 'spare_tire'],
+      recommendedGear: '4WD o marcia corta Primina per disincagliarsi dalla sabbia, ventola radiatore sempre attiva'
     },
-    PERMAFROST_HIGHLANDS: {
-      id: 'permafrost_highlands',
-      sectorIndex: 5,
-      name: 'Deadhorse & Prudhoe Bay',
-      subname: 'Mar Glaciale Artico & Mare di Beaufort [MP 340 - 414]',
-      loreTitle: 'Città Modulare sul Permafrost & Terminale dell\'Oceano Artico',
-      history: 'Il capolinea assoluto della Dalton Highway sulle sponde ghiacciate del Mar Glaciale Artico. Costruita nel 1968 per l\'estrazione petrolifera gigante di Prudhoe Bay, la cittadella di Deadhorse poggia interamente su pilastri e banchi di ghiaia isolante per non fondere il permafrost continuo. Qui la temperatura scende stabilmente sotto i -45°C.',
-      settlementName: 'Deadhorse Terminal & Base Prudhoe Bay',
-      settlementPK: 3470, // meters (Milepost ~414)
-      colorSky: 0x101a24,
-      colorFog: 0x14202c,
-      colorGround: 0x283848,
-      colorRoad: 0x3b4c5c,
+    SAVANNA_STEPPE: {
+      id: 'savanna_steppe',
+      sectorIndex: 3,
+      name: 'Savana del Serengeti & Terra Rossa',
+      subname: 'Prateria dell\'Acacia & Piste Lateritiche [PK 1.95 - 2.60 KM]',
+      loreTitle: 'Piste di Terra Rossa, Baobab Millenari & Vaste Praterie Dorate',
+      history: 'L\'altopiano della savana africana: distese d\'erba bionda punteggiate da acacie ad ombrello e imponenti baobab che sfidano i secoli. La carreggiata è una pista di terra battuta rossa lateritica, con corrugazioni e canaloni d\'acqua asciutti scavati dalle piogge passate.',
+      settlementName: 'Stazione Ranger della Piana d\'Oro',
+      settlementPK: 2170,
+      colorSky: 0x451a03,
+      colorFog: 0x9a3412,
+      colorGround: 0xb91c1c,
+      colorRoad: 0x7f1d1d,
+      fogDensity: 0.016,
+      ambientIntensity: 0.65,
+      sunIntensity: 1.25,
+      sunColor: 0xfed7aa,
+      roadRoughness: 0.6,
+      tractionFactor: 0.84,
+      weatherTypes: ['clear', 'overcast', 'sandstorm'],
+      hazardFrequency: 0.45,
+      musicMood: 'industrial_drone',
+      environmentalThreat: 'Fondo stradale a lamiera ondulata che martella le boccole delle sospensioni e buche di fango secco a sorpresa.',
+      primaryExport: ['reinforced_coil', 'armor_plate', 'canned_stew'],
+      criticalNeed: ['first_aid_bandage', 'toolkit', 'refined_fuel'],
+      recommendedGear: 'Ammortizzatori a doppio effetto per assorbire le ondulazioni della pista rossa'
+    },
+    TROPICAL_RAINFOREST: {
+      id: 'tropical_rainforest',
+      sectorIndex: 4,
+      name: 'Giungla di Rio Verde & Monsoni Equatoriali',
+      subname: 'Foresta Pluviale Equatoriale & Fango Viscido [PK 2.60 - 3.25 KM]',
+      loreTitle: 'Vegetazione Monumentale, Diluvi Monsonici & Argilla Liquida',
+      history: 'La fitta volta della foresta pluviale equatoriale, dove la luce solare filtra appena attraverso le chiome di ficus giganti e felci arboree. L\'umidità sfiora il 98% e acquazzoni monsonici torrenziali trasformano la pista in un letto di argilla liquida e pozze d\'acqua che mettono a dura prova l\'impianto elettrico.',
+      settlementName: 'Avamposto Botanico Rio Verde & Scalo Fluviale',
+      settlementPK: 2820,
+      colorSky: 0x064e3b,
+      colorFog: 0x022c22,
+      colorGround: 0x052e16,
+      colorRoad: 0x14532d,
       fogDensity: 0.028,
-      ambientIntensity: 0.45,
-      sunIntensity: 0.5,
-      sunColor: 0xcfe8ff,
+      ambientIntensity: 0.4,
+      sunIntensity: 0.8,
+      sunColor: 0x6ee7b7,
+      roadRoughness: 0.75,
+      tractionFactor: 0.62,
+      weatherTypes: ['tropical_monsoon', 'torrential_rain', 'dense_fog'],
+      hazardFrequency: 0.55,
+      musicMood: 'aquatic_melancholy',
+      environmentalThreat: 'Aquaplaning severo e fanghiglia argillosa a bassissima trazione; rischio di bagnare spinterogeno e candele nei guadi.',
+      primaryExport: ['antiseptic_resin', 'waterproofing_wax', 'peat_filter'],
+      criticalNeed: ['electronics', 'spare_tire', 'engine_oil'],
+      recommendedGear: 'Snorkel per la presa d\'aria motore, trazione integrale 4WD inserita, cera siliconica sui cavi'
+    },
+    ALPINE_PEAKS: {
+      id: 'alpine_peaks',
+      sectorIndex: 5,
+      name: 'Valico delle Aquile & Vette Alpine',
+      subname: 'Massiccio di Granito & Tornanti a 2.450m [PK 3.25 - 3.90 KM]',
+      loreTitle: 'Falesie di Roccia Nuda, Tornanti a Gomito & Pendenze del 14%',
+      history: 'La scalata del tetto del mondo continentale. Il tracciato si inerpica su tornanti scavati nella viva roccia di granito, con cascate di disgelo e strapiombi vertiginosi. L\'aria rarefatta d\'alta quota toglie fiato e potenza ai carburatori, mentre le discese prolungate surriscaldano i freni a tamburo.',
+      settlementName: 'Rifugio Valico delle Aquile (Passo Alpino 2.450m)',
+      settlementPK: 3470,
+      colorSky: 0x1e293b,
+      colorFog: 0x334155,
+      colorGround: 0x475569,
+      colorRoad: 0x1e293b,
+      fogDensity: 0.016,
+      ambientIntensity: 0.55,
+      sunIntensity: 1.3,
+      sunColor: 0xfff7ed,
+      roadRoughness: 0.85,
+      tractionFactor: 0.82,
+      weatherTypes: ['mountain_gale', 'freezing_rain', 'clear'],
+      hazardFrequency: 0.5,
+      musicMood: 'anomalous_pulse',
+      environmentalThreat: 'Pietrisco di franamento tagliente in curva e fading termico dei freni nelle discese prolungate.',
+      primaryExport: ['tungsten_drill_bit', 'reinforced_coil', 'armor_plate'],
+      criticalNeed: ['fuel_canister', 'refined_fuel', 'canned_stew'],
+      recommendedGear: 'Freno motore in marcia bassa, pastiglie e ganasce freno rinforzate, paramassi sottoscocca'
+    },
+    BOREAL_TAIGA: {
+      id: 'boreal_taiga',
+      sectorIndex: 6,
+      name: 'Taiga Siberiana & Foreste di Conifere',
+      subname: 'Abeti Innevati, Ponti di Tronchi & Permafrost [PK 3.90 - 4.55 KM]',
+      loreTitle: 'L\'Immenso Mare Verde delle Conifere Subartiche & Fiumi Gelati',
+      history: 'La sterminata taiga boreale: milioni di abeti e picea che si estendono a perdita d\'occhio sotto cieli di piombo freddo. La strada attraversa fiumi ghiacciati con passerelle e cordoni di tronchi. Il suolo nasconde il permafrost e a motore spento la temperatura scende rapidamente sottozero.',
+      settlementName: 'Stazione Forestale Taiga Nord & Scalo Zattere',
+      settlementPK: 4120,
+      colorSky: 0x0f172a,
+      colorFog: 0x1e293b,
+      colorGround: 0x1e293b,
+      colorRoad: 0x334155,
+      fogDensity: 0.024,
+      ambientIntensity: 0.42,
+      sunIntensity: 0.65,
+      sunColor: 0xbfdbfe,
+      roadRoughness: 0.65,
+      tractionFactor: 0.68,
+      weatherTypes: ['heavy_mist', 'blizzard', 'overcast'],
+      hazardFrequency: 0.55,
+      coldDanger: true,
+      musicMood: 'cold_isolation',
+      environmentalThreat: 'Freddo rigido a -10°C che congela l\'umidità nei condotti carburante; lastroni di ghiaccio nascosti sotto aghi di pino.',
+      primaryExport: ['cured_timber', 'cryo_coolant', 'toolkit'],
+      criticalNeed: ['graphene_battery', 'refined_fuel', 'water_purified'],
+      recommendedGear: 'Candele calde per basse temperature, additivo anticongelante nel serbatoio'
+    },
+    POLAR_TUNDRA: {
+      id: 'polar_tundra',
+      sectorIndex: 7,
+      name: 'Calotta Polare & Oceano Artico',
+      subname: 'Banchisa Glaciale, Aurore Boreali & 80° Parallelo [PK 4.55 - 5.20+ KM]',
+      loreTitle: 'Il Traguardo della Notte Polare, Vetrone Vivo & Aurore Cosmiche',
+      history: 'Il punto più a nord dell\'intero globo terrestre: la banchisa polare affacciata sull\'Oceano Artico all\'80° Parallelo. Sotto il cielo nero illuminato da aurore boreali smeraldo e violette, la strada è una lastra di verglas e ghiaccio compatto. Il termometro tocca -46°C: solo chi possiede coraggio e un veicolo leggendario può raggiungere la base scientifica finale.',
+      settlementName: 'Base Scientifica Globale 80° Parallelo',
+      settlementPK: 4770,
+      colorSky: 0x020617,
+      colorFog: 0x0f172a,
+      colorGround: 0x1e293b,
+      colorRoad: 0x38bdf8,
+      fogDensity: 0.025,
+      ambientIntensity: 0.35,
+      sunIntensity: 0.45,
+      sunColor: 0xa5f3fc,
       roadRoughness: 0.5,
-      tractionFactor: 0.45, // very slippery!
-      weatherTypes: ['blizzard', 'freezing_rain'],
+      tractionFactor: 0.38,
+      weatherTypes: ['blizzard', 'aurora_static', 'freezing_rain'],
       hazardFrequency: 0.65,
       coldDanger: true,
       musicMood: 'cold_isolation',
-      environmentalThreat: 'Gelo polare a -45°C e lastroni di ghiaccio nero: il radiatore gela all\'istante a motore spento; trazione minima a 0.35.',
-      primaryExport: ['cryo_coolant', 'thermal_lining', 'toolkit'],
+      environmentalThreat: 'Gelo polare estremo (-45°C) e lastroni di ghiaccio vivo: trazione ridotta al 38% e rischio di congelamento blocco motore.',
+      primaryExport: ['cryo_coolant', 'thermal_lining', 'electronics'],
       criticalNeed: ['spare_tire', 'fuel_canister', 'engine_oil'],
-      recommendedGear: 'Glicole criogenico antigelo, pneumatici chiodati'
+      recommendedGear: 'Glicole criogenico antigelo, gomme chiodate, fari ausiliari di profondità per la notte polare'
     }
   },
 
-  // Major Real-World Settlements along the Dalton Highway (Alaska Route 11)
+  // Major Settlements and Trade Hubs along the Trans-Earth Meridian
   SETTLEMENTS: {
-    fox_junction: {
-      id: 'fox_junction',
-      biomeId: 'rusty_periphery',
+    san_vito_harbor: {
+      id: 'san_vito_harbor',
+      biomeId: 'mediterranean_coast',
       pk: 220,
-      name: 'Fox Junction & Gold Dredge 8',
-      faction: 'Gilda dei Minatori e Ferrovieri di Fairbanks',
-      population: 85,
-      icon: '⛏️',
-      description: 'Cittadella fortificata attorno alla gigantesca Gold Dredge No. 8 nella valle di Goldstream. I meccanici mantengono operativi i vecchi compressori e scambiano gasolio pesante e profilati d\'acciaio in cambio di cibo pulito e filtri per l\'acqua.',
-      tacticalAdvice: 'Fai scorta di carburante pesante qui a Fox: a nord del fiume Yukon non ci sono raffinerie e i boscaioli pagheranno il gasolio al triplo.',
+      name: 'Porto San Vito & Vecchia Tonnara',
+      faction: 'Consorzio Marinaro e Meccanici della Riviera',
+      population: 140,
+      icon: '⚓',
+      description: 'Borgo marinaro fortificato incastonato tra le scogliere calcaree e le pinete costiere. I pescatori e i mastri d\'ascia scambiano carburante filtrato, acqua di sorgente e arnesi d\'officina in cambio di ricambi metallici.',
+      tacticalAdvice: 'Fai il pieno di carburante e acquista chiavi inglesi: lungo la costa l\'asfalto è scorrevole, ma l\'avvicinamento all\'entroterra richiederà attrezzi solidi.',
       buysMultiplier: 2.5,
       sellsDiscount: 0.7
     },
-    yukon_crossing: {
-      id: 'yukon_crossing',
-      biomeId: 'black_pine_woods',
+    valbruna_mill: {
+      id: 'valbruna_mill',
+      biomeId: 'temperate_forest',
       pk: 870,
-      name: 'Yukon River Camp & Pump Station 6',
-      faction: 'Comunità Nativa e Tecnici della Pipeline Yukon',
-      population: 62,
-      icon: '🌉',
-      description: 'Avamposto strategico ai piedi dell\'imponente ponte E.L. Patton Bridge sul fiume Yukon. I residenti vigilano sulle valvole di derivazione della Pipeline e distillano resina fenolica di picea nera per sigillare radiatori e scafi.',
-      tacticalAdvice: 'Acquista resina sigillante per le forature e il radiatore. La comunità ti pagherà caro qualsiasi litro di carburante portato da Fox.',
+      name: 'Mulino di Valbruna & Segheria Idraulica',
+      faction: 'Gilda Forestale & Guardiacaccia Appenninici',
+      population: 95,
+      icon: '🪵',
+      description: 'Storico insediamento sul fiume azionato da due grandi ruote idrauliche. I boscaioli stagionano legname duro di faggio e quercia ed estraggono resine lenitive per le bende mediche.',
+      tacticalAdvice: 'Acquista travi di legno stagionato per rinforzare il pianale: ti serviranno per affrontare il deserto e la savana.',
       buysMultiplier: 2.5,
       sellsDiscount: 0.7
     },
-    coldfoot_camp: {
-      id: 'coldfoot_camp',
-      biomeId: 'flooded_marshland',
+    elkantara_oasis: {
+      id: 'elkantara_oasis',
+      biomeId: 'arid_desert',
       pk: 1520,
-      name: 'Coldfoot Truck Stop & Slate Creek',
-      faction: 'Fratellanza dei Camionisti Artici (Haul Road Drivers)',
-      population: 110,
-      icon: '🚛',
-      description: 'Il mitico punto di sosta per i convogli polari alle porte del fiume Koyukuk. Circondato dal muskeg, fornisce torba di tundra drenante e cera idrorepellente per proteggere i circuiti dal fango acido.',
-      tacticalAdvice: 'Il fango muskeg delle piane di Koyukuk consuma gli pneumatici e blocca le ruote. Rifornisciti di cere protettive prima della traversata.',
+      name: 'Oasi di El-Kantara & Forte Carovaniero',
+      faction: 'Carovanieri Nomadi Tuareg & Meccanici del Deserto',
+      population: 120,
+      icon: '🌴',
+      description: 'Un\'oasi millenaria circondata da palme da dattero e mura d\'argilla rinforzata. I meccanici locali sono leggendari per la capacità di riparare qualsiasi radiatore con paste sigillanti idrorepellenti.',
+      tacticalAdvice: 'Nel deserto l\'acqua pura vale oro. Compra cera protettiva e taniche d\'acqua prima di affrontare le tempeste di sabbia.',
       buysMultiplier: 2.5,
       sellsDiscount: 0.7
     },
-    chandalar_shelf: {
-      id: 'chandalar_shelf',
-      biomeId: 'glass_crater',
+    serengeti_outpost: {
+      id: 'serengeti_outpost',
+      biomeId: 'savanna_steppe',
       pk: 2170,
-      name: 'Chandalar Shelf - Base Radar White Alice',
-      faction: 'Presidio Militare Scientifico DEW Line',
-      population: 40,
-      icon: '📡',
-      description: 'Ex stazione radar troposferica per la difesa aerea della Guerra Fredda. Gli operatori gestiscono banchi accumulatori schermati al grafene e parabole di ascolto per monitorare le tempeste solari.',
-      tacticalAdvice: 'Le aurore boreali causano sovratensioni magnetiche all\'alternatore. Installa condensatori schermati per non rimanere al buio.',
+      name: 'Stazione Ranger della Piana d\'Oro',
+      faction: 'Ranger della Riserva Naturale & Trasportatori del Bush',
+      population: 75,
+      icon: '🦁',
+      description: 'Bivacco fortificato sotto un gigantesco baobab centenario. I guardaparco forgiano piastre corazzate e balestre rinforzate in grado di resistere ai colpi delle corrugazioni della pista lateritica.',
+      tacticalAdvice: 'Installa balestre da carico pesanti per non spanciare sui dislivelli della savana. I ranger pagheranno caro bende e medicinali.',
       buysMultiplier: 2.5,
       sellsDiscount: 0.7
     },
-    atigun_camp: {
-      id: 'atigun_camp',
-      biomeId: 'iron_gorge',
+    rioverde_station: {
+      id: 'rioverde_station',
+      biomeId: 'tropical_rainforest',
       pk: 2820,
-      name: 'Atigun Pass High Camp - Cava dei Convogli',
-      faction: 'Guardia Valanghe e Minatori delle Brooks Range',
-      population: 94,
-      icon: '🏔️',
-      description: 'Rifugio fortificato ricavato nelle falesie scistose sotto la vetta dell\'Atigun Pass (1.444m). I fabbri forgiano balestre da carico pesanti e chiodi al tungsteno per impedire lo slittamento nei canaloni.',
-      tacticalAdvice: 'La salita dell\'Atigun ha pendenze micidiali e pietre taglienti. Monta balestre rinforzate e paramotore per evitare la rottura delle sospensioni.',
+      name: 'Avamposto Botanico Rio Verde & Scalo Fluviale',
+      faction: 'Esploratori Idrologi & Comunità Indigena Fluviale',
+      population: 68,
+      icon: '🌿',
+      description: 'Villaggio su palafitte di teak affacciato sul grande fiume equatoriale. I biologi distillano cere idrofobiche per isolare gli spinterogeni ed estraggono filtri a torba ad altissima capacità.',
+      tacticalAdvice: 'I monsoni equatoriali allagano la carreggiata. Assicurati di avere la trazione integrale funzionante e pneumatici a tasselli profondi.',
       buysMultiplier: 2.5,
       sellsDiscount: 0.7
     },
-    deadhorse_terminal: {
-      id: 'deadhorse_terminal',
-      biomeId: 'permafrost_highlands',
+    valico_aquile: {
+      id: 'valico_aquile',
+      biomeId: 'alpine_peaks',
       pk: 3470,
-      name: 'Deadhorse Terminal & Base Prudhoe Bay',
-      faction: 'Consorzio Energetico dell\'Oceano Artico (Beaufort Sea)',
-      population: 35,
-      icon: '❄️',
-      description: 'L\'estremo terminale della Dalton Highway affacciato sul Mar Glaciale Artico. Costruito interamente su palafitte per non scaldare il permafrost. Producono fluido criogenico antigelo capace di resistere a -55°C.',
-      tacticalAdvice: 'A Deadhorse la temperatura scende a -45°C. Se spegni il motore senza refrigerante criogenico, il circuito di raffreddamento si spaccherà.',
+      name: 'Rifugio Valico delle Aquile (Passo Alpino 2.450m)',
+      faction: 'Soccorso Alpino & Cantonieri dell\'Alta Quota',
+      population: 52,
+      icon: '🏔️',
+      description: 'Rifugio in pietra granitica incastonato sulla forcella a 2.450 metri di quota. I cantonieri gestiscono frese sgombraneve e forgiano punte al tungsteno e balestre rinforzate per arrampicarsi sui ripidi tornanti.',
+      tacticalAdvice: 'Le pendenze del 14% richiedono una prima marcia corta. Non surriscaldare i freni: usa sempre il freno motore nelle discese.',
       buysMultiplier: 2.5,
       sellsDiscount: 0.7
-    }
+    },
+    taiga_nord: {
+      id: 'taiga_nord',
+      biomeId: 'boreal_taiga',
+      pk: 4120,
+      name: 'Stazione Forestale Taiga Nord & Scalo Zattere',
+      faction: 'Taglialegna Siberiani & Tecnici della Transcontinentale',
+      population: 80,
+      icon: '🌲',
+      description: 'Avamposto tra le conifere innevate della taiga siberiana. Forniscono fluido criogenico antigelo e pannelli termoisolanti per impedire che l\'olio motore diventi solido durante le soste.',
+      tacticalAdvice: 'Il freddo umido a -10°C gela i carburatori. Monta isolamento termico nel vano motore e fai scorta di antigelo.',
+      buysMultiplier: 2.5,
+      sellsDiscount: 0.7
+    },
+    polar_base_80: {
+      id: 'polar_base_80',
+      biomeId: 'polar_tundra',
+      pk: 4770,
+      name: 'Base Scientifica Globale 80° Parallelo',
+      faction: 'Consorzio Scientifico Internazionale dell\'Oceano Polare',
+      population: 45,
+      icon: '❄️',
+      description: 'Il capolinea assoluto del Grande Meridiano sulle sponde ghiacciate dell\'Oceano Glaciale Artico. Costruito su piloni idraulici riscaldati, è il cuore della ricerca sismica e planetaria.',
+      tacticalAdvice: 'A -45°C il ghiaccio vivo offre aderenza minima. Guida con delicatezza estrema e goditi lo spettacolo dell\'aurora boreale sul traguardo!',
+      buysMultiplier: 2.5,
+      sellsDiscount: 0.7
+    },
+
+    // Legacy Aliases for backwards-compatibility
+    fox_junction: { id: 'fox_junction', biomeId: 'mediterranean_coast', pk: 220, name: 'Porto San Vito (Ex Fox)', icon: '⚓', buysMultiplier: 2.5, sellsDiscount: 0.7 },
+    yukon_crossing: { id: 'yukon_crossing', biomeId: 'temperate_forest', pk: 870, name: 'Mulino di Valbruna (Ex Yukon)', icon: '🪵', buysMultiplier: 2.5, sellsDiscount: 0.7 },
+    coldfoot_camp: { id: 'coldfoot_camp', biomeId: 'arid_desert', pk: 1520, name: 'Oasi di El-Kantara (Ex Coldfoot)', icon: '🌴', buysMultiplier: 2.5, sellsDiscount: 0.7 },
+    chandalar_shelf: { id: 'chandalar_shelf', biomeId: 'savanna_steppe', pk: 2170, name: 'Piana d\'Oro (Ex Chandalar)', icon: '🦁', buysMultiplier: 2.5, sellsDiscount: 0.7 },
+    atigun_camp: { id: 'atigun_camp', biomeId: 'alpine_peaks', pk: 3470, name: 'Valico delle Aquile (Ex Atigun)', icon: '🏔️', buysMultiplier: 2.5, sellsDiscount: 0.7 },
+    deadhorse_terminal: { id: 'deadhorse_terminal', biomeId: 'polar_tundra', pk: 4770, name: 'Base 80° Parallelo (Ex Deadhorse)', icon: '❄️', buysMultiplier: 2.5, sellsDiscount: 0.7 }
   },
 
   // Surface materials details
   SURFACES: {
-    ASPHALT: { name: 'Asfalto Fessurato', friction: 1.0, wearMultiplier: 1.0, sound: 'asphalt' },
-    DIRT: { name: 'Fango Argilloso', friction: 0.75, wearMultiplier: 1.4, sound: 'dirt' },
+    ASPHALT: { name: 'Asfalto Panoramico', friction: 1.0, wearMultiplier: 1.0, sound: 'asphalt' },
+    DIRT: { name: 'Fango Argilloso Temperato', friction: 0.75, wearMultiplier: 1.4, sound: 'dirt' },
     GRAVEL: { name: 'Ghiaia e Detriti', friction: 0.8, wearMultiplier: 1.3, sound: 'gravel' },
-    ICE: { name: 'Ghiaccio Nero', friction: 0.35, wearMultiplier: 0.8, sound: 'ice' },
-    SLUDGE: { name: 'Fanghiglia Tossica', friction: 0.6, wearMultiplier: 2.0, toxicity: 8, sound: 'sludge' },
-    STEEL_BRIDGE: { name: 'Grigliato d\'Acciaio', friction: 0.9, wearMultiplier: 1.1, sound: 'metal' }
+    ICE: { name: 'Ghiaccio Vivo & Verglas', friction: 0.35, wearMultiplier: 0.8, sound: 'ice' },
+    SLUDGE: { name: 'Argilla Liquida Equatoriale', friction: 0.52, wearMultiplier: 2.0, sound: 'sludge' },
+    STEEL_BRIDGE: { name: 'Grigliato d\'Acciaio & Ponti', friction: 0.9, wearMultiplier: 1.1, sound: 'metal' },
+    SAND: { name: 'Sabbia Cedevole delle Dune', friction: 0.58, wearMultiplier: 1.8, sound: 'dirt' },
+    RED_DIRT: { name: 'Terra Rossa di Savana (Laterite)', friction: 0.82, wearMultiplier: 1.2, sound: 'dirt' },
+    ALPINE_ROCK: { name: 'Pietrisco e Granito Alpino', friction: 0.75, wearMultiplier: 1.5, sound: 'gravel' }
   },
 
   // Real European Classic Vehicles Catalog (1960s - 2000s)
@@ -1031,73 +1123,89 @@ const CONFIG = {
   // Points of Interest (POIs) - Structured by real-world Dalton Highway infrastructure
   POI_TYPES: {
     SETTLEMENT_HUB: {
-      name: 'Insediamento e Truck Stop Storico',
+      name: 'Insediamento e Stazione di Scambio',
       icon: '🏘️',
       isSettlement: true,
       lootTable: [], // Trade hub, not simple scavenge
       dangerLevel: 0.05
     },
-    REFINERY_DEPOT: {
-      name: 'Parco Serbatoi Gasolio Artico di Livengood',
-      icon: '🛢️',
-      biomeId: 'rusty_periphery',
-      lootTable: ['refined_fuel', 'engine_oil', 'scrap_metal', 'fuel_canister'],
-      dangerLevel: 0.25,
-      loreNote: 'Deposito carburante invernale ad alto cetano della vecchia miniera di Livengood. I manometri indicano riserve di gasolio liquido intatte.'
+    COASTAL_FISHERY_RUIN: {
+      name: 'Vecchia Tonnara & Rimessa Motoscafi Costiera',
+      icon: '⚓',
+      biomeId: 'mediterranean_coast',
+      lootTable: ['refined_fuel', 'engine_oil', 'scrap_metal', 'water_purified'],
+      dangerLevel: 0.2,
+      loreNote: 'Antico magazzino marinaro affacciato sulle scogliere. Tra le reti da pesca ci sono taniche di benzina marina e filtri decantatori intatti.'
     },
     FORESTRY_LUMBER_YARD: {
-      name: 'Piazzale Taglio Picea Nera dello Yukon',
-      icon: '🪓',
-      biomeId: 'black_pine_woods',
+      name: 'Segheria Idraulica & Deposito Faggi',
+      icon: '🪵',
+      biomeId: 'temperate_forest',
       lootTable: ['cured_timber', 'antiseptic_resin', 'first_aid_bandage', 'toolkit'],
       dangerLevel: 0.2,
-      loreNote: 'Accatastamento di tronchi di picea nera e fusti di resina idrofobica pronti per le chiatte fluviali pre-collasso.'
+      loreNote: 'Accatastamento di travi di quercia e faggio stagionato. Sotto la tettoia i mastri boscaioli hanno lasciato casse di attrezzi e resine sigillanti.'
     },
-    HYDRO_PUMP_STATION: {
-      name: 'Impianto Idrovore e Valvole Koyukuk TAPS',
-      icon: '💧',
-      biomeId: 'flooded_marshland',
-      lootTable: ['peat_filter', 'waterproofing_wax', 'water_purified', 'spare_tire'],
+    DESERT_CARAVAN_POST: {
+      name: 'Forte Carovaniero & Cisterna delle Dune',
+      icon: '🌴',
+      biomeId: 'arid_desert',
+      lootTable: ['water_purified', 'waterproofing_wax', 'fuel_canister', 'spare_tire'],
       dangerLevel: 0.35,
-      loreNote: 'Quadro valvole parzialmente allagato dal disgelo del muskeg. I filtri a membrana di torba sono ancora intatti nei cestelli di decantazione.'
+      loreNote: 'Antico presidio carovaniero tra le sabbie del Sahara. La cisterna sotterranea protegge preziose taniche d\'acqua e teli termoriflettenti.'
     },
-    IONIC_RADAR_ARRAY: {
-      name: 'Parabola Radar Troposferica White Alice (DEW Line)',
-      icon: '📡',
-      biomeId: 'glass_crater',
-      lootTable: ['graphene_battery', 'rad_shield_plate', 'electronics', 'ammo_flare'],
-      dangerLevel: 0.5,
-      loreNote: 'Gruppo di continuità militare del sistema di difesa aerea della Guerra Fredda. I condensatori al grafene mantengono ancora carica statica.'
+    SAVANNA_RANGER_STATION: {
+      name: 'Torretta di Vedetta & Deposito Ranger del Bush',
+      icon: '🦁',
+      biomeId: 'savanna_steppe',
+      lootTable: ['reinforced_coil', 'armor_plate', 'toolkit', 'canned_stew'],
+      dangerLevel: 0.3,
+      loreNote: 'Stazione dei guardaparco della savana. Nell\'armeria e nell\'officina si trovano balestre rinforzate e lamiere d\'acciaio per rinforzare il pianale.'
     },
-    QUARRY_CRUSHER_SITE: {
-      name: 'Cava Frantumatori di Ardesia DOT Atigun Pass',
-      icon: '⚙️',
-      biomeId: 'iron_gorge',
-      lootTable: ['reinforced_coil', 'tungsten_drill_bit', 'armor_plate', 'scrap_metal'],
+    JUNGLE_BOTANICAL_LAB: {
+      name: 'Stazione Idrologica & Scalo Rio Verde',
+      icon: '🌿',
+      biomeId: 'tropical_rainforest',
+      lootTable: ['peat_filter', 'waterproofing_wax', 'antiseptic_resin', 'spare_tire'],
       dangerLevel: 0.4,
-      loreNote: 'Impianto di frantumazione ghiaia per la manutenzione del valico montano. Si possono recuperare balestre pesanti e inserti al tungsteno.'
+      loreNote: 'Laboratorio palafittato di ricerca idrologica. I filtri a torba e le cere impermeabilizzanti per i circuiti elettrici sono ancora sigillati.'
+    },
+    ALPINE_TUNNEL_SHELTER: {
+      name: 'Galleria Paravalanghe & Cava del Valico',
+      icon: '🏔️',
+      biomeId: 'alpine_peaks',
+      lootTable: ['tungsten_drill_bit', 'reinforced_coil', 'armor_plate', 'scrap_metal'],
+      dangerLevel: 0.45,
+      loreNote: 'Riparo scavato nella parete granitica per i cantonieri del passo. Si possono recuperare inserti al tungsteno e balestre speciali da salita.'
+    },
+    TAIGA_LOGGING_DEPOT: {
+      name: 'Scalo Zattere & Deposito Conifere della Taiga',
+      icon: '🌲',
+      biomeId: 'boreal_taiga',
+      lootTable: ['cured_timber', 'cryo_coolant', 'thermal_lining', 'toolkit'],
+      dangerLevel: 0.35,
+      loreNote: 'Piazzale di smistamento tronchi lungo il fiume gelato. Nelle casse stagne ci sono flaconi di glicole criogenico e coperte termiche.'
     },
     POLAR_METAR_SHELTER: {
-      name: 'Capsula Rifugio Spazzaneve Arctic Cat',
-      icon: '🏕️',
-      biomeId: 'permafrost_highlands',
-      lootTable: ['cryo_coolant', 'thermal_lining', 'toolkit', 'water_purified'],
-      dangerLevel: 0.3,
-      loreNote: 'Bivacco coibentato dell\'Alaska DOT per gli operatori delle frese polari. Nelle stive ci sono scorte di fluido antigelo a -55°C.'
+      name: 'Capsula Rifugio Polare 80° Parallelo',
+      icon: '❄️',
+      biomeId: 'polar_tundra',
+      lootTable: ['cryo_coolant', 'thermal_lining', 'electronics', 'water_purified'],
+      dangerLevel: 0.5,
+      loreNote: 'Modulo geodetico del consorzio polare. Custodisce sensori satellitari schermati e fluido antigelo artico in grado di reggere a -55°C.'
     },
     OVERTURNED_CONVOY: {
-      name: 'Autocisterna Kenworth Artica Ribaltata',
+      name: 'Autocarro da Spedizione Ribaltato',
       icon: '🚛',
       lootTable: ['fuel_canister', 'spare_tire', 'toolkit', 'scrap_metal'],
       dangerLevel: 0.4,
-      loreNote: 'Il semirimorchio a tre assi è scivolato nel canalone laterale durante una bufera. C\'è ancora gasolio pesante nel serbatoio coibentato.'
+      loreNote: 'Un camion del convoglio precedente è uscito di carreggiata. Nel vano di carico ci sono carburante di riserva e ruote di scorta ancora gonfie.'
     },
     MILITARY_CHECKPOINT: {
-      name: 'Posto di Blocco Alaska State Troopers',
+      name: 'Posto di Blocco & Stazione Radio Transcontinentale',
       icon: '🚧',
       lootTable: ['ammo_flare', 'armor_plate', 'medkit', 'canned_stew'],
       dangerLevel: 0.45,
-      loreNote: 'Garitta blindata di controllo transito con barriere d\'acciaio per il blocco della Haul Road. Cassette mediche di emergenza stivate all\'interno.'
+      loreNote: 'Barriera di confine con antenna ricetrasmittente d\'emergenza. All\'interno si trovano razzi di segnalazione e razioni alimentari.'
     }
   },
 
@@ -3565,12 +3673,14 @@ class BiomeManager {
     this.audioEngine = audioEngine;
 
     this.biomeList = [
-      CONFIG.BIOMES.RUSTY_PERIPHERY,
-      CONFIG.BIOMES.BLACK_PINE_WOODS,
-      CONFIG.BIOMES.FLOODED_MARSHLAND,
-      CONFIG.BIOMES.GLASS_CRATER,
-      CONFIG.BIOMES.IRON_GORGE,
-      CONFIG.BIOMES.PERMAFROST_HIGHLANDS
+      CONFIG.BIOMES.MEDITERRANEAN_COAST,
+      CONFIG.BIOMES.TEMPERATE_FOREST,
+      CONFIG.BIOMES.ARID_DESERT,
+      CONFIG.BIOMES.SAVANNA_STEPPE,
+      CONFIG.BIOMES.TROPICAL_RAINFOREST,
+      CONFIG.BIOMES.ALPINE_PEAKS,
+      CONFIG.BIOMES.BOREAL_TAIGA,
+      CONFIG.BIOMES.POLAR_TUNDRA
     ];
 
     this.biomeLength = 650; // Distance in meters per biome
@@ -3602,22 +3712,27 @@ class BiomeManager {
   }
 
   getCurrentSurface(chunkZ) {
-    // Choose surface based on current biome
     const biome = this.currentBiome;
-    if (biome.id === 'rusty_periphery') {
-      return Math.random() < 0.3 ? CONFIG.SURFACES.GRAVEL : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'black_pine_woods') {
-      return Math.random() < 0.6 ? CONFIG.SURFACES.DIRT : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'flooded_marshland') {
-      return Math.random() < 0.4 ? CONFIG.SURFACES.STEEL_BRIDGE : CONFIG.SURFACES.SLUDGE;
-    } else if (biome.id === 'glass_crater') {
-      return Math.random() < 0.5 ? CONFIG.SURFACES.SLUDGE : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'iron_gorge') {
-      return Math.random() < 0.5 ? CONFIG.SURFACES.GRAVEL : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'permafrost_highlands') {
-      return Math.random() < 0.65 ? CONFIG.SURFACES.ICE : CONFIG.SURFACES.ASPHALT;
+    switch (biome.id) {
+      case 'mediterranean_coast':
+        return Math.random() < 0.25 ? CONFIG.SURFACES.GRAVEL : CONFIG.SURFACES.ASPHALT;
+      case 'temperate_forest':
+        return Math.random() < 0.4 ? CONFIG.SURFACES.DIRT : CONFIG.SURFACES.ASPHALT;
+      case 'arid_desert':
+        return Math.random() < 0.65 ? CONFIG.SURFACES.SAND : CONFIG.SURFACES.ASPHALT;
+      case 'savanna_steppe':
+        return Math.random() < 0.7 ? CONFIG.SURFACES.RED_DIRT : CONFIG.SURFACES.GRAVEL;
+      case 'tropical_rainforest':
+        return Math.random() < 0.6 ? CONFIG.SURFACES.SLUDGE : (Math.random() < 0.3 ? CONFIG.SURFACES.STEEL_BRIDGE : CONFIG.SURFACES.DIRT);
+      case 'alpine_peaks':
+        return Math.random() < 0.45 ? CONFIG.SURFACES.ALPINE_ROCK : CONFIG.SURFACES.ASPHALT;
+      case 'boreal_taiga':
+        return Math.random() < 0.5 ? CONFIG.SURFACES.GRAVEL : (Math.random() < 0.3 ? CONFIG.SURFACES.ICE : CONFIG.SURFACES.STEEL_BRIDGE);
+      case 'polar_tundra':
+        return Math.random() < 0.75 ? CONFIG.SURFACES.ICE : CONFIG.SURFACES.ASPHALT;
+      default:
+        return CONFIG.SURFACES.ASPHALT;
     }
-    return CONFIG.SURFACES.ASPHALT;
   }
 }
 
@@ -3720,11 +3835,56 @@ class RoadGenerator {
     const surface = this.biomeManager.getCurrentSurface(startZ);
     const biome = this.biomeManager.currentBiome;
 
-    // Generous 24m highway width across all biomes (2 wide lanes + emergency shoulders)
+    // Calibrated highway width & elevation profiles across all 8 natural biomes
     let baseWidth = CONFIG.WORLD.BASE_ROAD_WIDTH || 24.0;
-    if (biome.id === 'iron_gorge') baseWidth = 20.0; // Mountain canyon pass
-    else if (biome.id === 'black_pine_woods') baseWidth = 24.0;
-    else if (biome.id === 'permafrost_highlands') baseWidth = 23.0;
+    let hillAmplitude = 1.8;
+    let curveIntensity = 0.06;
+
+    switch (biome.id) {
+      case 'mediterranean_coast':
+        baseWidth = 23.0;
+        hillAmplitude = 1.6;
+        curveIntensity = 0.07; // Scenic coastal bends
+        break;
+      case 'temperate_forest':
+        baseWidth = 24.0;
+        hillAmplitude = 2.4; // Rolling deciduous hills
+        curveIntensity = 0.055;
+        break;
+      case 'arid_desert':
+        baseWidth = 26.0; // Wide open desert corridor
+        hillAmplitude = 1.4; // Soft rolling dunes
+        curveIntensity = 0.04; // Long high-speed straights
+        break;
+      case 'savanna_steppe':
+        baseWidth = 25.0;
+        hillAmplitude = 1.5;
+        curveIntensity = 0.045;
+        break;
+      case 'tropical_rainforest':
+        baseWidth = 21.0; // Dense jungle channel
+        hillAmplitude = 2.0;
+        curveIntensity = 0.08; // Twisting river valley bends
+        break;
+      case 'alpine_peaks':
+        baseWidth = 19.5; // Mountain pass ledge
+        hillAmplitude = 4.2; // Steep alpine grade & passes
+        curveIntensity = 0.095; // Winding hairpins
+        break;
+      case 'boreal_taiga':
+        baseWidth = 24.0;
+        hillAmplitude = 1.8;
+        curveIntensity = 0.05;
+        break;
+      case 'polar_tundra':
+        baseWidth = 23.0; // Raised permafrost embankment
+        hillAmplitude = 1.2;
+        curveIntensity = 0.045;
+        break;
+      default:
+        baseWidth = 24.0;
+        break;
+    }
 
     const points = [];
     let curX = this.lastChunkX;
@@ -3732,14 +3892,13 @@ class RoadGenerator {
 
     for (let s = 0; s <= segments; s++) {
       const z = startZ + s * stepZ;
-      const y = Math.sin(z * 0.018) * 1.1 + Math.cos(z * 0.006) * 1.8;
+      const y = Math.sin(z * 0.016) * hillAmplitude + Math.cos(z * 0.005) * (hillAmplitude * 0.6);
       const width = baseWidth + Math.sin(z * 0.035) * 0.8;
 
       points.push({ x: curX, y: y, z: z, width: width });
 
       if (s < segments) {
-        // Gentle, sweeping highway curves typical of real northern corridors
-        const curvatureDelta = (Math.sin(z * 0.012) * 0.5 + Math.sin(z * 0.004) * 1.1) * 0.06;
+        const curvatureDelta = (Math.sin(z * 0.012) * 0.5 + Math.sin(z * 0.004) * 1.1) * curveIntensity;
         curAngle += curvatureDelta;
         curX += Math.sin(curAngle) * stepZ * 0.45;
       }
@@ -4184,6 +4343,34 @@ class ScenerySpawner {
     this.matWoodLog = new THREE.MeshStandardMaterial({ color: 0x452a1c, roughness: 0.95 });
     this.matAmberGlow = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
     this.matCyanGlow = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+
+    // Mediterranean Coast Materials
+    this.matOliveFoliage = new THREE.MeshStandardMaterial({ color: 0x5a6b38, roughness: 0.86 });
+    this.matMaritimePineFoliage = new THREE.MeshStandardMaterial({ color: 0x1d3824, roughness: 0.88 });
+    this.matStoneWall = new THREE.MeshStandardMaterial({ color: 0x9e9382, roughness: 0.96 });
+
+    // Temperate Forest Materials
+    this.matDeciduousOak = new THREE.MeshStandardMaterial({ color: 0x275924, roughness: 0.85 });
+    this.matBeechFoliage = new THREE.MeshStandardMaterial({ color: 0x366e2c, roughness: 0.84 });
+
+    // Arid Desert Materials
+    this.matDuneSand = new THREE.MeshStandardMaterial({ color: 0xc99452, roughness: 0.96 });
+    this.matPalmTrunk = new THREE.MeshStandardMaterial({ color: 0x54402e, roughness: 0.92 });
+    this.matPalmFronds = new THREE.MeshStandardMaterial({ color: 0x396324, roughness: 0.82 });
+    this.matAdobe = new THREE.MeshStandardMaterial({ color: 0xb3825a, roughness: 0.96 });
+
+    // Savanna & Steppe Materials
+    this.matAcaciaCanopy = new THREE.MeshStandardMaterial({ color: 0x526b34, roughness: 0.88 });
+    this.matBaobabTrunk = new THREE.MeshStandardMaterial({ color: 0x695747, roughness: 0.92 });
+    this.matSavannaGrass = new THREE.MeshStandardMaterial({ color: 0xc2a452, roughness: 0.95 });
+
+    // Tropical Rainforest Materials
+    this.matJungleFoliage = new THREE.MeshStandardMaterial({ color: 0x12471f, roughness: 0.82 });
+    this.matJungleCanopyDark = new THREE.MeshStandardMaterial({ color: 0x0a3315, roughness: 0.86 });
+
+    // Alpine Peaks Materials
+    this.matAlpineGranite = new THREE.MeshStandardMaterial({ color: 0x4a4d53, roughness: 0.92 });
+    this.matAlpineScree = new THREE.MeshStandardMaterial({ color: 0x5e636d, roughness: 0.95 });
   }
 
   update(playerZ) {
@@ -4245,17 +4432,21 @@ class ScenerySpawner {
       let signType = null;
       if (relZ >= 20 && relZ < 30) {
         signType = 'speed_80';
-      } else if (biome.id === 'rusty_periphery' && relZ >= 130 && relZ < 140) {
-        signType = 'industrial';
-      } else if (biome.id === 'black_pine_woods' && relZ >= 270 && relZ < 280) {
+      } else if (biome.id === 'mediterranean_coast' && relZ >= 130 && relZ < 140) {
+        signType = 'speed_80';
+      } else if (biome.id === 'temperate_forest' && relZ >= 270 && relZ < 280) {
         signType = 'wildlife';
-      } else if (biome.id === 'flooded_marshland' && relZ >= 40 && relZ < 50) {
+      } else if (biome.id === 'arid_desert' && relZ >= 130 && relZ < 140) {
+        signType = 'desert_heat';
+      } else if (biome.id === 'savanna_steppe' && relZ >= 270 && relZ < 280) {
+        signType = 'wildlife';
+      } else if (biome.id === 'tropical_rainforest' && relZ >= 40 && relZ < 50) {
         signType = 'flood';
-      } else if (biome.id === 'glass_crater' && relZ >= 30 && relZ < 40) {
-        signType = 'radiation';
-      } else if (biome.id === 'iron_gorge' && ((relZ >= 30 && relZ < 40) || (relZ >= 250 && relZ < 260))) {
+      } else if (biome.id === 'alpine_peaks' && ((relZ >= 30 && relZ < 40) || (relZ >= 250 && relZ < 260))) {
         signType = 'rockfall';
-      } else if (biome.id === 'permafrost_highlands' && relZ >= 30 && relZ < 40) {
+      } else if (biome.id === 'boreal_taiga' && relZ >= 270 && relZ < 280) {
+        signType = 'wildlife';
+      } else if (biome.id === 'polar_tundra' && relZ >= 30 && relZ < 40) {
         signType = 'ice';
       }
 
@@ -4272,15 +4463,17 @@ class ScenerySpawner {
       }
     }
 
-    // 3. Streetlights - Illuminated settlement, bridge, and industrial sectors!
-    const cycleZ = z % 3900;
+    // 3. Streetlights - Illuminated settlement hubs (8 real-world sectors, 5200m loop)
+    const cycleZ = z % 5200;
     const isStreetlit =
-      (cycleZ >= 80 && cycleZ <= 420) ||    // Sector 0: Fairbanks & Fox Junction
-      (cycleZ >= 760 && cycleZ <= 1020) ||  // Sector 1: Yukon River Patton Bridge & Camp
-      (cycleZ >= 1420 && cycleZ <= 1680) || // Sector 2: Coldfoot Truck Stop & Slate Creek
-      (cycleZ >= 2080 && cycleZ <= 2360) || // Sector 3: Arctic Circle Checkpoint & Chandalar
-      (cycleZ >= 2740 && cycleZ <= 2960) || // Sector 4: Atigun Pass High Camp & Valley
-      (cycleZ >= 3380 && cycleZ <= 3850);   // Sector 5: Deadhorse Terminal Industrial Strip
+      (cycleZ >= 100 && cycleZ <= 340) ||   // Sector 0: San Vito Harbor
+      (cycleZ >= 750 && cycleZ <= 990) ||   // Sector 1: Valbruna Mill
+      (cycleZ >= 1400 && cycleZ <= 1640) || // Sector 2: El Kantara Oasis
+      (cycleZ >= 2050 && cycleZ <= 2290) || // Sector 3: Serengeti Outpost
+      (cycleZ >= 2700 && cycleZ <= 2940) || // Sector 4: Rio Verde Station
+      (cycleZ >= 3350 && cycleZ <= 3590) || // Sector 5: Valico Aquile Refuge
+      (cycleZ >= 4000 && cycleZ <= 4240) || // Sector 6: Taiga Nord Depot
+      (cycleZ >= 4650 && cycleZ <= 4890);   // Sector 7: Base Polare 80
 
     if (isStreetlit) {
       const lampInterval = 32;
@@ -4302,10 +4495,15 @@ class ScenerySpawner {
       }
     }
 
-    // 4. Utility Power Poles - Deterministic single side, regular 36m spacing
-    const hasPoles = (biome.id === 'rusty_periphery' || biome.id === 'black_pine_woods' || biome.id === 'iron_gorge');
+    // 4. Utility Power Poles - Telecommunication & power lines in civilized/working sectors
+    const hasPoles = (
+      biome.id === 'mediterranean_coast' ||
+      biome.id === 'temperate_forest' ||
+      biome.id === 'savanna_steppe' ||
+      biome.id === 'boreal_taiga'
+    );
     if (hasPoles) {
-      const poleSide = (biome.id === 'black_pine_woods') ? -1 : 1;
+      const poleSide = (biome.id === 'temperate_forest') ? -1 : 1;
       const poleIndex = Math.floor(z / 36);
       const poleKey = `pole_${poleIndex}`;
       if (!this.spawnedMilestones.has(poleKey) && (z % 36) < 10) {
@@ -4321,8 +4519,8 @@ class ScenerySpawner {
       }
     }
 
-    // 5. Arctic Snow Alignment Poles (Paline da Neve) - Only in Permafrost
-    if (biome.id === 'permafrost_highlands') {
+    // 5. Alpine & Arctic Snow Alignment Poles (Paline da Neve Catarifrangenti)
+    if (biome.id === 'alpine_peaks' || biome.id === 'polar_tundra') {
       const snowIndex = Math.floor(z / 22);
       const snowKey = `snow_${snowIndex}`;
       if (!this.spawnedMilestones.has(snowKey) && (z % 22) < 10) {
@@ -4350,102 +4548,142 @@ class ScenerySpawner {
 
     let propsToSpawn = [];
 
-    if (biome.id === 'rusty_periphery') {
-      // Zone 1 (0-130m): Farmland with split-rail fences on right side
-      if (relZ < 130) {
-        propsToSpawn.push(this.createSplitRailFence(roadInfo.x + halfW + 4.5, roadInfo.y, z));
-        if (Math.random() < 0.45) {
-          propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
+    if (biome.id === 'mediterranean_coast') {
+      // Zone 1: Rural dry stone walls & olive terraces
+      if (relZ < 150) {
+        propsToSpawn.push(this.createDryStoneWall(roadInfo.x + halfW + 3.8, roadInfo.y, z));
+        if (Math.random() < 0.55) {
+          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 4.8, roadInfo.y, z));
         }
       }
-      // Zone 2 (130-330m): Concentrated Industrial Petrochemical Yard on Left (-X)
-      else if (relZ >= 180 && relZ < 250) {
-        const clusterKey = `refinery_${Math.floor(z / 650)}`;
+      // Zone 2 (180-260m): San Vito Harbor Coastal Fishery & Watchtower
+      else if (relZ >= 180 && relZ < 260) {
+        const clusterKey = `harbor_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(clusterKey)) {
           this.spawnedMilestones.add(clusterKey);
-          propsToSpawn.push(this.createRefineryCompound(roadInfo.x - halfW - 8.0, roadInfo.y, z));
+          propsToSpawn.push(this.createHarborFishery(roadInfo.x - halfW - 8.5, roadInfo.y, z));
         }
       }
-      // Zone 3 (330-470m): Highway Interchange with Jersey Barriers
-      else if (relZ >= 330 && relZ < 470) {
-        [-1, 1].forEach((s) => {
-          propsToSpawn.push(this.createJerseyBarrier(roadInfo.x + s * (halfW + 0.3), roadInfo.y, z));
-        });
-      }
-      // Zone 4 (470-650m): Junkyard perimeter on Right (+X)
-      else if (relZ >= 500 && relZ < 560) {
-        const junkKey = `junk_${Math.floor(z / 650)}`;
-        if (!this.spawnedMilestones.has(junkKey)) {
-          this.spawnedMilestones.add(junkKey);
-          propsToSpawn.push(this.createJunkyardCluster(roadInfo.x + halfW + 7.0, roadInfo.y, z));
+      // Zone 3: Maritime umbrella pines & coastal guardrails
+      else {
+        propsToSpawn.push(this.createMaritimePine(roadInfo.x + halfW + 6.0, roadInfo.y, z));
+        if (Math.random() < 0.45) {
+          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 5.5, roadInfo.y, z));
         }
       }
-    } else if (biome.id === 'black_pine_woods') {
-      // Natural Groves: Check if in clearings (160-220m or 420-480m)
-      const isClearing = (relZ >= 160 && relZ <= 220) || (relZ >= 420 && relZ <= 480);
-      if (isClearing) {
-        // Alpine open meadow: grass and low rocks only, wide view of sky/mountains!
-        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 3.0, roadInfo.y, z));
-        propsToSpawn.push(this.createGrassTuft(roadInfo.x + halfW + 3.0, roadInfo.y, z));
-      } else if (relZ >= 300 && relZ <= 330) {
-        // Forester Station Outpost (Single dedicated clearing at z ~ 315m)
+    } else if (biome.id === 'temperate_forest') {
+      // Zone 1: Split-rail fences and clearings
+      if (relZ < 140) {
+        propsToSpawn.push(this.createSplitRailFence(roadInfo.x + halfW + 4.2, roadInfo.y, z));
+        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
+      }
+      // Zone 2 (180-260m): Valbruna Hydraulic Water Mill & Log Yard
+      else if (relZ >= 180 && relZ < 260) {
+        const millKey = `mill_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(millKey)) {
+          this.spawnedMilestones.add(millKey);
+          propsToSpawn.push(this.createWaterMill(roadInfo.x - halfW - 9.0, roadInfo.y, z));
+        }
+      }
+      // Zone 3: Lush broadleaf stands of Deciduous Oaks & European Beeches
+      else {
+        propsToSpawn.push(this.createDeciduousOak(roadInfo.x - halfW - 6.0, roadInfo.y, z));
+        propsToSpawn.push(this.createEuropeanBeech(roadInfo.x + halfW + 6.5, roadInfo.y, z));
+      }
+    } else if (biome.id === 'arid_desert') {
+      // Zone 1 (180-260m): El Kantara Adobe Caravansary & Palm Oasis
+      if (relZ >= 180 && relZ < 260) {
+        const oasisKey = `oasis_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(oasisKey)) {
+          this.spawnedMilestones.add(oasisKey);
+          propsToSpawn.push(this.createOasisCaravansary(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Sweeping sand dune ridges, date palms and sun-bleached wrecks
+      else {
+        propsToSpawn.push(this.createSandDuneRidge(roadInfo.x + halfW + 7.5, roadInfo.y, z, 1));
+        if (Math.random() < 0.35) {
+          propsToSpawn.push(this.createDatePalm(roadInfo.x - halfW - 5.5, roadInfo.y, z));
+        }
+        if (Math.random() < 0.25) {
+          propsToSpawn.push(this.createWreck(roadInfo.x - halfW - 4.0, roadInfo.y, z));
+        }
+      }
+    } else if (biome.id === 'savanna_steppe') {
+      // Zone 1 (180-260m): Serengeti Ranger Station & Watchtower
+      if (relZ >= 180 && relZ < 260) {
+        const rangerKey = `ranger_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(rangerKey)) {
+          this.spawnedMilestones.add(rangerKey);
+          propsToSpawn.push(this.createRangerStation(roadInfo.x + halfW + 8.5, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Flat-topped umbrella acacias, monumental baobabs & dry golden straw
+      else {
+        propsToSpawn.push(this.createUmbrellaAcacia(roadInfo.x - halfW - 6.5, roadInfo.y, z));
+        if (Math.random() < 0.35) {
+          propsToSpawn.push(this.createBaobabTree(roadInfo.x + halfW + 11.0, roadInfo.y, z));
+        }
+        propsToSpawn.push(this.createGrassTuft(roadInfo.x + halfW + 2.5, roadInfo.y, z));
+      }
+    } else if (biome.id === 'tropical_rainforest') {
+      // Zone 1 (180-260m): Rio Verde Botanical Canopy Lab & Stilt Station
+      if (relZ >= 180 && relZ < 260) {
+        const labKey = `botanical_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(labKey)) {
+          this.spawnedMilestones.add(labKey);
+          propsToSpawn.push(this.createBotanicalLab(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Gigantic buttressed rainforest trees with multi-layered canopy & lianas
+      else {
+        propsToSpawn.push(this.createRainforestGiant(roadInfo.x - halfW - 7.5, roadInfo.y, z));
+        propsToSpawn.push(this.createRainforestGiant(roadInfo.x + halfW + 7.5, roadInfo.y, z));
+        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
+      }
+    } else if (biome.id === 'alpine_peaks') {
+      // Zone 1 (180-260m): Avalanche Defense Gallery & High Pass Shelter
+      if (relZ >= 180 && relZ < 260) {
+        const passKey = `pass_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(passKey)) {
+          this.spawnedMilestones.add(passKey);
+          propsToSpawn.push(this.createAvalancheTunnel(roadInfo.x, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Colossal dark granite canyon walls, jagged peaks & rockfall scree
+      else {
+        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1));
+        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1));
+        if (Math.random() < 0.4) {
+          propsToSpawn.push(this.createRock(roadInfo.x + halfW + 2.5, roadInfo.y, z, 1.8));
+        }
+      }
+    } else if (biome.id === 'boreal_taiga') {
+      // Zone 1 (180-260m): Taiga Nord Forestry Station & Watchtower
+      if (relZ >= 180 && relZ < 260) {
         const outpostKey = `forester_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(outpostKey)) {
           this.spawnedMilestones.add(outpostKey);
-          propsToSpawn.push(this.createForesterOutpost(roadInfo.x + halfW + 12.0, roadInfo.y, z));
+          propsToSpawn.push(this.createForesterOutpost(roadInfo.x + halfW + 11.0, roadInfo.y, z));
         }
-      } else {
-        // Cohesive Forest Stands (Clusters of trees set back from road)
+      }
+      // Zone 2: Dense stands of black spruce and paper birch
+      else {
         [-1, 1].forEach((side) => {
           propsToSpawn.push(this.createForestStand(roadInfo.x + side * (halfW + 5.5), roadInfo.y, z, side));
         });
       }
-    } else if (biome.id === 'flooded_marshland') {
-      if (relZ >= 220 && relZ <= 270) {
-        // Stilt Village Cluster on Left
-        const villageKey = `stilt_${Math.floor(z / 650)}`;
-        if (!this.spawnedMilestones.has(villageKey)) {
-          this.spawnedMilestones.add(villageKey);
-          propsToSpawn.push(this.createStiltVillage(roadInfo.x - halfW - 8.0, roadInfo.y, z));
-        }
-      } else {
-        // Dead cypress in water, reeds, and glowing spore clusters
-        propsToSpawn.push(this.createSkeletalCypress(roadInfo.x - halfW - 7.0, roadInfo.y, z));
-        propsToSpawn.push(this.createBioluminescentSpores(roadInfo.x + halfW + 4.5, roadInfo.y, z));
-        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 1.5, roadInfo.y, z));
-      }
-    } else if (biome.id === 'glass_crater') {
-      if (relZ >= 280 && relZ <= 320) {
-        // Ground Zero Anomalous Core
-        const coreKey = `core_${Math.floor(z / 650)}`;
-        if (!this.spawnedMilestones.has(coreKey)) {
-          this.spawnedMilestones.add(coreKey);
-          propsToSpawn.push(this.createLevitatingAnomalousCore(roadInfo.x + halfW + 9.0, roadInfo.y, z));
-        }
-      } else {
-        // Geological crystal vein clusters along impact fault line
-        propsToSpawn.push(this.createCrystalCluster(roadInfo.x - halfW - 6.0, roadInfo.y, z));
-        if (Math.random() < 0.4) {
-          propsToSpawn.push(this.createCraterSpikeField(roadInfo.x + halfW + 5.0, roadInfo.y, z));
-        }
-      }
-    } else if (biome.id === 'iron_gorge') {
-      // Continuous Towering Red-Rock Canyon Mesa Walls on both sides!
-      propsToSpawn.push(this.createCanyonCliff(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1));
-      propsToSpawn.push(this.createCanyonCliff(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1));
-      if (relZ >= 270 && relZ <= 290) {
-        propsToSpawn.push(this.createBalancedRockHoodoo(roadInfo.x + halfW + 14.0, roadInfo.y, z));
-      }
-    } else if (biome.id === 'permafrost_highlands') {
-      if (relZ >= 270 && relZ <= 310) {
-        // Polar Research Weather Station
+    } else if (biome.id === 'polar_tundra') {
+      // Zone 1 (180-260m): Arctic Geodesic Research Base 80 & METAR radar
+      if (relZ >= 180 && relZ < 260) {
         const polarKey = `polar_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(polarKey)) {
           this.spawnedMilestones.add(polarKey);
           propsToSpawn.push(this.createArcticGeodesicDome(roadInfo.x + halfW + 10.0, roadInfo.y, z));
         }
-      } else {
-        // Wind-resistant snow conifer stands & ice spires
+      }
+      // Zone 2: Glacial ice spires & snow-blanketed conifers
+      else {
         propsToSpawn.push(this.createSnowCoveredPines(roadInfo.x - halfW - 6.0, roadInfo.y, z));
         propsToSpawn.push(this.createGlacialIceSpire(roadInfo.x + halfW + 5.5, roadInfo.y, z));
       }
@@ -5569,7 +5807,602 @@ class ScenerySpawner {
     group.position.set(x, y, z);
     return group;
   }
+
+  // --- MEDITERRANEAN COAST STRUCTURES & FLORA ---
+  createMaritimePine(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.4;
+
+    // Tall slender trunk with slight natural lean
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32, 0.52, 7.5, 7),
+      this.matTrunk
+    );
+    trunk.position.y = 3.75;
+    trunk.rotation.z = (Math.random() - 0.5) * 0.15;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Splayed upper branches
+    for (let b = 0; b < 3; b++) {
+      const angle = (b * Math.PI * 2) / 3;
+      const branch = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12, 0.22, 2.8, 5),
+        this.matTrunk
+      );
+      branch.position.set(Math.cos(angle) * 0.9, 6.8, Math.sin(angle) * 0.9);
+      branch.rotation.z = Math.cos(angle) * 0.55;
+      branch.rotation.x = Math.sin(angle) * 0.55;
+      group.add(branch);
+    }
+
+    // Broad umbrella dome canopy
+    const canopy = new THREE.Mesh(
+      new THREE.CylinderGeometry(4.2, 2.8, 1.8, 8),
+      this.matMaritimePineFoliage
+    );
+    canopy.position.y = 8.6;
+    canopy.castShadow = true;
+    group.add(canopy);
+
+    const canopyCap = new THREE.Mesh(
+      new THREE.SphereGeometry(3.6, 8, 5, 0, Math.PI * 2, 0, Math.PI * 0.4),
+      this.matMaritimePineFoliage
+    );
+    canopyCap.position.y = 9.4;
+    canopyCap.castShadow = true;
+    group.add(canopyCap);
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createOliveTree(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.85 + Math.random() * 0.35;
+
+    // Gnarled twisted trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.35, 0.65, 3.2, 6),
+      new THREE.MeshStandardMaterial({ color: 0x42382e, roughness: 0.98 })
+    );
+    trunk.position.y = 1.6;
+    trunk.rotation.z = (Math.random() - 0.5) * 0.25;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Silvery-olive rounded foliage clouds
+    const offsets = [
+      { x: -0.8, y: 3.2, z: 0.2, r: 1.6 },
+      { x: 0.7, y: 3.5, z: -0.6, r: 1.8 },
+      { x: 0.2, y: 3.9, z: 0.7, r: 1.5 }
+    ];
+    offsets.forEach((off) => {
+      const foliage = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(off.r, 1),
+        this.matOliveFoliage
+      );
+      foliage.position.set(off.x, off.y, off.z);
+      foliage.castShadow = true;
+      group.add(foliage);
+    });
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createDryStoneWall(x, y, z) {
+    const group = new THREE.Group();
+    // Traditional Mediterranean limestone stone wall module (length 6.8m)
+    const wall = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.95, 6.8),
+      this.matStoneWall
+    );
+    wall.position.y = 0.47;
+    wall.castShadow = true;
+    group.add(wall);
+
+    // Weathered coping stones on top
+    const cap = new THREE.Mesh(
+      new THREE.BoxGeometry(0.65, 0.12, 6.9),
+      this.matStoneWall
+    );
+    cap.position.y = 0.98;
+    group.add(cap);
+
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createHarborFishery(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Stone and whitewashed fisherman workshop
+    const building = new THREE.Mesh(
+      new THREE.BoxGeometry(7.5, 3.8, 9.0),
+      this.matStoneWall
+    );
+    building.position.set(0, 1.9, 0);
+    building.castShadow = true;
+    group.add(building);
+
+    // Terracotta tiled roof
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(5.8, 2.4, 4),
+      new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.85 })
+    );
+    roof.position.set(0, 4.9, 0);
+    roof.rotation.y = Math.PI / 4;
+    group.add(roof);
+
+    // Wooden boat dock pier extension
+    const pier = new THREE.Mesh(
+      new THREE.BoxGeometry(3.2, 0.35, 14.0),
+      this.matWoodLog
+    );
+    pier.position.set(-6.5, 0.25, 0);
+    group.add(pier);
+
+    // Warm harbor lantern
+    const light = new THREE.PointLight(0xffa834, 2.2, 24);
+    light.position.set(3.8, 3.2, 0);
+    group.add(light);
+
+    return group;
+  }
+
+  // --- TEMPERATE FOREST STRUCTURES & FLORA ---
+  createDeciduousOak(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Massive hardwood trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.48, 0.85, 4.6, 7),
+      this.matTrunk
+    );
+    trunk.position.y = 2.3;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // 4 Layered rich-green foliage domes
+    const crowns = [
+      { x: 0, y: 5.6, z: 0, r: 3.2 },
+      { x: -1.6, y: 5.0, z: 1.2, r: 2.4 },
+      { x: 1.8, y: 5.2, z: -1.0, r: 2.6 },
+      { x: 0.3, y: 6.8, z: 0.4, r: 2.2 }
+    ];
+    crowns.forEach((c) => {
+      const dome = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(c.r, 1),
+        this.matDeciduousOak
+      );
+      dome.position.set(c.x, c.y, c.z);
+      dome.castShadow = true;
+      group.add(dome);
+    });
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createEuropeanBeech(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.85 + Math.random() * 0.4;
+
+    // Slender smooth silver-grey trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.28, 0.45, 6.0, 7),
+      new THREE.MeshStandardMaterial({ color: 0x8e8e93, roughness: 0.85 })
+    );
+    trunk.position.y = 3.0;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Elegant conical beech crown
+    const foliage = new THREE.Mesh(
+      new THREE.ConeGeometry(3.2, 6.5, 7),
+      this.matBeechFoliage
+    );
+    foliage.position.y = 6.2;
+    foliage.castShadow = true;
+    group.add(foliage);
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createWaterMill(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Stone foundation mill building
+    const mill = new THREE.Mesh(
+      new THREE.BoxGeometry(8.0, 4.2, 7.5),
+      this.matWoodLog
+    );
+    mill.position.set(0, 2.1, 0);
+    mill.castShadow = true;
+    group.add(mill);
+
+    // Sloped wooden shingle roof
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(6.2, 2.8, 4),
+      new THREE.MeshStandardMaterial({ color: 0x2e2318, roughness: 0.9 })
+    );
+    roof.position.set(0, 5.5, 0);
+    roof.rotation.y = Math.PI / 4;
+    group.add(roof);
+
+    // Vertical hydraulic water wheel
+    const wheel = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.4, 2.4, 0.7, 12),
+      new THREE.MeshStandardMaterial({ color: 0x3d2719, roughness: 0.95 })
+    );
+    wheel.position.set(-4.5, 1.8, 0);
+    wheel.rotation.z = Math.PI / 2;
+    group.add(wheel);
+
+    // Firewood stacks
+    const logs = new THREE.Mesh(
+      new THREE.BoxGeometry(2.2, 1.4, 3.8),
+      this.matWoodLog
+    );
+    logs.position.set(4.8, 0.7, 2.0);
+    group.add(logs);
+
+    return group;
+  }
+
+  // --- ARID DESERT STRUCTURES & FLORA ---
+  createDatePalm(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Curved slender palm trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.48, 8.5, 7),
+      this.matPalmTrunk
+    );
+    trunk.position.set(0.4, 4.25, 0);
+    trunk.rotation.z = 0.12;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Radiating arching fronds
+    for (let f = 0; f < 8; f++) {
+      const angle = (f * Math.PI * 2) / 8;
+      const frond = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 0.08, 3.4),
+        this.matPalmFronds
+      );
+      frond.position.set(Math.cos(angle) * 1.5 + 0.8, 8.4, Math.sin(angle) * 1.5);
+      frond.rotation.y = -angle;
+      frond.rotation.x = 0.45;
+      frond.castShadow = true;
+      group.add(frond);
+    }
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createSandDuneRidge(x, y, z, side) {
+    const group = new THREE.Group();
+    // Sweeping aerodynamic desert barchan dune ridge
+    const dune = new THREE.Mesh(
+      new THREE.ConeGeometry(14.0, 5.5, 5),
+      this.matDuneSand
+    );
+    dune.position.y = 2.4;
+    dune.scale.set(1.6, 0.9, 2.8);
+    dune.rotation.y = side * 0.4;
+    dune.receiveShadow = true;
+    group.add(dune);
+
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createOasisCaravansary(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Thick adobe walled courtyard
+    const wall = new THREE.Mesh(
+      new THREE.BoxGeometry(12.0, 3.2, 16.0),
+      this.matAdobe
+    );
+    wall.position.set(0, 1.6, 0);
+    wall.castShadow = true;
+    group.add(wall);
+
+    // Domed central well / cistern
+    const wellDome = new THREE.Mesh(
+      new THREE.SphereGeometry(2.4, 8, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
+      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.9 })
+    );
+    wellDome.position.set(-8.0, 0, 0);
+    group.add(wellDome);
+
+    // Flanking date palms
+    [-5, 5].forEach((pz) => {
+      const palm = this.createDatePalm(-7.0, 0, pz);
+      group.add(palm);
+    });
+
+    const light = new THREE.PointLight(0xffa233, 2.0, 22);
+    light.position.set(0, 3.5, 0);
+    group.add(light);
+
+    return group;
+  }
+
+  // --- SAVANNA & STEPPE STRUCTURES & FLORA ---
+  createUmbrellaAcacia(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Dark angled trunk bifurcating upwards
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.3, 0.55, 5.2, 6),
+      this.matTrunk
+    );
+    trunk.position.y = 2.6;
+    trunk.rotation.z = (Math.random() - 0.5) * 0.3;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // 3 Splayed high lateral branches
+    for (let b = 0; b < 3; b++) {
+      const angle = (b * Math.PI * 2) / 3;
+      const arm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.14, 0.22, 3.2, 5),
+        this.matTrunk
+      );
+      arm.position.set(Math.cos(angle) * 1.2, 5.0, Math.sin(angle) * 1.2);
+      arm.rotation.z = Math.cos(angle) * 0.7;
+      arm.rotation.x = Math.sin(angle) * 0.7;
+      group.add(arm);
+    }
+
+    // Wide horizontal flat-topped umbrella foliage canopy
+    const flatCanopy = new THREE.Mesh(
+      new THREE.CylinderGeometry(5.2, 4.2, 0.8, 8),
+      this.matAcaciaCanopy
+    );
+    flatCanopy.position.y = 6.4;
+    flatCanopy.castShadow = true;
+    group.add(flatCanopy);
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createBaobabTree(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.3;
+
+    // Colossal swollen bottle trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.4, 3.4, 8.5, 9),
+      this.matBaobabTrunk
+    );
+    trunk.position.y = 4.25;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Root-like top branch clusters
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * Math.PI * 2) / 5;
+      const branch = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.4, 0.8, 3.5, 5),
+        this.matBaobabTrunk
+      );
+      branch.position.set(Math.cos(angle) * 1.8, 9.2, Math.sin(angle) * 1.8);
+      branch.rotation.z = Math.cos(angle) * 0.6;
+      branch.rotation.x = Math.sin(angle) * 0.6;
+      group.add(branch);
+
+      // Foliage tuft at branch tip
+      const tuft = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(1.6, 1),
+        this.matAcaciaCanopy
+      );
+      tuft.position.set(Math.cos(angle) * 3.2, 10.5, Math.sin(angle) * 3.2);
+      group.add(tuft);
+    }
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createRangerStation(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Elevated timber ranger outpost
+    const legGeo = new THREE.CylinderGeometry(0.2, 0.25, 4.5, 5);
+    [-2.2, 2.2].forEach((lx) => {
+      [-2.2, 2.2].forEach((lz) => {
+        const leg = new THREE.Mesh(legGeo, this.matWoodLog);
+        leg.position.set(lx, 2.25, lz);
+        leg.castShadow = true;
+        group.add(leg);
+      });
+    });
+
+    const cabin = new THREE.Mesh(
+      new THREE.BoxGeometry(5.2, 2.6, 5.2),
+      this.matWoodLog
+    );
+    cabin.position.y = 5.6;
+    cabin.castShadow = true;
+    group.add(cabin);
+
+    // Shaded corrugated tin roof overhang
+    const roof = new THREE.Mesh(
+      new THREE.BoxGeometry(6.4, 0.2, 6.4),
+      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.3 })
+    );
+    roof.position.y = 7.0;
+    group.add(roof);
+
+    // Radio antenna mast
+    const mast = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.05, 6.5, 4),
+      new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.9 })
+    );
+    mast.position.set(2.4, 9.8, 2.4);
+    group.add(mast);
+
+    return group;
+  }
+
+  // --- TROPICAL RAINFOREST STRUCTURES & FLORA ---
+  createRainforestGiant(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Immense straight trunk reaching into the canopy
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.65, 1.3, 14.0, 8),
+      new THREE.MeshStandardMaterial({ color: 0x36271c, roughness: 0.95 })
+    );
+    trunk.position.y = 7.0;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Buttress roots flanking the base
+    for (let r = 0; r < 4; r++) {
+      const angle = (r * Math.PI * 2) / 4;
+      const buttress = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 3.8, 2.4),
+        this.matTrunk
+      );
+      buttress.position.set(Math.cos(angle) * 1.5, 1.9, Math.sin(angle) * 1.5);
+      buttress.rotation.y = -angle;
+      group.add(buttress);
+    }
+
+    // Dense tiered jungle emerald canopy
+    const canopies = [
+      { y: 13.5, r: 5.8, mat: this.matJungleFoliage },
+      { y: 15.8, r: 4.6, mat: this.matJungleCanopyDark },
+      { y: 17.6, r: 3.2, mat: this.matJungleFoliage }
+    ];
+    canopies.forEach((c) => {
+      const dome = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(c.r, 1),
+        c.mat
+      );
+      dome.position.y = c.y;
+      dome.scale.set(1.2, 0.65, 1.2);
+      dome.castShadow = true;
+      group.add(dome);
+    });
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createBotanicalLab(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Stilt research module elevated above flood level
+    const stilts = new THREE.Mesh(
+      new THREE.BoxGeometry(8.5, 0.4, 12.0),
+      this.matWoodLog
+    );
+    stilts.position.y = 2.4;
+    group.add(stilts);
+
+    const labCabin = new THREE.Mesh(
+      new THREE.BoxGeometry(7.2, 3.2, 10.0),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 })
+    );
+    labCabin.position.y = 4.2;
+    group.add(labCabin);
+
+    // Green weather monitoring beacon
+    const beacon = new THREE.PointLight(0x10b981, 2.2, 22);
+    beacon.position.set(0, 6.5, 0);
+    group.add(beacon);
+
+    return group;
+  }
+
+  // --- ALPINE PEAKS STRUCTURES & CRAGS ---
+  createAlpineGraniteWall(x, y, z, side) {
+    const group = new THREE.Group();
+    const height = 30 + Math.random() * 12;
+    const width = 18 + Math.random() * 8;
+    const depth = 16;
+
+    // Dark granite precipice wall
+    const cliff = new THREE.Mesh(
+      new THREE.BoxGeometry(width, height, depth),
+      this.matAlpineGranite
+    );
+    cliff.position.y = height * 0.5 - 1.0;
+    cliff.castShadow = true;
+    cliff.receiveShadow = true;
+    group.add(cliff);
+
+    // Jagged snowy summit horn
+    const horn = new THREE.Mesh(
+      new THREE.ConeGeometry(width * 0.4, 9.0, 5),
+      this.matSnow
+    );
+    horn.position.set((Math.random() - 0.5) * 4, height + 3.5, (Math.random() - 0.5) * 3);
+    horn.castShadow = true;
+    group.add(horn);
+
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createAvalancheTunnel(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Concrete avalanche deflection gallery over the road
+    const roof = new THREE.Mesh(
+      new THREE.BoxGeometry(22, 0.8, 16),
+      this.matAlpineGranite
+    );
+    roof.position.set(0, 6.2, 0);
+    roof.rotation.z = 0.15; // Sloped to dump snow down valley
+    group.add(roof);
+
+    // Massive reinforced concrete pillars on mountain side
+    [-6, 0, 6].forEach((pz) => {
+      const col = new THREE.Mesh(
+        new THREE.BoxGeometry(1.2, 6.2, 1.2),
+        this.matAlpineGranite
+      );
+      col.position.set(-9.5, 3.1, pz);
+      group.add(col);
+    });
+
+    return group;
+  }
 }
+
 
 
 // --- FILE: src/world/POIManager.js ---
@@ -5586,132 +6419,174 @@ class POIManager {
     this.pois = [];
     this.activeNearbyPOI = null; // POI currently within interaction radius (<= 10m)
 
-    // Master Geocentric Plan for Sites along the Northward Dalton Highway (Alaska Route 11)
+    // Master Geocentric Plan for Sites along the Trans-Earth 8-Biomes Expedition (5200m Loop)
     this.plannedSites = [
-      // SECTOR 0: Fox & Goldstream Valley (Fairbanks Mining Belt)
+      // SECTOR 0: Mediterranean Coast (PK 0.0 - 0.65 KM)
       {
         z: 220,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'fox_junction',
+        settlementKey: 'san_vito_harbor',
         side: 1, // Right
-        name: 'Fox Junction & Gold Dredge 8'
+        name: 'Porto di San Vito & Molo Pescatori'
       },
       {
         z: 380,
-        type: 'REFINERY_DEPOT',
+        type: 'COASTAL_FISHERY_RUIN',
         side: -1, // Left
-        name: 'Parco Serbatoi Gasolio Artico di Livengood'
+        name: 'Faro Costiero & Rudere Vecchia Tonnara'
       },
       {
         z: 520,
         type: 'OVERTURNED_CONVOY',
         side: 1,
-        name: 'Autocisterna Kenworth Artica Ribaltata'
+        name: 'Furgone Merci Ribaltato sui Tornanti Costieri'
       },
 
-      // SECTOR 1: Yukon River Taiga (Black Spruce Corridor)
+      // SECTOR 1: Temperate Forest (PK 0.65 - 1.30 KM)
       {
         z: 870,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'yukon_crossing',
+        settlementKey: 'valbruna_mill',
         side: -1,
-        name: 'Yukon River Camp & Pump Station 6'
+        name: 'Mulino di Valbruna & Segheria Idraulica'
       },
       {
         z: 1040,
         type: 'FORESTRY_LUMBER_YARD',
         side: 1,
-        name: 'Piazzale Taglio Picea Nera dello Yukon'
+        name: 'Piazzale Carico Tronchi di Querce e Faggi'
       },
       {
         z: 1180,
         type: 'MILITARY_CHECKPOINT',
         side: -1,
-        name: 'Posto di Blocco Alaska State Troopers - Yukon'
+        name: 'Posto di Blocco Guardia Forestale di Valbruna'
       },
 
-      // SECTOR 2: Koyukuk Flats & Coldfoot (Muskeg Floodplain)
+      // SECTOR 2: Arid Desert (PK 1.30 - 1.95 KM)
       {
         z: 1520,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'coldfoot_camp',
+        settlementKey: 'elkantara_oasis',
         side: 1,
-        name: 'Coldfoot Truck Stop & Slate Creek'
+        name: 'Oasi di El Kantara & Carovanserraglio'
       },
       {
         z: 1680,
-        type: 'HYDRO_PUMP_STATION',
+        type: 'DESERT_CARAVAN_POST',
         side: -1,
-        name: 'Impianto Idrovore e Valvole Koyukuk TAPS'
+        name: 'Pozzo Sahariano & Cisterna Idrica del Deserto'
       },
       {
         z: 1820,
         type: 'OVERTURNED_CONVOY',
         side: 1,
-        name: 'Camion Cisterna Mack Semi-affondato nel Muskeg'
+        name: 'Autocarro Berliet Sabbiato tra le Dune'
       },
 
-      // SECTOR 3: Arctic Circle & Chandalar Shelf (66° 33' N & DEW Line)
+      // SECTOR 3: Savanna Steppe (PK 1.95 - 2.60 KM)
       {
         z: 2170,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'chandalar_shelf',
+        settlementKey: 'serengeti_outpost',
         side: -1,
-        name: 'Chandalar Shelf - Base Radar White Alice'
+        name: 'Avamposto Ranger del Serengeti'
       },
       {
         z: 2320,
-        type: 'IONIC_RADAR_ARRAY',
+        type: 'SAVANNA_RANGER_STATION',
         side: 1,
-        name: 'Parabola Radar Troposferica White Alice (DEW Line)'
+        name: 'Torretta Avvistamento & Ripetitore Radio Savana'
       },
       {
         z: 2480,
         type: 'MILITARY_CHECKPOINT',
         side: -1,
-        name: 'Cancello di Controllo Circolo Polare 66° 33\' N'
+        name: 'Cancello Parco Nazionale & Pista Laterite'
       },
 
-      // SECTOR 4: Atigun Pass & Brooks Range (Continental Divide Gorge)
+      // SECTOR 4: Tropical Rainforest (PK 2.60 - 3.25 KM)
       {
         z: 2820,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'atigun_camp',
+        settlementKey: 'rioverde_station',
         side: 1,
-        name: 'Atigun Pass High Camp - Cava dei Convogli'
+        name: 'Stazione Scientifica Botanica Rio Verde'
       },
       {
         z: 2960,
-        type: 'QUARRY_CRUSHER_SITE',
+        type: 'JUNGLE_BOTANICAL_LAB',
         side: -1,
-        name: 'Cava Frantumatori di Ardesia DOT Atigun Pass'
+        name: 'Laboratorio Palafitta sulle Chiome Equatoriali'
       },
       {
         z: 3120,
         type: 'OVERTURNED_CONVOY',
         side: 1,
-        name: 'Dumper Artico Ribaltato sul Passo Atigun'
+        name: 'Convoglio da Spedizione Sommerso nel Guado Monsonico'
       },
 
-      // SECTOR 5: Deadhorse & Prudhoe Bay (Beaufort Sea Permafrost)
+      // SECTOR 5: Alpine Peaks (PK 3.25 - 3.90 KM)
       {
         z: 3470,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'deadhorse_terminal',
+        settlementKey: 'valico_aquile',
         side: -1,
-        name: 'Deadhorse Terminal & Base Prudhoe Bay'
+        name: 'Rifugio Alpino Valico delle Aquile'
       },
       {
         z: 3620,
-        type: 'POLAR_METAR_SHELTER',
+        type: 'ALPINE_TUNNEL_SHELTER',
         side: 1,
-        name: 'Capsula Rifugio Spazzaneve Arctic Cat'
+        name: 'Galleria Paravalanghe e Deposito Frane'
       },
       {
         z: 3780,
+        type: 'QUARRY_CRUSHER_SITE',
+        side: -1,
+        name: 'Cava di Granito e Falesie del Passo Alpino'
+      },
+
+      // SECTOR 6: Boreal Taiga (PK 3.90 - 4.55 KM)
+      {
+        z: 4120,
+        type: 'SETTLEMENT_HUB',
+        settlementKey: 'taiga_nord',
+        side: 1,
+        name: 'Deposito Forestale Taiga Nord'
+      },
+      {
+        z: 4280,
+        type: 'TAIGA_LOGGING_DEPOT',
+        side: -1,
+        name: 'Segheria Meccanizzata Picea e Betulla'
+      },
+      {
+        z: 4420,
+        type: 'MILITARY_CHECKPOINT',
+        side: 1,
+        name: 'Posto di Frontiera Nordico'
+      },
+
+      // SECTOR 7: Polar Tundra (PK 4.55 - 5.20+ KM)
+      {
+        z: 4770,
+        type: 'SETTLEMENT_HUB',
+        settlementKey: 'polar_base_80',
+        side: -1,
+        name: 'Base Scientifica Polare 80'
+      },
+      {
+        z: 4940,
+        type: 'POLAR_METAR_SHELTER',
+        side: 1,
+        name: 'Cupola Radar Geodetica & Stazione Meteo METAR'
+      },
+      {
+        z: 5100,
         type: 'MILITARY_CHECKPOINT',
         side: -1,
-        name: 'Faro Radio Terminale del Mar Glaciale Artico'
+        name: 'Faro Terminale del Grande Meridiano & Traguardo'
       }
     ];
 
@@ -5750,16 +6625,16 @@ class POIManager {
       }
     }
 
-    // Check for loop extension if player travels past 3900m
-    if (horizonZ > 3900) {
-      const cycleOffset = Math.floor(horizonZ / 3900) * 3900;
+    // Check for loop extension if player travels past 5200m
+    if (horizonZ > 5200) {
+      const cycleOffset = Math.floor(horizonZ / 5200) * 5200;
       for (const siteDef of this.plannedSites) {
         const projectedZ = siteDef.z + cycleOffset;
         if (projectedZ <= horizonZ && !this.spawnedZSet.has(projectedZ)) {
           this.spawnStructuredSite({
             ...siteDef,
             z: projectedZ,
-            name: `${siteDef.name} (Settore ${Math.floor(cycleOffset / 650) + 1})`
+            name: `${siteDef.name} (Giro ${Math.floor(cycleOffset / 5200) + 1})`
           });
           this.spawnedZSet.add(projectedZ);
         }
@@ -5822,10 +6697,20 @@ class POIManager {
         name: siteDef.name || poiConfig.name
       };
 
-      if (siteDef.type === 'REFINERY_DEPOT') {
-        this.buildRefinerySite(group);
-      } else if (siteDef.type === 'FORESTRY_LUMBER_YARD') {
+      if (siteDef.type === 'COASTAL_FISHERY_RUIN') {
+        this.buildFisheryRuin(group);
+      } else if (siteDef.type === 'DESERT_CARAVAN_POST') {
+        this.buildCaravanPost(group);
+      } else if (siteDef.type === 'SAVANNA_RANGER_STATION') {
+        this.buildSavannaRangerSite(group);
+      } else if (siteDef.type === 'JUNGLE_BOTANICAL_LAB') {
+        this.buildJungleBotanicalLab(group);
+      } else if (siteDef.type === 'ALPINE_TUNNEL_SHELTER') {
+        this.buildAlpineShelter(group);
+      } else if (siteDef.type === 'TAIGA_LOGGING_DEPOT' || siteDef.type === 'FORESTRY_LUMBER_YARD') {
         this.buildLumberYard(group);
+      } else if (siteDef.type === 'REFINERY_DEPOT') {
+        this.buildRefinerySite(group);
       } else if (siteDef.type === 'HYDRO_PUMP_STATION') {
         this.buildHydroStation(group);
       } else if (siteDef.type === 'IONIC_RADAR_ARRAY') {
@@ -6255,6 +7140,134 @@ class POIManager {
       crate.castShadow = true;
       group.add(crate);
     }
+  }
+
+  buildFisheryRuin(group) {
+    // Coastal stone watchtower & old fishery storehouse
+    const tower = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 3.0, 8.5, 8), this.matConcrete);
+    tower.position.set(-2, 4.25, 0);
+    tower.castShadow = true;
+    group.add(tower);
+
+    // Stone workshop ruin
+    const shed = new THREE.Mesh(new THREE.BoxGeometry(5.5, 2.8, 6.0), this.matConcrete);
+    shed.position.set(4, 1.4, -1);
+    shed.castShadow = true;
+    group.add(shed);
+
+    // Weathered timber pier
+    const dock = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.35, 10.0), this.matWood);
+    dock.position.set(1, 0.2, 6.5);
+    group.add(dock);
+
+    // Amber harbor beacon light
+    const lantern = new THREE.PointLight(0xffaa33, 2.2, 22);
+    lantern.position.set(-2, 8.8, 0);
+    group.add(lantern);
+  }
+
+  buildCaravanPost(group) {
+    // Adobe mudbrick cistern and oasis outpost
+    const adobeWall = new THREE.Mesh(new THREE.BoxGeometry(8.0, 2.8, 10.0), this.matWarning);
+    adobeWall.position.set(0, 1.4, 0);
+    adobeWall.castShadow = true;
+    group.add(adobeWall);
+
+    // Water reservoir dome
+    const dome = new THREE.Mesh(
+      new THREE.SphereGeometry(2.2, 8, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
+      this.matConcrete
+    );
+    dome.position.set(-5, 0, -2);
+    group.add(dome);
+
+    // Desert canopy fabric shelter
+    const cloth = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.1, 5.0), this.matCargo);
+    cloth.position.set(4, 2.6, 2);
+    group.add(cloth);
+
+    const oasisLight = new THREE.PointLight(0xf59e0b, 1.8, 18);
+    oasisLight.position.set(0, 3.2, 0);
+    group.add(oasisLight);
+  }
+
+  buildSavannaRangerSite(group) {
+    // Elevated safari ranger watchtower
+    const towerPad = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.3, 5.0), this.matWood);
+    towerPad.position.set(0, 4.8, 0);
+    group.add(towerPad);
+
+    // 4 Splayed timber stilts
+    [-1.8, 1.8].forEach((lx) => {
+      [-1.8, 1.8].forEach((lz) => {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 5.0, 5), this.matWood);
+        post.position.set(lx, 2.5, lz);
+        post.castShadow = true;
+        group.add(post);
+      });
+    });
+
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.4, 4.2), this.matCanopy);
+    cabin.position.set(0, 6.1, 0);
+    cabin.castShadow = true;
+    group.add(cabin);
+
+    // Radio transmitter mast
+    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 5.5, 4), this.matMetalDark);
+    antenna.position.set(1.8, 9.8, 1.8);
+    group.add(antenna);
+  }
+
+  buildJungleBotanicalLab(group) {
+    // Equatorial stilt research station
+    const platform = new THREE.Mesh(new THREE.BoxGeometry(9.0, 0.4, 11.0), this.matWood);
+    platform.position.set(0, 2.2, 0);
+    group.add(platform);
+
+    // Stilts
+    [-3.5, 3.5].forEach((px) => {
+      [-4.5, 4.5].forEach((pz) => {
+        const stilt = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 2.4, 5), this.matWood);
+        stilt.position.set(px, 1.1, pz);
+        group.add(stilt);
+      });
+    });
+
+    const lab = new THREE.Mesh(new THREE.BoxGeometry(7.5, 3.0, 8.5), this.matCanopy);
+    lab.position.set(0, 3.8, 0);
+    lab.castShadow = true;
+    group.add(lab);
+
+    // Green botanical biolab beacon
+    const bioLight = new THREE.PointLight(0x10b981, 2.0, 20);
+    bioLight.position.set(0, 5.8, 0);
+    group.add(bioLight);
+  }
+
+  buildAlpineShelter(group) {
+    // Concrete avalanche gallery shelter with sloping deflection roof
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(16, 0.7, 14), this.matConcrete);
+    roof.position.set(0, 5.4, 0);
+    roof.rotation.z = 0.18;
+    group.add(roof);
+
+    // Reinforced concrete support pillars
+    [-5, 0, 5].forEach((pz) => {
+      const col = new THREE.Mesh(new THREE.BoxGeometry(1.2, 5.4, 1.2), this.matConcrete);
+      col.position.set(-6.5, 2.7, pz);
+      col.castShadow = true;
+      group.add(col);
+    });
+
+    // Emergency rescue refuge pod
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(4.5, 2.6, 5.0), this.matMetalDark);
+    cabin.position.set(4.5, 1.3, 0);
+    cabin.castShadow = true;
+    group.add(cabin);
+
+    const rescueLight = new THREE.PointLight(0x38bdf8, 2.2, 22);
+    rescueLight.position.set(4.5, 3.2, 0);
+    group.add(rescueLight);
   }
 }
 
@@ -9057,15 +10070,22 @@ class SurvivalState {
       this.health = Math.max(0, this.health - delta * 1.5);
     }
 
-    // Environmental Exposure (Cold / Radiation)
+    // Environmental Exposure (Cold / Heat / Radiation)
     if (!isInsideVehicle) {
       if (currentBiome.coldDanger) {
         this.bodyTemp = Math.max(32.0, this.bodyTemp - delta * 0.15);
         if (this.bodyTemp < 35.0) {
           this.health = Math.max(0, this.health - delta * CONFIG.SURVIVAL.FREEZING_TEMP_DAMAGE);
         }
+      } else if (currentBiome.heatDanger) {
+        // Desert heat exhaustion: accelerated thirst & hyperthermia
+        this.thirst = Math.max(0, this.thirst - CONFIG.SURVIVAL.THIRST_RATE * 2.2 * delta);
+        this.bodyTemp = Math.min(41.5, this.bodyTemp + delta * 0.12);
+        if (this.bodyTemp > 39.0) {
+          this.health = Math.max(0, this.health - delta * 1.6);
+        }
       } else {
-        // Recover body temp gradually
+        // Recover body temp gradually toward normal 37.0°C
         this.bodyTemp = THREE.MathUtils.lerp(this.bodyTemp, 37.0, delta * 0.2);
       }
 
@@ -9076,7 +10096,10 @@ class SurvivalState {
         }
       }
     } else {
-      // Inside vehicle provides shelter & warmth
+      // Inside vehicle provides shelter, shade & cabin ventilation
+      if (currentBiome.heatDanger) {
+        this.thirst = Math.max(0, this.thirst - CONFIG.SURVIVAL.THIRST_RATE * 1.35 * delta);
+      }
       this.bodyTemp = THREE.MathUtils.lerp(this.bodyTemp, 37.0, delta * 0.4);
     }
 
@@ -9088,14 +10111,17 @@ class SurvivalState {
   }
 
   consumeItem(itemId) {
-    if (itemId === 'ration_pack' || itemId === 'canned_stew') {
-      this.hunger = Math.min(CONFIG.SURVIVAL.MAX_HUNGER, this.hunger + 45);
+    if (itemId === 'ration_pack' || itemId === 'canned_stew' || itemId === 'dried_dates') {
+      this.hunger = Math.min(CONFIG.SURVIVAL.MAX_HUNGER, this.hunger + (itemId === 'dried_dates' ? 35 : 45));
       this.health = Math.min(CONFIG.SURVIVAL.MAX_HEALTH, this.health + 10);
       this.audioEngine.playLootPickup();
       return true;
     }
-    if (itemId === 'water_bottle' || itemId === 'water_purified') {
+    if (itemId === 'water_bottle' || itemId === 'water_purified' || itemId === 'coconut_water' || itemId === 'hot_tea') {
       this.thirst = Math.min(CONFIG.SURVIVAL.MAX_THIRST, this.thirst + 55);
+      if (itemId === 'hot_tea') {
+        this.bodyTemp = Math.min(38.0, this.bodyTemp + 0.8);
+      }
       this.audioEngine.playLootPickup();
       return true;
     }
@@ -9466,55 +10492,101 @@ class WeatherDirector {
 
     switch (weather) {
       case 'clear':
+      case 'sea_breeze':
       case 'smog':
         frictionMultiplier = 1.0;
         roughness = 0.78;
         metalness = 0.12;
-        statusLabel = 'ASFALTO ASCIUTTO';
+        statusLabel = 'FONDO ASCIUTTO OTTIMALE';
         statusBadge = 'GRIP 100%';
         statusColor = '#22c55e';
         break;
 
+      case 'heatwave':
+        frictionMultiplier = 0.94;
+        roughness = 0.85;
+        metalness = 0.08;
+        statusLabel = 'CALDO ESTREMO / ASFALTO ROVENTE';
+        statusBadge = 'GRIP 94% 🔥';
+        statusColor = '#f97316';
+        break;
+
+      case 'sandstorm':
+      case 'dust_devil':
+        frictionMultiplier = 0.74;
+        roughness = 0.92;
+        metalness = 0.05;
+        statusLabel = 'SABBIA IN SOSPENSIONE / SCIVOLOSO';
+        statusBadge = 'GRIP 74% ⚠️';
+        statusColor = '#d97706';
+        break;
+
+      case 'dry_gale':
+      case 'gale_winds':
+      case 'mountain_gale':
+      case 'rock_dust':
+        frictionMultiplier = 0.82;
+        roughness = 0.86;
+        metalness = 0.08;
+        statusLabel = 'RAFFICHE & DETRITI ROCCIOSI';
+        statusBadge = 'GRIP 82%';
+        statusColor = '#eab308';
+        break;
+
       case 'overcast':
       case 'aurora_static':
-        frictionMultiplier = 0.98;
+      case 'ion_storm':
+        frictionMultiplier = 0.96;
         roughness = 0.72;
-        metalness = 0.15;
-        statusLabel = 'ASFALTO FREDDO';
-        statusBadge = 'GRIP 98%';
+        metalness = 0.18;
+        statusLabel = 'FONDO FREDDO / STABILE';
+        statusBadge = 'GRIP 96%';
         statusColor = '#38bdf8';
         break;
 
       case 'heavy_mist':
       case 'dense_fog':
-        frictionMultiplier = 0.90;
-        roughness = 0.45;
-        metalness = 0.35;
-        statusLabel = 'ASFALTO UMIDO';
-        statusBadge = 'GRIP 90%';
+        frictionMultiplier = 0.88;
+        roughness = 0.42;
+        metalness = 0.38;
+        statusLabel = 'NEBBIA FITTA / ASFALTO UMIDO';
+        statusBadge = 'GRIP 88%';
         statusColor = '#38bdf8';
         isWet = true;
         break;
 
-      case 'acid_drizzle':
       case 'rain':
-        frictionMultiplier = 0.72;
-        roughness = 0.14;
-        metalness = 0.82;
+      case 'light_rain':
+      case 'cold_drizzle':
+      case 'acid_drizzle':
+        frictionMultiplier = 0.74;
+        roughness = 0.16;
+        metalness = 0.80;
         statusLabel = 'ASFALTO BAGNATO';
-        statusBadge = 'GRIP 72%';
+        statusBadge = 'GRIP 74%';
         statusColor = '#eab308';
         isWet = true;
         break;
 
+      case 'tropical_monsoon':
       case 'torrential_rain':
-        frictionMultiplier = 0.58;
-        roughness = 0.08;
-        metalness = 0.92;
-        statusLabel = 'ACQUAPLANING SEVERO';
-        statusBadge = 'GRIP 58%';
+        frictionMultiplier = 0.52;
+        roughness = 0.05;
+        metalness = 0.96;
+        statusLabel = 'MONSONE / ACQUAPLANING & FANGO';
+        statusBadge = 'GRIP 52% ⚠️';
         statusColor = '#f97316';
         isWet = true;
+        break;
+
+      case 'light_snow':
+        frictionMultiplier = 0.65;
+        roughness = 0.50;
+        metalness = 0.40;
+        statusLabel = 'NEVE FRESCA COMPATTA';
+        statusBadge = 'GRIP 65% ❄️';
+        statusColor = '#38bdf8';
+        isIcy = true;
         break;
 
       case 'freezing_rain':
@@ -9531,29 +10603,20 @@ class WeatherDirector {
         frictionMultiplier = 0.42;
         roughness = 0.38;
         metalness = 0.45;
-        statusLabel = 'NEVE COMPATTA / BUFERA';
+        statusLabel = 'BUFERA DI NEVE / POLARE';
         statusBadge = 'GRIP 42% ⚠️';
         statusColor = '#ef4444';
         isIcy = true;
         break;
 
-      case 'gale_winds':
-      case 'rock_dust':
-        frictionMultiplier = 0.82;
-        roughness = 0.85;
-        metalness = 0.08;
-        statusLabel = 'GHIAIETTO & RAFFICHE';
-        statusBadge = 'GRIP 82%';
-        statusColor = '#eab308';
-        break;
-
-      case 'ion_storm':
-        frictionMultiplier = 0.88;
-        roughness = 0.65;
-        metalness = 0.25;
-        statusLabel = 'CARICA STATICA IONICA';
-        statusBadge = 'GRIP 88%';
-        statusColor = '#a855f7';
+      case 'whiteout':
+        frictionMultiplier = 0.30;
+        roughness = 0.40;
+        metalness = 0.50;
+        statusLabel = 'WHITEOUT / VISIBILITÀ ZERO';
+        statusBadge = 'GRIP 30% ⚠️';
+        statusColor = '#ef4444';
+        isIcy = true;
         break;
 
       default:
@@ -10198,38 +11261,38 @@ class StoryDirector {
         id: 'ch_1',
         index: 0,
         number: 'I',
-        title: 'La Partenza da Fox & La Valle Dorata',
-        subtitle: 'Battesimo del Freddo nel Distretto Minerario [PK 0.0 - 0.65 KM]',
-        bannerIcon: '⛏️',
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        speakerAvatar: '🐻',
-        briefing: `Paolo, qui parla Orso Polare sul Canale 19. Il terminale petrolifero e scientifico di Deadhorse (70° Parallelo) è rimasto al buio per un blackout catastrofico. Nessun camion moderno con centraline elettroniche riesce a partire: l'impulso magnetico ha bruciato i semiconduttori. Tu hai una Fiat Panda 4x4 Steyr-Puch con motore aste e bilancieri: completamente analogica e leggera. Raccogli scorte a Fox e muoviti verso nord prima che la notte artica congeli il corridoio!`,
+        title: 'Le Coste del Mediterraneo & Il Porto di San Vito',
+        subtitle: 'L\'Avvio della Spedizione Trans-Continentale [PK 0.0 - 0.65 KM]',
+        bannerIcon: '🌊',
+        speaker: 'SOFIA MARETTI (CAPO SPEDIZIONE)',
+        speakerAvatar: '🧭',
+        briefing: `Ingegnere Paolo, qui parla Sofia Maretti sul Canale 19. Il blackout satellitare globale ha spento le centraline elettroniche in tutto il mondo: solo i veicoli a cinematica analogica possono viaggiare. La tua Fiat Panda 4x4 Steyr-Puch con motore ad aste e bilancieri è pronta sul molo di San Vito. Fai scorte d'olio, calibra i carburatori Weber e mettiti in marcia verso nord lungo le scogliere prima che cali la nebbia marina!`,
         targetPK: 650,
         rewards: {
           scrap: 35,
           items: [{ id: 'refined_fuel', count: 1 }, { id: 'first_aid_bandage', count: 2 }],
-          description: '35 Rottami • 1x Tanica Gasolio 20L • 2x Bende Mediche'
+          description: '35 Rottami • 1x Tanica Benzina 20L • 2x Bende Mediche'
         },
         objectives: [
           {
             id: 'ch1_obj_drive',
-            text: 'Mettiti in marcia e supera i primi 200 metri della Dalton Highway',
+            text: 'Mettiti in marcia e percorri i primi 200 metri lungo la costiera',
             type: 'distance',
             target: 200,
             unit: 'M',
             check: (ctx) => ctx.z >= 200
           },
           {
-            id: 'ch1_obj_visit_fox',
-            text: 'Raggiungi Fox Junction (PK 0.22 km) e ispeziona l\'insediamento minerario',
+            id: 'ch1_obj_visit_san_vito',
+            text: 'Raggiungi il Porto di San Vito (PK 0.22 km) e fai scorta al villaggio marinaro',
             type: 'visit_settlement',
-            targetKey: 'fox_junction',
+            targetKey: 'san_vito_harbor',
             targetPK: 220,
-            check: (ctx) => ctx.z >= 220 || ctx.visitedSettlements.has('fox_junction')
+            check: (ctx) => ctx.z >= 220 || ctx.visitedSettlements.has('san_vito_harbor') || ctx.visitedSettlements.has('fox_junction')
           },
           {
             id: 'ch1_obj_scrap',
-            text: 'Raccogli o baratta almeno 15 unità di rottami per rinforzi d\'emergenza',
+            text: 'Raccogli o baratta almeno 15 unità di rottami metallici per i rinforzi',
             type: 'scrap',
             target: 15,
             check: (ctx) => ctx.inventoryScrap >= 15
@@ -10248,49 +11311,48 @@ class StoryDirector {
         id: 'ch_2',
         index: 1,
         number: 'II',
-        title: 'Il Gigante d\'Acciaio dello Yukon',
-        subtitle: 'Il Ponte E.L. Patton & La Pump Station 6 [PK 0.65 - 1.4 KM]',
+        title: 'Il Cuore Verde della Foresta Temperata & Il Mulino di Valbruna',
+        subtitle: 'Radici Umide, Querce Secolari & Il Bialbero Italiano [PK 0.65 - 1.30 KM]',
         bannerIcon: '🌲',
-        speaker: 'MASTRO JAREK (MECCANICO CAPO)',
+        speaker: 'MASTRO JAREK (MECCANICO DEL MULINO)',
         speakerAvatar: '🔧',
-        briefing: `Ingegnere Paolo! Ti sento gracchiante sul CB. Sono Jarek, vecchio meccanico polacco della Pump Station 6 sul fiume Yukon. Il ponte è ancora in piedi ma la foresta di picea nera sta cedendo per il disgelo dei versanti. La stazione ha bisogno di componenti per le valvole dell'oleodotto. Se mi porti rottami e pezzi di ricambio, ti consegno le coordinate di un vecchio granaio dove riposa una perla italiana: un'Alfa Giulia Super 1.6 Twin Cam abbandonata!`,
-        targetPK: 1400,
+        briefing: `Paolo! Ti ricevo forte e chiaro sul CB Midland Alan 48! Sono Jarek, vecchio meccanico del mulino idraulico di Valbruna. Il fondo nel bosco di faggi è morbido e scivoloso. Se mi porti rottami per riparare la turbina idraulica, ti mostrerò il fienile dove riposa una regina del Biscione: un'Alfa Romeo Giulia Super 1.6 Twin Cam pronta per tornare a ruggire!`,
+        targetPK: 1300,
         rewards: {
           scrap: 60,
           items: [{ id: 'toolkit', count: 1 }, { id: 'cured_timber', count: 2 }],
-          unlockVehicleHint: 'Alfa Romeo Giulia Super (Coordinate Granaio Yukon)',
-          description: '60 Rottami • 1x Cassetta Attrezzi Completa • Indizio Relitto Alfa Giulia'
+          unlockVehicleHint: 'Alfa Romeo Giulia Super (Coordinate Fienile di Valbruna)',
+          description: '60 Rottami • 1x Cassetta Attrezzi Completa • Sblocco Relitto Alfa Giulia Super'
         },
         objectives: [
           {
-            id: 'ch2_obj_cross_bridge',
-            text: 'Attraversa l\'imponente ponte d\'acciaio E.L. Patton sul fiume Yukon (PK 0.87 km)',
-            type: 'distance',
-            target: 870,
-            unit: 'M',
-            check: (ctx) => ctx.z >= 870
-          },
-          {
-            id: 'ch2_obj_visit_yukon',
-            text: 'Fermati alla Pump Station 6 dello Yukon e contatta Mastro Jarek',
+            id: 'ch2_obj_visit_valbruna',
+            text: 'Raggiungi il Mulino di Valbruna sul torrente montano (PK 0.87 km)',
             type: 'visit_settlement',
-            targetKey: 'yukon_crossing',
+            targetKey: 'valbruna_mill',
             targetPK: 870,
-            check: (ctx) => ctx.z >= 870 || ctx.visitedSettlements.has('yukon_crossing')
+            check: (ctx) => ctx.z >= 870 || ctx.visitedSettlements.has('valbruna_mill') || ctx.visitedSettlements.has('yukon_crossing')
           },
           {
             id: 'ch2_obj_scavenge_lumber',
-            text: 'Ispeziona il piazzale dei boscaioli (PK 1.04 km) per recuperare mastice e legname',
+            text: 'Ispeziona il piazzale boscaioli (PK 1.04 km) per recuperare legname stagionato',
             type: 'distance',
             target: 1040,
             check: (ctx) => ctx.z >= 1040
           },
           {
-            id: 'ch2_obj_reach_1300',
-            text: 'Avanza oltre il PK 1.35 km penetrando nella taiga dello Yukon',
+            id: 'ch2_obj_fuel_reserve',
+            text: 'Assicurati di avere almeno 20 litri di carburante nel serbatoio',
+            type: 'fuel',
+            target: 20,
+            check: (ctx) => ctx.fuelLevel >= 20
+          },
+          {
+            id: 'ch2_obj_reach_1250',
+            text: 'Avanza oltre il PK 1.25 km penetrando verso la soglia delle grandi terre aride',
             type: 'distance',
-            target: 1350,
-            check: (ctx) => ctx.z >= 1350
+            target: 1250,
+            check: (ctx) => ctx.z >= 1250
           }
         ]
       },
@@ -10299,48 +11361,46 @@ class StoryDirector {
         id: 'ch_3',
         index: 2,
         number: 'III',
-        title: 'Il Pantano di Coldfoot & i Piedi Freddi',
-        subtitle: 'La Fossa Alluvionale del Muskeg & Slate Creek [PK 1.4 - 2.1 KM]',
-        bannerIcon: '🌧️',
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        speakerAvatar: '🐻',
-        briefing: `Attenzione a tutte le unità lungo il corridoio: le piane del fiume Koyukuk sono una trappola mortale. Il fango muskeg scioglie le banchine. Se corri sopra i 35 all'ora fuori asfalto spacchi il telaio per lo spanciamento! A Coldfoot Truck Stop un convoglio Mack si è impantanato. Portagli aiuto e fai scorta di carburante e pneumatici tassellati prima che il freddo si trasformi in gelo polare.`,
-        targetPK: 2100,
+        title: 'La Fornace del Gran Deserto & L\'Oasi di El Kantara',
+        subtitle: 'Dune Mobili, 48°C all\'Ombra & Sete del Radiatore [PK 1.30 - 1.95 KM]',
+        bannerIcon: '🐪',
+        speaker: 'TARIQ IBN-BATTUTA (GUIDA CAROVANIERA)',
+        speakerAvatar: '🏜️',
+        briefing: `Ingegnere, sei entrato nell'inferno del Gran Deserto. La sabbia finissima si insinua nei filtri aria e l'aria rovente a 48°C fa bollire il liquido di raffreddamento in salita. All'Oasi di El Kantara (PK 1.52 km) puoi riempire le taniche d'acqua potabile e barattare datteri e pezzi d'acciaio. Non accelerare bruscamente o scaverai la tua fossa nella sabbia viva!`,
+        targetPK: 1950,
         rewards: {
           scrap: 80,
-          items: [{ id: 'spare_tire', count: 1 }, { id: 'waterproofing_wax', count: 2 }],
-          unlockVehicleHint: 'Peugeot 504 Dangel 4x4 (Disponibile nel Parco Veicoli)',
-          description: '80 Rottami • 1x Pneumatico M+S Rinforzato • 2x Cera Impermeabilizzante'
+          items: [{ id: 'water_purified', count: 2 }, { id: 'spare_tire', count: 1 }],
+          description: '80 Rottami • 2x Bottiglioni Acqua Purificata • 1x Pneumatico Rinforzato Sabbia'
         },
         objectives: [
           {
-            id: 'ch3_obj_reach_coldfoot',
-            text: 'Raggiungi il celebre Coldfoot Truck Stop a Slate Creek (PK 1.52 km)',
+            id: 'ch3_obj_reach_oasis',
+            text: 'Raggiungi l\'Oasi di El Kantara tra le palme e l\'antico pozzo (PK 1.52 km)',
             type: 'visit_settlement',
-            targetKey: 'coldfoot_camp',
+            targetKey: 'elkantara_oasis',
             targetPK: 1520,
-            check: (ctx) => ctx.z >= 1520 || ctx.visitedSettlements.has('coldfoot_camp')
+            check: (ctx) => ctx.z >= 1520 || ctx.visitedSettlements.has('elkantara_oasis') || ctx.visitedSettlements.has('coldfoot_camp')
           },
           {
-            id: 'ch3_obj_inspect_overturned',
-            text: 'Individua l\'autocisterna Mack semi-affondata nel fango a PK 1.82 km',
+            id: 'ch3_obj_inspect_wreck',
+            text: 'Individua l\'autocarro Berliet sabbiato tra le dune a PK 1.72 km',
             type: 'distance',
-            target: 1820,
-            check: (ctx) => ctx.z >= 1820
+            target: 1720,
+            check: (ctx) => ctx.z >= 1720
           },
           {
-            id: 'ch3_obj_fuel_reserve',
-            text: 'Assicurati di avere almeno 25 litri di carburante per la salita del Circolo Polare',
-            type: 'fuel',
-            target: 25,
-            check: (ctx) => ctx.fuelLevel >= 25
+            id: 'ch3_obj_thirst_check',
+            text: 'Mantieni l\'idratazione corporea e non farti sopraffare dal caldo del deserto',
+            type: 'survival',
+            check: (ctx) => ctx.thirst >= 40
           },
           {
-            id: 'ch3_obj_reach_2050',
-            text: 'Valica le piane alluvionali di Koyukuk e tocca il PK 2.05 km',
+            id: 'ch3_obj_reach_1900',
+            text: 'Attraversa l\'erg sabbioso e tocca la soglia della savana a quota PK 1.90 km',
             type: 'distance',
-            target: 2050,
-            check: (ctx) => ctx.z >= 2050
+            target: 1900,
+            check: (ctx) => ctx.z >= 1900
           }
         ]
       },
@@ -10349,47 +11409,48 @@ class StoryDirector {
         id: 'ch_4',
         index: 3,
         number: 'IV',
-        title: 'L\'Orizzonte Ionico del 66° Parallelo',
-        subtitle: 'La Base Radar DEW Line White Alice & Circolo Polare [PK 2.1 - 2.8 KM]',
-        bannerIcon: '📡',
-        speaker: 'ELENA VANCE (SCIENZIATA DEADHORSE)',
-        speakerAvatar: '👩‍🔬',
-        briefing: `...crk... Paolo! Ricevo il segnale CB del tuo Alan 48! Qui è Elena Vance dal terminale di Prudhoe Bay. Le aurore solari hanno innescato una tempesta ionica micidiale. Gli alternatori rischiano il sovraccarico e le luci ballano. A Chandalar Shelf (PK 2.17 km) c'è la vecchia parabola troposferica White Alice della Guerra Fredda: riallinea i ripetitori per consentirci di guidarti attraverso il valico montuoso!`,
-        targetPK: 2800,
+        title: 'La Savana Infinita & L\'Avamposto del Serengeti',
+        subtitle: 'Piste di Laterite Rossa & La Leggenda del Dangel 4x4 [PK 1.95 - 2.60 KM]',
+        bannerIcon: '🦁',
+        speaker: 'RANGER KIBWE (GUARDAPARCO SERENGETI)',
+        speakerAvatar: '🦒',
+        briefing: `Jambo Paolo! Qui è il Ranger Kibwe dall'avamposto del Serengeti. La terra rossa lateritica è piena di buche e corrugazioni ondulate che spaccano i braccetti delle sospensioni. Mantieni una traiettoria fluida tra i baobab secolari. Nel nostro hangar c'è un leggendario Peugeot 504 Dangel 4x4: portaci ricambi per il generatore solare e ti consegneremo le coordinate!`,
+        targetPK: 2600,
         rewards: {
           scrap: 110,
-          items: [{ id: 'graphene_battery', count: 1 }, { id: 'electronics', count: 2 }],
-          unlockVehicleHint: 'BMW Serie 3 E30 Rally Spec (Relitto Altopiano)',
-          description: '110 Rottami • 1x Batteria al Grafene • 2x Componenti Elettronici Schermati'
+          items: [{ id: 'reinforced_coil', count: 1 }, { id: 'graphene_battery', count: 1 }],
+          unlockVehicleHint: 'Peugeot 504 Dangel 4x4 (Disponibile nel Parco Fuoristrada)',
+          description: '110 Rottami • 1x Molla Sospensione Rinforzata • Sblocco Peugeot 504 Dangel'
         },
         objectives: [
           {
-            id: 'ch4_obj_arctic_circle',
-            text: 'Vapora il Cancello del Circolo Polare Artico (Latitudine 66° 33\' N, PK 2.17 km)',
-            type: 'distance',
-            target: 2170,
-            check: (ctx) => ctx.z >= 2170
+            id: 'ch4_obj_reach_serengeti',
+            text: 'Raggiungi l\'Avamposto Ranger del Serengeti e rifornisciti alla torre (PK 2.17 km)',
+            type: 'visit_settlement',
+            targetKey: 'serengeti_outpost',
+            targetPK: 2170,
+            check: (ctx) => ctx.z >= 2170 || ctx.visitedSettlements.has('serengeti_outpost') || ctx.visitedSettlements.has('chandalar_shelf')
           },
           {
-            id: 'ch4_obj_dew_line',
-            text: 'Raggiungi la gigantesca Parabola Radar White Alice di Chandalar Shelf (PK 2.32 km)',
+            id: 'ch4_obj_baobab_pass',
+            text: 'Oltrepassa il bosco monumentale dei grandi Baobab a PK 2.34 km',
             type: 'distance',
-            target: 2320,
-            check: (ctx) => ctx.z >= 2320
+            target: 2340,
+            check: (ctx) => ctx.z >= 2340
           },
           {
-            id: 'ch4_obj_trooper_gate',
-            text: 'Supera il posto di blocco Alaska State Troopers del Parallelo 66° (PK 2.48 km)',
-            type: 'distance',
-            target: 2480,
-            check: (ctx) => ctx.z >= 2480
+            id: 'ch4_obj_scrap_stock',
+            text: 'Accumula almeno 35 unità di rottami per fortificare i bracci delle ruote',
+            type: 'scrap',
+            target: 35,
+            check: (ctx) => ctx.inventoryScrap >= 35
           },
           {
-            id: 'ch4_obj_reach_2750',
-            text: 'Sopravvivi alle tempeste ioniche e raggiungi i piedi delle montagne Brooks (PK 2.75 km)',
+            id: 'ch4_obj_reach_2550',
+            text: 'Supera la steppa dorata e preparati all\'ingresso nella foresta equatoriale (PK 2.55 km)',
             type: 'distance',
-            target: 2750,
-            check: (ctx) => ctx.z >= 2750
+            target: 2550,
+            check: (ctx) => ctx.z >= 2550
           }
         ]
       },
@@ -10398,48 +11459,48 @@ class StoryDirector {
         id: 'ch_5',
         index: 4,
         number: 'V',
-        title: 'Il Calvario dell\'Atigun Pass (The Shelf)',
-        subtitle: '1.444 Metri sul Continental Divide & Falesie di Ardesia [PK 2.8 - 3.4 KM]',
-        bannerIcon: '⛰️',
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        speakerAvatar: '🐻',
-        briefing: `Paolo, stai per affrontare 'The Shelf', il passo più alto e feroce dell'Alaska. 12% di pendenza continua, ardesia affilata come rasoi e raffiche a 140 km/h. Se il radiatore sale a 110 gradi fondi la testata prima del tornante. Inserisci la trazione integrale o la marcia corta, evita i massi caduti dalla parete e non fermarti mai sulla pendenza o scivolerai a valle!`,
-        targetPK: 3400,
+        title: 'L\'Inferno Smeraldo della Foresta Pluviale Equatoriale',
+        subtitle: 'Monsoni Torrenziali, Fango Argilloso & Stazione Rio Verde [PK 2.60 - 3.25 KM]',
+        bannerIcon: '🌿',
+        speaker: 'DOTT.SSA MAYA GOMEZ (STAZIONE RIO VERDE)',
+        speakerAvatar: '👩‍🔬',
+        briefing: `Paolo! Le piogge monsoniche hanno gonfiato i guadi della giungla equatoriale! Il fango argilloso ha un coefficiente di trazione bassissimo: inserisci la trazione integrale e fai cantare il motore per non allagare lo scarico. La stazione botanica di Rio Verde su palafitte (PK 2.82 km) ha bisogno di medicinali e cinghie di trasmissione. Guida con precisione chirurgica!`,
+        targetPK: 3250,
         rewards: {
-          scrap: 150,
-          items: [{ id: 'reinforced_coil', count: 1 }, { id: 'armor_plate', count: 2 }],
-          unlockVehicleHint: 'Land Rover Defender 110 Tdi (Veicolo del Soccorso Alpino DOT)',
-          description: '150 Rottami • 1x Balestra da Carico Pesante • 2x Piastre Blindate'
+          scrap: 140,
+          items: [{ id: 'waterproofing_wax', count: 2 }, { id: 'armor_plate', count: 2 }],
+          unlockVehicleHint: 'BMW Serie 3 E30 Rally (Relitto Esploratori Rio Verde)',
+          description: '140 Rottami • 2x Cera Idrorepellente • 2x Piastre Blindatura Fondo'
         },
         objectives: [
           {
-            id: 'ch5_obj_reach_atigun_camp',
-            text: 'Conquista l\'Atigun Pass High Camp incastonato nelle falesie scistose (PK 2.82 km)',
+            id: 'ch5_obj_reach_rioverde',
+            text: 'Raggiungi la Stazione Scientifica di Rio Verde su palafitte (PK 2.82 km)',
             type: 'visit_settlement',
-            targetKey: 'atigun_camp',
+            targetKey: 'rioverde_station',
             targetPK: 2820,
-            check: (ctx) => ctx.z >= 2820 || ctx.visitedSettlements.has('atigun_camp')
+            check: (ctx) => ctx.z >= 2820 || ctx.visitedSettlements.has('rioverde_station') || ctx.visitedSettlements.has('atigun_camp')
           },
           {
-            id: 'ch5_obj_inspect_quarry',
-            text: 'Oltrepassa la cava frantumatori di ardesia DOT sul valico (PK 2.96 km)',
+            id: 'ch5_obj_cross_canopy',
+            text: 'Attraversa il guado alluvionale sotto le chiome dei giganti della giungla (PK 3.02 km)',
             type: 'distance',
-            target: 2960,
-            check: (ctx) => ctx.z >= 2960
+            target: 3020,
+            check: (ctx) => ctx.z >= 3020
           },
           {
-            id: 'ch5_obj_climb_summit',
-            text: 'Supera il punto più alto del Continental Divide (1.444m, PK 3.12 km) senza distruggere lo scafo',
+            id: 'ch5_obj_hull_health',
+            text: 'Sopravvivi alle correnti e mantieni l\'integrità dello scafo sopra il 50%',
             type: 'distance_hull',
             target: 3120,
-            check: (ctx) => ctx.z >= 3120 && ctx.hullPercent >= 45
+            check: (ctx) => ctx.z >= 3120 && ctx.hullPercent >= 50
           },
           {
-            id: 'ch5_obj_reach_3350',
-            text: 'Scendi lungo il versante nord del valico toccando quota PK 3.35 km',
+            id: 'ch5_obj_reach_3200',
+            text: 'Sbuca dalla densa coltre pluviale ai piedi della catena montuosa alpina (PK 3.20 km)',
             type: 'distance',
-            target: 3350,
-            check: (ctx) => ctx.z >= 3350
+            target: 3200,
+            check: (ctx) => ctx.z >= 3200
           }
         ]
       },
@@ -10448,133 +11509,261 @@ class StoryDirector {
         id: 'ch_6',
         index: 5,
         number: 'VI',
-        title: 'L\'Ultima Corsa sul Mare di Beaufort',
-        subtitle: 'Prudhoe Bay, Ghiaccio Nero a -45°C & Vittoria Polare [PK 3.4 - 3.8+ KM]',
-        bannerIcon: '❄️',
-        speaker: 'ELENA VANCE & L\'INTERO CONVOGLIO',
-        speakerAvatar: '🏆',
-        briefing: `Paolo! Sei sbucato dalle montagne Brooks! Ti vediamo dai binocoli della torre di Deadhorse! Il termometro segna -46°C e la bufera di neve ha coperto la strada di ghiaccio vivo. Non spegnere il motore per nessun motivo, altrimenti l'olio diventa catrame solido in tre minuti! Porta la macchina all'hangar centrale di Deadhorse: sei a un passo dalla leggenda della Haul Road!`,
-        targetPK: 3800,
+        title: 'La Muraglia di Granito delle Cime Alpine',
+        subtitle: 'Pendenze al 14%, Tornanti a Gomito & Rifugio Aquile [PK 3.25 - 3.90 KM]',
+        bannerIcon: '⛰️',
+        speaker: 'GOTTFRIED (SOCCORSO ALPINO VALICHI)',
+        speakerAvatar: '🧗',
+        briefing: `Grüß Gott, Ingegnere! Qui parla Gottfried dal Rifugio del Valico delle Aquile. Sei a quota 2.600 metri: tornanti a gomito con pendenze al 14%, ghiaioni instabili e falesie di granito a picco. In discesa usa sempre il freno motore e la seconda marcia per non cuocere i tamburi! Al rifugio (PK 3.47 km) c'è la galleria paravalanghe dove troverai riparo dai massi e una Land Rover Defender del soccorso alpino!`,
+        targetPK: 3900,
         rewards: {
-          scrap: 250,
-          items: [{ id: 'cryo_coolant', count: 2 }, { id: 'thermal_lining', count: 2 }],
-          unlockVehicleHint: 'Lancia Delta HF Integrale Evoluzione (Campione del Mondo Rally)',
-          description: '250 Rottami • 2x Glicole Criogenico • SBLOCCO SUPREMO LANCIA DELTA INTEGRALE'
+          scrap: 180,
+          items: [{ id: 'toolkit', count: 1 }, { id: 'cryo_coolant', count: 1 }],
+          unlockVehicleHint: 'Land Rover Defender 110 Tdi (Veicolo del Soccorso Alpino)',
+          description: '180 Rottami • 1x Cassetta Attrezzi da Corsa • Sblocco Defender 110 Tdi'
         },
         objectives: [
           {
-            id: 'ch6_obj_reach_deadhorse',
-            text: 'Raggiungi il monumentale Deadhorse Terminal sulle sponde dell\'Oceano Artico (PK 3.47 km)',
+            id: 'ch6_obj_reach_aquile',
+            text: 'Conquista il Valico delle Aquile e fermati al rifugio alpino (PK 3.47 km)',
             type: 'visit_settlement',
-            targetKey: 'deadhorse_terminal',
+            targetKey: 'valico_aquile',
             targetPK: 3470,
-            check: (ctx) => ctx.z >= 3470 || ctx.visitedSettlements.has('deadhorse_terminal')
+            check: (ctx) => ctx.z >= 3470 || ctx.visitedSettlements.has('valico_aquile') || ctx.visitedSettlements.has('deadhorse_terminal')
           },
           {
-            id: 'ch6_obj_polar_shelter',
-            text: 'Oltrepassa la capsula rifugio spazzaneve Arctic Cat a PK 3.62 km',
+            id: 'ch6_obj_avalanche_tunnel',
+            text: 'Attraversa la galleria paravalanghe in cemento armato a PK 3.65 km',
             type: 'distance',
-            target: 3620,
-            check: (ctx) => ctx.z >= 3620
+            target: 3650,
+            check: (ctx) => ctx.z >= 3650
           },
           {
-            id: 'ch6_obj_radio_lighthouse',
-            text: 'Taglia il traguardo al Faro Radio Terminale del Mar Glaciale Artico (PK 3.78 km)',
+            id: 'ch6_obj_brake_temp',
+            text: 'Scendi lungo il versante nord senza far salire eccessivamente la temperatura motore',
             type: 'distance',
             target: 3780,
             check: (ctx) => ctx.z >= 3780
           },
           {
-            id: 'ch6_obj_complete_expedition',
-            text: 'Consegna la spedizione artica e conquista il titolo supremo di Leggenda della Dalton!',
+            id: 'ch6_obj_reach_3850',
+            text: 'Valica le creste granitiche e scendi verso le immense foreste boreali (PK 3.85 km)',
+            type: 'distance',
+            target: 3850,
+            check: (ctx) => ctx.z >= 3850
+          }
+        ]
+      },
+
+      {
+        id: 'ch_7',
+        index: 6,
+        number: 'VII',
+        title: 'La Grande Taiga Boreale & Il Deposito Nord',
+        subtitle: 'Abeti Neri, Piste di Tronchi & Il Regno dei Camion Pesanti [PK 3.90 - 4.55 KM]',
+        bannerIcon: '🪓',
+        speaker: 'JACK MILLER "ORSO POLARE"',
+        speakerAvatar: '🐻',
+        briefing: `Ingegnere Paolo! Qui è Jack Miller 'Orso Polare'. Siamo nella taiga boreale profonda. 650 metri di piste forestali in mezzo a milioni di abeti e betulle siberiane. Al Deposito Forestale Taiga Nord (PK 4.12 km) c'è la forgia e una cisterna di gasolio artico con punto di scorrimento a -50°C. Rifornisciti e controlla i cuscinetti: il settore successivo è la tundra artica e il ghiaccio vivo!`,
+        targetPK: 4550,
+        rewards: {
+          scrap: 220,
+          items: [{ id: 'thermal_lining', count: 2 }, { id: 'refined_fuel', count: 2 }],
+          description: '220 Rottami • 2x Isolante Termico Abitacolo • 2x Taniche Carburante Invernale'
+        },
+        objectives: [
+          {
+            id: 'ch7_obj_reach_taiga',
+            text: 'Raggiungi il Deposito Forestale Taiga Nord tra i carichi di legname (PK 4.12 km)',
+            type: 'visit_settlement',
+            targetKey: 'taiga_nord',
+            targetPK: 4120,
+            check: (ctx) => ctx.z >= 4120 || ctx.visitedSettlements.has('taiga_nord')
+          },
+          {
+            id: 'ch7_obj_inspect_logyard',
+            text: 'Oltrepassa il cantiere meccanizzato della picea a PK 4.28 km',
+            type: 'distance',
+            target: 4280,
+            check: (ctx) => ctx.z >= 4280
+          },
+          {
+            id: 'ch7_obj_fuel_full',
+            text: 'Fai il pieno completo di carburante per affrontare il deserto bianco polare',
+            type: 'fuel',
+            target: 25,
+            check: (ctx) => ctx.fuelLevel >= 25
+          },
+          {
+            id: 'ch7_obj_reach_4500',
+            text: 'Oltrepassa il limite della vegetazione arborea verso la tundra glaciale (PK 4.50 km)',
+            type: 'distance',
+            target: 4500,
+            check: (ctx) => ctx.z >= 4500
+          }
+        ]
+      },
+
+      {
+        id: 'ch_8',
+        index: 7,
+        number: 'VIII',
+        title: 'L\'Ultima Frontiera: La Tundra Polare & La Base 80',
+        subtitle: 'L\'80° Parallelo, Lastroni di Vetrone & Il Traguardo Supremo [PK 4.55 - 5.20+ KM]',
+        bannerIcon: '❄️',
+        speaker: 'DOTT.SSA ELENA VANCE & IL CONVOGLIO MONDIALE',
+        speakerAvatar: '🏆',
+        briefing: `PAOLO! TI SENTIAMO LIMPIDISSIMO SUL CANALE 19! Sei all'80° Parallelo Nord! La bufera artica soffia a -46°C e la strada è una lastra di verglas continuo. Segui le paline catarifrangenti rosse e bianche! Alla Base Polare 80 (PK 4.77 km) abbiamo acceso il Faro del Grande Meridiano! Taglia il traguardo: l'ingegneria meccanica analogica italiana ha unito tutti i biomi del mondo!`,
+        targetPK: 5200,
+        rewards: {
+          scrap: 350,
+          items: [{ id: 'cryo_coolant', count: 2 }, { id: 'graphene_battery', count: 2 }],
+          unlockVehicleHint: 'Lancia Delta HF Integrale Evoluzione (Campione del Mondo)',
+          description: '350 Rottami • SBLOCCO SUPREMO DELLA LANCIA DELTA HF INTEGRALE EVOLUZIONE'
+        },
+        objectives: [
+          {
+            id: 'ch8_obj_reach_base80',
+            text: 'Raggiungi la Base Polare 80 e le sue cupole geodetiche riscaldate (PK 4.77 km)',
+            type: 'visit_settlement',
+            targetKey: 'polar_base_80',
+            targetPK: 4770,
+            check: (ctx) => ctx.z >= 4770 || ctx.visitedSettlements.has('polar_base_80')
+          },
+          {
+            id: 'ch8_obj_metar_shelter',
+            text: 'Oltrepassa la stazione meteo METAR e i radar polari a PK 4.94 km',
+            type: 'distance',
+            target: 4940,
+            check: (ctx) => ctx.z >= 4940
+          },
+          {
+            id: 'ch8_obj_radio_lighthouse',
+            text: 'Raggiungi il Grande Faro Terminale del Meridiano Polare (PK 5.10 km)',
+            type: 'distance',
+            target: 5100,
+            check: (ctx) => ctx.z >= 5100
+          },
+          {
+            id: 'ch8_obj_complete_expedition',
+            text: 'Trionfa nella Spedizione Trans-Continentale e consacra la Leggenda del Grande Meridiano!',
             type: 'victory',
-            check: (ctx) => ctx.z >= 3800
+            check: (ctx) => ctx.z >= 5180
           }
         ]
       }
     ];
 
-    // Predefined Radio Dispatches Scripted along the Highway
+    // Predefined Radio Dispatches Scripted along the 8 Biomes Corridor
     this.scriptedTransmissions = [
       {
         id: 'tx_intro',
         triggerZ: 15,
-        speaker: 'JACK MILLER "ORSO POLARE"',
-        avatar: '🐻',
-        callsign: 'CH 19 • DALTON CONVOY DISPATCH',
-        text: 'Attenzione a tutte le unità, qui è Orso Polare sul Canale 19. Paolo, mi ricevi? Il convoglio per Prudhoe Bay conta su di te. Tieni gli occhi sulla temperatura dell\'acqua e non farti ingannare dalla banchina: a nord di Fox la strada non ha pietà!'
+        speaker: 'SOFIA MARETTI (CAPO SPEDIZIONE)',
+        avatar: '🧭',
+        callsign: 'CH 19 • TRANS-EARTH DISPATCH',
+        text: 'Paolo, mi ricevi sul Canale 19? Qui Sofia Maretti dal molo di San Vito. Il convoglio trans-continentale del Grande Meridiano parte adesso. Tieni gli occhi sulla temperatura acqua e ascolta il motore: 5.200 metri di traversata attraverso tutti i biomi della Terra ci attendono!'
       },
       {
-        id: 'tx_fox_arrival',
+        id: 'tx_san_vito_arrival',
         triggerZ: 215,
-        speaker: 'SERAFINO (CAPO MINATORE FOX)',
-        avatar: '⛏️',
-        callsign: 'CH 19 • FOX JUNCTION MINERS',
-        text: 'Ehi, la Panda 4x4 d\'epoca! Sentivo il rombo del 4 cilindri da chilometri. Se ti servono gasolio o rottami d\'acciaio scendi pure all\'officina di Dredge 8. Fai il pieno prima del fiume!'
+        speaker: 'CAPITANO NEREO (PORTO DI SAN VITO)',
+        avatar: '⚓',
+        callsign: 'CH 19 • HARBOR TRAFFIC',
+        text: 'Ehi, Ingegnere! Riconosco l\'inconfondibile sibilo della Fiat Panda 4x4 Steyr-Puch! Fai scorta di bende e carburante qui al porto prima che la strada si inoltri nelle fitte foreste dell\'entroterra!'
       },
       {
-        id: 'tx_yukon_approach',
-        triggerZ: 820,
-        speaker: 'MASTRO JAREK (PUMP STATION 6)',
+        id: 'tx_valbruna_approach',
+        triggerZ: 850,
+        speaker: 'MASTRO JAREK (MULINO VALBRUNA)',
         avatar: '🔧',
-        callsign: 'CH 19 • YUKON RIVER CAMP',
-        text: 'Paolo! Eccoti sul ponte E.L. Patton! Guarda che colosso di travi d\'acciaio sopra lo Yukon. Vieni alla Pump Station 6, ti ho messo da parte una chiave a cricchetto e la mappa per un relitto Alfa Romeo!'
+        callsign: 'CH 19 • VALBRUNA MILL',
+        text: 'Paolo! Sei nel fitto della foresta temperata! Le querce e i faggi filtrano la luce. Ti ho preparato i ricambi al mulino ad acqua e ti ho aperto il fienile dell\'Alfa Romeo Giulia bialbero!'
       },
       {
-        id: 'tx_coldfoot_warning',
-        triggerZ: 1450,
+        id: 'tx_desert_warning',
+        triggerZ: 1480,
+        speaker: 'TARIQ IBN-BATTUTA (GUIDA DESERTO)',
+        avatar: '🏜️',
+        callsign: 'CH 19 • SAHARA CARAVAN',
+        text: 'Attenzione Ingegnere! Sei entrato nel grande bacino sabbioso. Temperatura asfalto oltre i 55°C! All\'Oasi di El Kantara puoi rinfrescarti e bere acqua pura: non far bollire il radiatore!'
+      },
+      {
+        id: 'tx_serengeti_arrival',
+        triggerZ: 2150,
+        speaker: 'RANGER KIBWE (SERENGETI OUTPOST)',
+        avatar: '🦒',
+        callsign: 'CH 19 • SAVANNA RANGER POST',
+        text: 'Karibu Paolo! Sei tra le acacie a ombrello e i baobab del Serengeti! Sulla terra battuta lateritica mantieni il gas costante. La Peugeot 504 Dangel 4x4 da safari ti aspetta all\'avamposto!'
+      },
+      {
+        id: 'tx_rainforest_alert',
+        triggerZ: 2800,
+        speaker: 'DOTT.SSA MAYA GOMEZ (RIO VERDE)',
+        avatar: '🌿',
+        callsign: 'CH 19 • TROPICAL LAB POST',
+        text: 'Paolo! Sta iniziando il monsone equatoriale! L\'argilla rossa è diventata saponosa: inserisci la trazione integrale e la Primina corta! Ti guideremo con i fari della stazione su palafitte!'
+      },
+      {
+        id: 'tx_alpine_climb',
+        triggerZ: 3450,
+        speaker: 'GOTTFRIED (VALICO DELLE AQUILE)',
+        avatar: '🧗',
+        callsign: 'CH 19 • ALPINE RESCUE',
+        text: 'Ingegnere, sei sopra quota 2.500 metri! Pendenza 14%, falesie di granito e gallerie paravalanghe. Usa marce basse e fai raffreddare i freni: la vista dal rifugio è maestosa!'
+      },
+      {
+        id: 'tx_taiga_nord',
+        triggerZ: 4100,
         speaker: 'JACK MILLER "ORSO POLARE"',
         avatar: '🐻',
-        callsign: 'CH 19 • DALTON CONVOY DISPATCH',
-        text: 'Ingegnere, sei entrato nelle piane del Koyukuk! Qui è dove i cercatori si presero i piedi freddi ("cold feet") nel 1898. Fango viscoso a destra e sinistra: mantieni il volante dritto e non frenare di colpo!'
+        callsign: 'CH 19 • BOREAL CONVOY',
+        text: 'Paolo! Benvenuto nella grande taiga boreale! Milioni di abeti neri e betulle ti circondano. Rifornisciti con il nostro gasolio artico a Taiga Nord: il gran balzo verso il polo ha inizio!'
       },
       {
-        id: 'tx_arctic_circle',
-        triggerZ: 2160,
-        speaker: 'SGT. O\'CONNOR (ALASKA TROOPERS)',
-        avatar: '🛡️',
-        callsign: 'CH 19 • ARCTIC CIRCLE CHECKPOINT',
-        text: 'Unità in transito, benvenuto nel Circolo Polare Artico (66° 33\' Nord). Da qui in avanti le tempeste ioniche azzerano i cellulari. Affidati solo all\'ago della bussola e al CB!'
-      },
-      {
-        id: 'tx_atigun_alert',
-        triggerZ: 2790,
-        speaker: 'ELENA VANCE (DEADHORSE TERMINAL)',
+        id: 'tx_polar_beacon',
+        triggerZ: 4750,
+        speaker: 'DOTT.SSA ELENA VANCE (BASE 80)',
         avatar: '👩‍🔬',
-        callsign: 'CH 19 • POLAR SCIENCE POST',
-        text: 'Paolo... le nostre sonde registrano venti da 120 km/h sull\'Atigun Pass! Il valico è ghiacciato. Se hai la primina inserita usala, e tieni d\'occhio l\'indicatore della temperatura!'
+        callsign: 'CH 19 • POLAR BASE 80',
+        text: 'PAOLO! TI VEDIAMO DAI RADAR! La Panda 4x4 sta ruggendo sul vetrone a -46°C! Abbiamo acceso il grande faro del Meridiano! Sei a pochi chilometri dal traguardo finale!'
       },
       {
-        id: 'tx_victory_deadhorse',
-        triggerZ: 3750,
-        speaker: 'ELENA VANCE & JACK MILLER',
+        id: 'tx_victory_meridian',
+        triggerZ: 5160,
+        speaker: 'CONVOGLIO MONDIALE DEL GRANDE MERIDIANO',
         avatar: '🏆',
-        callsign: 'CH 19 • BEAUFORT SEA FLEET',
-        text: 'CE L\'HAI FATTA! La Fiat Panda 4x4 ha battuto la Dalton Highway! I generatori di Prudhoe Bay sono salvi! Hai scritto la storia della Haul Road, Ingegnere!'
+        callsign: 'CH 19 • GLOBAL FLEET',
+        text: 'VITTORIA! HAI ATTRAVERSATO TUTTI E GLI 8 BIOMI NATURALI DELLA TERRA! Dal Mediterraneo ai ghiacci del polo: la meccanica analogica italiana ha trionfato! Sei la leggenda del Grande Meridiano!'
       }
     ];
 
-    // Paolo's Technical Notes
+    // Paolo's Technical & Engineering Field Notes
     this.engineerNotes = [
       {
         title: 'La Primina della Fiat Panda 4x4 Steyr-Puch',
-        category: 'MECCANICA D\'EPOCA',
-        text: 'Sviluppata a Graz dalla Steyr-Daimler-Puch nel 1983. Non ha un riduttore a due leve come i fuoristrada pesanti, bensì una prima marcia ultra-corta (rapporto 1:3.91) abbinata a un differenziale conico elicoidale. Sul fango muskeg e sulla neve profonda della Dalton, consente di arrampicarsi a 4 km/h senza bruciare la frizione. Un capolavoro di essenzialità.'
+        category: 'CINEMATICA ANALOGICA',
+        text: 'Sviluppata a Graz dalla Steyr-Daimler-Puch nel 1983. Invece di un pesante riduttore a due leve, sfrutta una prima marcia ultra-corta (rapporto 1:3.91) abbinata a un differenziale conico elicoidale con innesto a crabot manuale. Sui fanghi argillosi della giungla equatoriale e sulla neve polare, consente di avanzare a 3.5 km/h senza sfrizionare. Un capolavoro di razionalità ingegneristica.'
       },
       {
-        title: 'Comportamento Termico dell\'Asfalto & Verglas',
-        category: 'FISICA STRADALE',
-        text: 'Tra il Milepost 56 e il 175 il fondo stradale passa da bitume fessurato a ghiaia mista a cloruro di calcio. A temperature inferiori a -4°C l\'umidità della taiga condensa istantaneamente creando il temibile ghiaccio nero ("black ice"). Il coefficiente di aderenza scende da 0.95 a 0.35. Toccare il pedale del freno con le ruote curvate significa testacoda assicurato.'
+        title: 'Galleggiamento & Coefficiente d\'Attrito su Sabbie Sahariane',
+        category: 'FISICA DEI TERRENI',
+        text: 'Nel bioma desertico, la sabbia quarzosa granulare presenta un attrito dinamico attorno a 0.58. La tentazione è sgasare, ma il momento torcente eccessivo scava buche e fa spanciare il veicolo. Il trucco dell\'ingegnere: mantenere il motore sul regime di coppia (3.000 rpm), pressione pneumatici ridotta a 1.2 bar e traiettorie rotonde senza brusche sterzate.'
       },
       {
-        title: 'Il Segreto dell\'Alfa Romeo Giulia Super nella Taiga',
-        category: 'RELITTI NASCOSTI',
-        text: 'Mastro Jarek mi ha confidato che un geologo italiano della TAPS negli anni \'70 importò una Giulia Super 1.6 Biscione per percorrere i cantieri dello Yukon. Il motore bialbero a due carburatori doppio corpo Weber 40 DCOE necessita di riscaldare bene i condotti d\'aspirazione per non congelare i getti del minimo.'
+        title: 'Dinamica di Guida su Fango Equatoriale & Tole Ondulée',
+        category: 'ASSETTO & SOSPENSIONI',
+        text: 'Sulle piste africane e nei guadi della foresta pluviale le corrugazioni ad alta frequenza rischiano di distruggere gli steli degli ammortizzatori per cavitazione dell\'olio. Superata la velocità critica di 48 km/h, la frequenza propria della cassa vettura si disaccoppia dal fondo, consentendo di galleggiare sulle creste delle ondulazioni.'
       },
       {
-        title: 'La Battaglia per il Passo Atigun (1.444 Metri)',
-        category: 'STRATEGIA DI VALICO',
-        text: 'Il Continental Divide separa i bacini idrografici del Pacifico da quelli dell\'Oceano Artico. La salita dal versante sud presenta strapiombi senza guardrail. Il trucco dell\'ingegnere: dosare l\'acceleratore al 60% per evitare slittamenti e non far salire il manometro della temperatura olio oltre i 3.8 bar.'
+        title: 'Dissipazione Termica sui Tornanti Alpini al 14%',
+        category: 'TERMODINAMICA FRENI',
+        text: 'Nella discesa dal Valico delle Aquile i tamburi posteriori possono raggiungere i 380°C causando il vapor lock del liquido freni DOT4. Scalare sempre in seconda marcia sfruttando l\'elevato rapporto di compressione del motore per frenare con la contropressione nei collettori di scarico.'
+      },
+      {
+        title: 'Aderenza su Vetrone & Paline Rifrangenti Polari',
+        category: 'SUPERFICI ARTICHE',
+        text: 'A -46°C nella tundra, il ghiaccio vivo non fonde sotto il battistrada ma forma scaglie vitree con grip inferiore al 35%. L\'unico punto di riferimento in caso di bufera o whiteout sono le paline catarifrangenti bicolore posizionate ogni 22 metri a bordo banchina.'
       }
     ];
   }
@@ -10846,7 +12035,7 @@ class DashboardHUD {
         <div class="story-ch-badge" id="story-ch-badge">CAPITOLO I</div>
         <div class="story-obj-body">
           <span class="story-target-icon">🎯</span>
-          <span class="story-obj-desc" id="story-obj-text">Mettiti in marcia e supera i primi 200 metri della Dalton Highway</span>
+          <span class="story-obj-desc" id="story-obj-text">Mettiti in marcia e percorri i primi 200 metri lungo la costiera</span>
         </div>
         <div class="story-badge-action">DIARIO 📖</div>
       </div>
@@ -10926,7 +12115,7 @@ class DashboardHUD {
               <div class="cb-faceplate">
                 <div class="cb-screen">
                   <span class="cb-ch">CH 19</span>
-                  <span class="cb-status" id="cb-channel-name">DALTON CONVOY • EMGCY</span>
+                  <span class="cb-status" id="cb-channel-name">MERIDIAN CONVOY • EMGCY</span>
                 </div>
                 <div class="cb-smeter">
                   <span class="smeter-lbl">SIGNAL</span>
@@ -11085,8 +12274,8 @@ class DashboardHUD {
           <div class="cb-avatar-box" id="cb-avatar">🐻</div>
           <div class="cb-text-box">
             <div class="cb-speaker-line">
-              <strong id="cb-speaker-name">JACK MILLER "ORSO POLARE"</strong>
-              <span class="cb-callsign-tag" id="cb-callsign">DALTON CONVOY DISPATCH</span>
+              <strong id="cb-speaker-name">SOFIA MARETTI (CAPO SPEDIZIONE)</strong>
+              <span class="cb-callsign-tag" id="cb-callsign">TRANS-EARTH DISPATCH</span>
             </div>
             <p class="cb-message-text" id="cb-message">Messaggio in arrivo...</p>
           </div>
@@ -12383,7 +13572,7 @@ class DashboardHUD {
           cbDisplay.style.textShadow = '0 0 10px #22c55e';
           if (cbSignal) cbSignal.style.width = '100%';
         } else {
-          cbDisplay.textContent = 'CH 19 [ DALTON CONVOY • EMGCY ] 27.185 MHz';
+          cbDisplay.textContent = 'CH 19 [ MERIDIAN CONVOY • EMGCY ] 27.185 MHz';
           cbDisplay.style.color = '#22c55e';
           cbDisplay.style.textShadow = '0 0 6px #22c55e';
           if (cbSignal) cbSignal.style.width = '75%';
@@ -13321,7 +14510,7 @@ class UpgradeModal {
 
         <!-- Navigation Tabs -->
         <div class="modal-tabs-bar">
-          <button class="modal-tab-btn active" id="tab-btn-garage">🏎️ PARCO VEICOLI & RESTAURI DALTON</button>
+          <button class="modal-tab-btn active" id="tab-btn-garage">🏎️ PARCO VEICOLI & RESTAURI DEL MERIDIANO</button>
           <button class="modal-tab-btn" id="tab-btn-upgrades">🛠️ OFFICINA MODULARE & TUNING (14 UPGRADE)</button>
         </div>
 
@@ -13354,7 +14543,7 @@ class UpgradeModal {
 
         <div class="modal-footer" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
           <span class="footer-tip" id="workshop-footer-tip" style="flex:1;">
-            💡 Restaura i relitti storici trovati lungo la Dalton Highway con i pezzi recuperati nei POI. Puoi cambiare auto in qualsiasi momento: il carico in eccesso viene custodito nel Deposito di Tappa.
+            💡 Restaura i relitti storici trovati lungo il Grande Meridiano con i pezzi recuperati nei POI. Puoi cambiare auto in qualsiasi momento: il carico in eccesso viene custodito nel Deposito di Tappa.
           </span>
           <button class="btn-demo-unlock" id="btn-unlock-all-fleet" style="background:#1e293b;border:1px solid #38bdf8;color:#38bdf8;font-size:10px;font-family:var(--font-tech);padding:5px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;">🔓 SBLOCCA TUTTI I MODELLI (COLLAUDO CRUSCOTTI)</button>
         </div>
@@ -13540,7 +14729,7 @@ class UpgradeModal {
         </div>
         <div class="fleet-stat-box">
           <span class="stat-big">${(this.upgradeSystem.maxPKReached / 1000).toFixed(1)} km</span>
-          <span class="stat-sub">Record Chilometrico Dalton</span>
+          <span class="stat-sub">Record Chilometrico Spedizione</span>
         </div>
         <div class="fleet-stat-box">
           <span class="stat-big">${stashCount > 0 ? `📦 ${stashCount} Oggetti` : 'Nessuno'}</span>
@@ -13692,7 +14881,7 @@ class UpgradeModal {
 
         <div class="car-notes-box">
           <p class="car-history-note"><strong>STORIA:</strong> ${car.description}</p>
-          <p class="car-dalton-note"><strong>COMPORTAMENTO DALTON:</strong> ${car.tacticalDaltonAdvice}</p>
+          <p class="car-dalton-note"><strong>DINAMICA DI GUIDA & BIOMI:</strong> ${car.tacticalDaltonAdvice}</p>
         </div>
 
         ${restorationHtml}
@@ -13895,7 +15084,7 @@ class MeridianAtlasModal {
     this.audioEngine = audioEngine;
 
     this.isOpen = false;
-    this.selectedBiomeId = 'rusty_periphery';
+    this.selectedBiomeId = 'mediterranean_coast';
     this.element = null;
 
     this.buildModal();
@@ -13909,7 +15098,7 @@ class MeridianAtlasModal {
     this.element.innerHTML = `
       <div class="game-modal-window atlas-window">
         <div class="modal-header">
-          <div class="modal-title">🗺️ ATLANTE DELLA DALTON HIGHWAY (ALASKA ROUTE 11)</div>
+          <div class="modal-title">🗺️ ATLANTE DELLA SPEDIZIONE IL GRANDE MERIDIANO (TRANS-EARTH CORRIDOR)</div>
           <button class="modal-close-btn" id="btn-close-atlas">✕</button>
         </div>
 
@@ -13921,10 +15110,10 @@ class MeridianAtlasModal {
           <div class="atlas-dossier-panel">
             <div class="dossier-header-strip">
               <div class="dossier-titles">
-                <h2 id="dossier-biome-name">FOX & GOLDSTREAM VALLEY</h2>
-                <div class="dossier-sub" id="dossier-biome-sub">Settore 0 — MP 0 - 56 [PK 0.0 - 0.65 KM]</div>
+                <h2 id="dossier-biome-name">COSTA MEDITERRANEA</h2>
+                <div class="dossier-sub" id="dossier-biome-sub">Settore 0 — [PK 0.0 - 0.65 KM]</div>
               </div>
-              <div class="dossier-badge" id="dossier-settlement-badge">FOX JUNCTION</div>
+              <div class="dossier-badge" id="dossier-settlement-badge">PORTO DI SAN VITO</div>
             </div>
 
             <div class="dossier-scroll-content">
@@ -13962,7 +15151,7 @@ class MeridianAtlasModal {
         </div>
 
         <div class="modal-footer">
-          <div class="atlas-status-note">THE HAUL ROAD LOGBOOK — ALASKA DEPT OF TRANSPORTATION & TAPS CORRIDOR</div>
+          <div class="atlas-status-note">IL GRANDE MERIDIANO — SPEDIZIONE ATTRAVERSO GLI 8 BIOMI NATURALI DELLA TERRA (5.200M)</div>
           <button class="btn-primary-action" id="btn-close-atlas-bottom">TORNA AL COCKPIT</button>
         </div>
       </div>
@@ -14150,14 +15339,14 @@ class StoryDiaryModal {
           <div class="diary-tab-pane" id="pane-diary-notes" style="display: none;">
             <div class="notes-intro-banner">
               <span class="engineer-stamp">APPUNTI DI VIAGGIO • ING. PAOLO</span>
-              <p>Osservazioni tecniche su metallurgia sottozero, cicli termici dei motori d'epoca e segreti dei relitti lungo la Dalton Highway.</p>
+              <p>Osservazioni tecniche su cinematica dei terreni, dissipazione termica dei freni e segreti dei relitti lungo il Grande Meridiano.</p>
             </div>
             <div class="engineer-notes-grid" id="engineer-notes-grid"></div>
           </div>
         </div>
 
         <div class="modal-footer diary-footer">
-          <div class="diary-status-motto">HAUL ROAD EXPEDITION LOG • TRANS-ALASKA PIPELINE SYSTEM</div>
+          <div class="diary-status-motto">SPEDIZIONE IL GRANDE MERIDIANO • ATTRAVERSO GLI 8 BIOMI NATURALI DELLA TERRA</div>
           <button class="btn-primary-action" id="btn-close-diary-bottom">TORNA AL COCKPIT</button>
         </div>
       </div>
@@ -14305,7 +15494,7 @@ class StoryDiaryModal {
         <div class="dossier-tag-row">
           <span class="dossier-ch-badge">CAPITOLO ${ch.number}</span>
           <span class="dossier-status-pill ${isCompleted ? 'completed' : isCurrent ? 'current' : 'locked'}">
-            ${isCompleted ? 'COMPLETATO' : isCurrent ? 'ATTIVO SULLA DALTON' : 'NON ANCORA RAGGIUNTO'}
+            ${isCompleted ? 'COMPLETATO' : isCurrent ? 'ATTIVO SULLA ROTTA' : 'NON ANCORA RAGGIUNTO'}
           </span>
         </div>
         <h2 class="dossier-ch-title">${ch.bannerIcon} ${ch.title}</h2>
@@ -14368,7 +15557,7 @@ class StoryDiaryModal {
       list.innerHTML = `
         <div class="empty-radio-box">
           <div class="empty-icon">📻</div>
-          <div class="empty-text">Nessuna trasmissione ricevuta. Accendi il motore e mettiti in marcia lungo la Dalton per captare i segnali sul Canale 19!</div>
+          <div class="empty-text">Nessuna trasmissione ricevuta. Accendi il motore e mettiti in marcia lungo il Grande Meridiano per captare i segnali sul Canale 19!</div>
         </div>
       `;
       return;

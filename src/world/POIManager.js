@@ -13,132 +13,174 @@ export class POIManager {
     this.pois = [];
     this.activeNearbyPOI = null; // POI currently within interaction radius (<= 10m)
 
-    // Master Geocentric Plan for Sites along the Northward Dalton Highway (Alaska Route 11)
+    // Master Geocentric Plan for Sites along the Trans-Earth 8-Biomes Expedition (5200m Loop)
     this.plannedSites = [
-      // SECTOR 0: Fox & Goldstream Valley (Fairbanks Mining Belt)
+      // SECTOR 0: Mediterranean Coast (PK 0.0 - 0.65 KM)
       {
         z: 220,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'fox_junction',
+        settlementKey: 'san_vito_harbor',
         side: 1, // Right
-        name: 'Fox Junction & Gold Dredge 8'
+        name: 'Porto di San Vito & Molo Pescatori'
       },
       {
         z: 380,
-        type: 'REFINERY_DEPOT',
+        type: 'COASTAL_FISHERY_RUIN',
         side: -1, // Left
-        name: 'Parco Serbatoi Gasolio Artico di Livengood'
+        name: 'Faro Costiero & Rudere Vecchia Tonnara'
       },
       {
         z: 520,
         type: 'OVERTURNED_CONVOY',
         side: 1,
-        name: 'Autocisterna Kenworth Artica Ribaltata'
+        name: 'Furgone Merci Ribaltato sui Tornanti Costieri'
       },
 
-      // SECTOR 1: Yukon River Taiga (Black Spruce Corridor)
+      // SECTOR 1: Temperate Forest (PK 0.65 - 1.30 KM)
       {
         z: 870,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'yukon_crossing',
+        settlementKey: 'valbruna_mill',
         side: -1,
-        name: 'Yukon River Camp & Pump Station 6'
+        name: 'Mulino di Valbruna & Segheria Idraulica'
       },
       {
         z: 1040,
         type: 'FORESTRY_LUMBER_YARD',
         side: 1,
-        name: 'Piazzale Taglio Picea Nera dello Yukon'
+        name: 'Piazzale Carico Tronchi di Querce e Faggi'
       },
       {
         z: 1180,
         type: 'MILITARY_CHECKPOINT',
         side: -1,
-        name: 'Posto di Blocco Alaska State Troopers - Yukon'
+        name: 'Posto di Blocco Guardia Forestale di Valbruna'
       },
 
-      // SECTOR 2: Koyukuk Flats & Coldfoot (Muskeg Floodplain)
+      // SECTOR 2: Arid Desert (PK 1.30 - 1.95 KM)
       {
         z: 1520,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'coldfoot_camp',
+        settlementKey: 'elkantara_oasis',
         side: 1,
-        name: 'Coldfoot Truck Stop & Slate Creek'
+        name: 'Oasi di El Kantara & Carovanserraglio'
       },
       {
         z: 1680,
-        type: 'HYDRO_PUMP_STATION',
+        type: 'DESERT_CARAVAN_POST',
         side: -1,
-        name: 'Impianto Idrovore e Valvole Koyukuk TAPS'
+        name: 'Pozzo Sahariano & Cisterna Idrica del Deserto'
       },
       {
         z: 1820,
         type: 'OVERTURNED_CONVOY',
         side: 1,
-        name: 'Camion Cisterna Mack Semi-affondato nel Muskeg'
+        name: 'Autocarro Berliet Sabbiato tra le Dune'
       },
 
-      // SECTOR 3: Arctic Circle & Chandalar Shelf (66° 33' N & DEW Line)
+      // SECTOR 3: Savanna Steppe (PK 1.95 - 2.60 KM)
       {
         z: 2170,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'chandalar_shelf',
+        settlementKey: 'serengeti_outpost',
         side: -1,
-        name: 'Chandalar Shelf - Base Radar White Alice'
+        name: 'Avamposto Ranger del Serengeti'
       },
       {
         z: 2320,
-        type: 'IONIC_RADAR_ARRAY',
+        type: 'SAVANNA_RANGER_STATION',
         side: 1,
-        name: 'Parabola Radar Troposferica White Alice (DEW Line)'
+        name: 'Torretta Avvistamento & Ripetitore Radio Savana'
       },
       {
         z: 2480,
         type: 'MILITARY_CHECKPOINT',
         side: -1,
-        name: 'Cancello di Controllo Circolo Polare 66° 33\' N'
+        name: 'Cancello Parco Nazionale & Pista Laterite'
       },
 
-      // SECTOR 4: Atigun Pass & Brooks Range (Continental Divide Gorge)
+      // SECTOR 4: Tropical Rainforest (PK 2.60 - 3.25 KM)
       {
         z: 2820,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'atigun_camp',
+        settlementKey: 'rioverde_station',
         side: 1,
-        name: 'Atigun Pass High Camp - Cava dei Convogli'
+        name: 'Stazione Scientifica Botanica Rio Verde'
       },
       {
         z: 2960,
-        type: 'QUARRY_CRUSHER_SITE',
+        type: 'JUNGLE_BOTANICAL_LAB',
         side: -1,
-        name: 'Cava Frantumatori di Ardesia DOT Atigun Pass'
+        name: 'Laboratorio Palafitta sulle Chiome Equatoriali'
       },
       {
         z: 3120,
         type: 'OVERTURNED_CONVOY',
         side: 1,
-        name: 'Dumper Artico Ribaltato sul Passo Atigun'
+        name: 'Convoglio da Spedizione Sommerso nel Guado Monsonico'
       },
 
-      // SECTOR 5: Deadhorse & Prudhoe Bay (Beaufort Sea Permafrost)
+      // SECTOR 5: Alpine Peaks (PK 3.25 - 3.90 KM)
       {
         z: 3470,
         type: 'SETTLEMENT_HUB',
-        settlementKey: 'deadhorse_terminal',
+        settlementKey: 'valico_aquile',
         side: -1,
-        name: 'Deadhorse Terminal & Base Prudhoe Bay'
+        name: 'Rifugio Alpino Valico delle Aquile'
       },
       {
         z: 3620,
-        type: 'POLAR_METAR_SHELTER',
+        type: 'ALPINE_TUNNEL_SHELTER',
         side: 1,
-        name: 'Capsula Rifugio Spazzaneve Arctic Cat'
+        name: 'Galleria Paravalanghe e Deposito Frane'
       },
       {
         z: 3780,
+        type: 'QUARRY_CRUSHER_SITE',
+        side: -1,
+        name: 'Cava di Granito e Falesie del Passo Alpino'
+      },
+
+      // SECTOR 6: Boreal Taiga (PK 3.90 - 4.55 KM)
+      {
+        z: 4120,
+        type: 'SETTLEMENT_HUB',
+        settlementKey: 'taiga_nord',
+        side: 1,
+        name: 'Deposito Forestale Taiga Nord'
+      },
+      {
+        z: 4280,
+        type: 'TAIGA_LOGGING_DEPOT',
+        side: -1,
+        name: 'Segheria Meccanizzata Picea e Betulla'
+      },
+      {
+        z: 4420,
+        type: 'MILITARY_CHECKPOINT',
+        side: 1,
+        name: 'Posto di Frontiera Nordico'
+      },
+
+      // SECTOR 7: Polar Tundra (PK 4.55 - 5.20+ KM)
+      {
+        z: 4770,
+        type: 'SETTLEMENT_HUB',
+        settlementKey: 'polar_base_80',
+        side: -1,
+        name: 'Base Scientifica Polare 80'
+      },
+      {
+        z: 4940,
+        type: 'POLAR_METAR_SHELTER',
+        side: 1,
+        name: 'Cupola Radar Geodetica & Stazione Meteo METAR'
+      },
+      {
+        z: 5100,
         type: 'MILITARY_CHECKPOINT',
         side: -1,
-        name: 'Faro Radio Terminale del Mar Glaciale Artico'
+        name: 'Faro Terminale del Grande Meridiano & Traguardo'
       }
     ];
 
@@ -177,16 +219,16 @@ export class POIManager {
       }
     }
 
-    // Check for loop extension if player travels past 3900m
-    if (horizonZ > 3900) {
-      const cycleOffset = Math.floor(horizonZ / 3900) * 3900;
+    // Check for loop extension if player travels past 5200m
+    if (horizonZ > 5200) {
+      const cycleOffset = Math.floor(horizonZ / 5200) * 5200;
       for (const siteDef of this.plannedSites) {
         const projectedZ = siteDef.z + cycleOffset;
         if (projectedZ <= horizonZ && !this.spawnedZSet.has(projectedZ)) {
           this.spawnStructuredSite({
             ...siteDef,
             z: projectedZ,
-            name: `${siteDef.name} (Settore ${Math.floor(cycleOffset / 650) + 1})`
+            name: `${siteDef.name} (Giro ${Math.floor(cycleOffset / 5200) + 1})`
           });
           this.spawnedZSet.add(projectedZ);
         }
@@ -249,10 +291,20 @@ export class POIManager {
         name: siteDef.name || poiConfig.name
       };
 
-      if (siteDef.type === 'REFINERY_DEPOT') {
-        this.buildRefinerySite(group);
-      } else if (siteDef.type === 'FORESTRY_LUMBER_YARD') {
+      if (siteDef.type === 'COASTAL_FISHERY_RUIN') {
+        this.buildFisheryRuin(group);
+      } else if (siteDef.type === 'DESERT_CARAVAN_POST') {
+        this.buildCaravanPost(group);
+      } else if (siteDef.type === 'SAVANNA_RANGER_STATION') {
+        this.buildSavannaRangerSite(group);
+      } else if (siteDef.type === 'JUNGLE_BOTANICAL_LAB') {
+        this.buildJungleBotanicalLab(group);
+      } else if (siteDef.type === 'ALPINE_TUNNEL_SHELTER') {
+        this.buildAlpineShelter(group);
+      } else if (siteDef.type === 'TAIGA_LOGGING_DEPOT' || siteDef.type === 'FORESTRY_LUMBER_YARD') {
         this.buildLumberYard(group);
+      } else if (siteDef.type === 'REFINERY_DEPOT') {
+        this.buildRefinerySite(group);
       } else if (siteDef.type === 'HYDRO_PUMP_STATION') {
         this.buildHydroStation(group);
       } else if (siteDef.type === 'IONIC_RADAR_ARRAY') {
@@ -682,5 +734,133 @@ export class POIManager {
       crate.castShadow = true;
       group.add(crate);
     }
+  }
+
+  buildFisheryRuin(group) {
+    // Coastal stone watchtower & old fishery storehouse
+    const tower = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 3.0, 8.5, 8), this.matConcrete);
+    tower.position.set(-2, 4.25, 0);
+    tower.castShadow = true;
+    group.add(tower);
+
+    // Stone workshop ruin
+    const shed = new THREE.Mesh(new THREE.BoxGeometry(5.5, 2.8, 6.0), this.matConcrete);
+    shed.position.set(4, 1.4, -1);
+    shed.castShadow = true;
+    group.add(shed);
+
+    // Weathered timber pier
+    const dock = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.35, 10.0), this.matWood);
+    dock.position.set(1, 0.2, 6.5);
+    group.add(dock);
+
+    // Amber harbor beacon light
+    const lantern = new THREE.PointLight(0xffaa33, 2.2, 22);
+    lantern.position.set(-2, 8.8, 0);
+    group.add(lantern);
+  }
+
+  buildCaravanPost(group) {
+    // Adobe mudbrick cistern and oasis outpost
+    const adobeWall = new THREE.Mesh(new THREE.BoxGeometry(8.0, 2.8, 10.0), this.matWarning);
+    adobeWall.position.set(0, 1.4, 0);
+    adobeWall.castShadow = true;
+    group.add(adobeWall);
+
+    // Water reservoir dome
+    const dome = new THREE.Mesh(
+      new THREE.SphereGeometry(2.2, 8, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
+      this.matConcrete
+    );
+    dome.position.set(-5, 0, -2);
+    group.add(dome);
+
+    // Desert canopy fabric shelter
+    const cloth = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.1, 5.0), this.matCargo);
+    cloth.position.set(4, 2.6, 2);
+    group.add(cloth);
+
+    const oasisLight = new THREE.PointLight(0xf59e0b, 1.8, 18);
+    oasisLight.position.set(0, 3.2, 0);
+    group.add(oasisLight);
+  }
+
+  buildSavannaRangerSite(group) {
+    // Elevated safari ranger watchtower
+    const towerPad = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.3, 5.0), this.matWood);
+    towerPad.position.set(0, 4.8, 0);
+    group.add(towerPad);
+
+    // 4 Splayed timber stilts
+    [-1.8, 1.8].forEach((lx) => {
+      [-1.8, 1.8].forEach((lz) => {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 5.0, 5), this.matWood);
+        post.position.set(lx, 2.5, lz);
+        post.castShadow = true;
+        group.add(post);
+      });
+    });
+
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.4, 4.2), this.matCanopy);
+    cabin.position.set(0, 6.1, 0);
+    cabin.castShadow = true;
+    group.add(cabin);
+
+    // Radio transmitter mast
+    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 5.5, 4), this.matMetalDark);
+    antenna.position.set(1.8, 9.8, 1.8);
+    group.add(antenna);
+  }
+
+  buildJungleBotanicalLab(group) {
+    // Equatorial stilt research station
+    const platform = new THREE.Mesh(new THREE.BoxGeometry(9.0, 0.4, 11.0), this.matWood);
+    platform.position.set(0, 2.2, 0);
+    group.add(platform);
+
+    // Stilts
+    [-3.5, 3.5].forEach((px) => {
+      [-4.5, 4.5].forEach((pz) => {
+        const stilt = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 2.4, 5), this.matWood);
+        stilt.position.set(px, 1.1, pz);
+        group.add(stilt);
+      });
+    });
+
+    const lab = new THREE.Mesh(new THREE.BoxGeometry(7.5, 3.0, 8.5), this.matCanopy);
+    lab.position.set(0, 3.8, 0);
+    lab.castShadow = true;
+    group.add(lab);
+
+    // Green botanical biolab beacon
+    const bioLight = new THREE.PointLight(0x10b981, 2.0, 20);
+    bioLight.position.set(0, 5.8, 0);
+    group.add(bioLight);
+  }
+
+  buildAlpineShelter(group) {
+    // Concrete avalanche gallery shelter with sloping deflection roof
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(16, 0.7, 14), this.matConcrete);
+    roof.position.set(0, 5.4, 0);
+    roof.rotation.z = 0.18;
+    group.add(roof);
+
+    // Reinforced concrete support pillars
+    [-5, 0, 5].forEach((pz) => {
+      const col = new THREE.Mesh(new THREE.BoxGeometry(1.2, 5.4, 1.2), this.matConcrete);
+      col.position.set(-6.5, 2.7, pz);
+      col.castShadow = true;
+      group.add(col);
+    });
+
+    // Emergency rescue refuge pod
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(4.5, 2.6, 5.0), this.matMetalDark);
+    cabin.position.set(4.5, 1.3, 0);
+    cabin.castShadow = true;
+    group.add(cabin);
+
+    const rescueLight = new THREE.PointLight(0x38bdf8, 2.2, 22);
+    rescueLight.position.set(4.5, 3.2, 0);
+    group.add(rescueLight);
   }
 }

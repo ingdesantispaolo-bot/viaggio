@@ -70,6 +70,34 @@ export class ScenerySpawner {
     this.matWoodLog = new THREE.MeshStandardMaterial({ color: 0x452a1c, roughness: 0.95 });
     this.matAmberGlow = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
     this.matCyanGlow = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+
+    // Mediterranean Coast Materials
+    this.matOliveFoliage = new THREE.MeshStandardMaterial({ color: 0x5a6b38, roughness: 0.86 });
+    this.matMaritimePineFoliage = new THREE.MeshStandardMaterial({ color: 0x1d3824, roughness: 0.88 });
+    this.matStoneWall = new THREE.MeshStandardMaterial({ color: 0x9e9382, roughness: 0.96 });
+
+    // Temperate Forest Materials
+    this.matDeciduousOak = new THREE.MeshStandardMaterial({ color: 0x275924, roughness: 0.85 });
+    this.matBeechFoliage = new THREE.MeshStandardMaterial({ color: 0x366e2c, roughness: 0.84 });
+
+    // Arid Desert Materials
+    this.matDuneSand = new THREE.MeshStandardMaterial({ color: 0xc99452, roughness: 0.96 });
+    this.matPalmTrunk = new THREE.MeshStandardMaterial({ color: 0x54402e, roughness: 0.92 });
+    this.matPalmFronds = new THREE.MeshStandardMaterial({ color: 0x396324, roughness: 0.82 });
+    this.matAdobe = new THREE.MeshStandardMaterial({ color: 0xb3825a, roughness: 0.96 });
+
+    // Savanna & Steppe Materials
+    this.matAcaciaCanopy = new THREE.MeshStandardMaterial({ color: 0x526b34, roughness: 0.88 });
+    this.matBaobabTrunk = new THREE.MeshStandardMaterial({ color: 0x695747, roughness: 0.92 });
+    this.matSavannaGrass = new THREE.MeshStandardMaterial({ color: 0xc2a452, roughness: 0.95 });
+
+    // Tropical Rainforest Materials
+    this.matJungleFoliage = new THREE.MeshStandardMaterial({ color: 0x12471f, roughness: 0.82 });
+    this.matJungleCanopyDark = new THREE.MeshStandardMaterial({ color: 0x0a3315, roughness: 0.86 });
+
+    // Alpine Peaks Materials
+    this.matAlpineGranite = new THREE.MeshStandardMaterial({ color: 0x4a4d53, roughness: 0.92 });
+    this.matAlpineScree = new THREE.MeshStandardMaterial({ color: 0x5e636d, roughness: 0.95 });
   }
 
   update(playerZ) {
@@ -131,17 +159,21 @@ export class ScenerySpawner {
       let signType = null;
       if (relZ >= 20 && relZ < 30) {
         signType = 'speed_80';
-      } else if (biome.id === 'rusty_periphery' && relZ >= 130 && relZ < 140) {
-        signType = 'industrial';
-      } else if (biome.id === 'black_pine_woods' && relZ >= 270 && relZ < 280) {
+      } else if (biome.id === 'mediterranean_coast' && relZ >= 130 && relZ < 140) {
+        signType = 'speed_80';
+      } else if (biome.id === 'temperate_forest' && relZ >= 270 && relZ < 280) {
         signType = 'wildlife';
-      } else if (biome.id === 'flooded_marshland' && relZ >= 40 && relZ < 50) {
+      } else if (biome.id === 'arid_desert' && relZ >= 130 && relZ < 140) {
+        signType = 'desert_heat';
+      } else if (biome.id === 'savanna_steppe' && relZ >= 270 && relZ < 280) {
+        signType = 'wildlife';
+      } else if (biome.id === 'tropical_rainforest' && relZ >= 40 && relZ < 50) {
         signType = 'flood';
-      } else if (biome.id === 'glass_crater' && relZ >= 30 && relZ < 40) {
-        signType = 'radiation';
-      } else if (biome.id === 'iron_gorge' && ((relZ >= 30 && relZ < 40) || (relZ >= 250 && relZ < 260))) {
+      } else if (biome.id === 'alpine_peaks' && ((relZ >= 30 && relZ < 40) || (relZ >= 250 && relZ < 260))) {
         signType = 'rockfall';
-      } else if (biome.id === 'permafrost_highlands' && relZ >= 30 && relZ < 40) {
+      } else if (biome.id === 'boreal_taiga' && relZ >= 270 && relZ < 280) {
+        signType = 'wildlife';
+      } else if (biome.id === 'polar_tundra' && relZ >= 30 && relZ < 40) {
         signType = 'ice';
       }
 
@@ -158,15 +190,17 @@ export class ScenerySpawner {
       }
     }
 
-    // 3. Streetlights - Illuminated settlement, bridge, and industrial sectors!
-    const cycleZ = z % 3900;
+    // 3. Streetlights - Illuminated settlement hubs (8 real-world sectors, 5200m loop)
+    const cycleZ = z % 5200;
     const isStreetlit =
-      (cycleZ >= 80 && cycleZ <= 420) ||    // Sector 0: Fairbanks & Fox Junction
-      (cycleZ >= 760 && cycleZ <= 1020) ||  // Sector 1: Yukon River Patton Bridge & Camp
-      (cycleZ >= 1420 && cycleZ <= 1680) || // Sector 2: Coldfoot Truck Stop & Slate Creek
-      (cycleZ >= 2080 && cycleZ <= 2360) || // Sector 3: Arctic Circle Checkpoint & Chandalar
-      (cycleZ >= 2740 && cycleZ <= 2960) || // Sector 4: Atigun Pass High Camp & Valley
-      (cycleZ >= 3380 && cycleZ <= 3850);   // Sector 5: Deadhorse Terminal Industrial Strip
+      (cycleZ >= 100 && cycleZ <= 340) ||   // Sector 0: San Vito Harbor
+      (cycleZ >= 750 && cycleZ <= 990) ||   // Sector 1: Valbruna Mill
+      (cycleZ >= 1400 && cycleZ <= 1640) || // Sector 2: El Kantara Oasis
+      (cycleZ >= 2050 && cycleZ <= 2290) || // Sector 3: Serengeti Outpost
+      (cycleZ >= 2700 && cycleZ <= 2940) || // Sector 4: Rio Verde Station
+      (cycleZ >= 3350 && cycleZ <= 3590) || // Sector 5: Valico Aquile Refuge
+      (cycleZ >= 4000 && cycleZ <= 4240) || // Sector 6: Taiga Nord Depot
+      (cycleZ >= 4650 && cycleZ <= 4890);   // Sector 7: Base Polare 80
 
     if (isStreetlit) {
       const lampInterval = 32;
@@ -188,10 +222,15 @@ export class ScenerySpawner {
       }
     }
 
-    // 4. Utility Power Poles - Deterministic single side, regular 36m spacing
-    const hasPoles = (biome.id === 'rusty_periphery' || biome.id === 'black_pine_woods' || biome.id === 'iron_gorge');
+    // 4. Utility Power Poles - Telecommunication & power lines in civilized/working sectors
+    const hasPoles = (
+      biome.id === 'mediterranean_coast' ||
+      biome.id === 'temperate_forest' ||
+      biome.id === 'savanna_steppe' ||
+      biome.id === 'boreal_taiga'
+    );
     if (hasPoles) {
-      const poleSide = (biome.id === 'black_pine_woods') ? -1 : 1;
+      const poleSide = (biome.id === 'temperate_forest') ? -1 : 1;
       const poleIndex = Math.floor(z / 36);
       const poleKey = `pole_${poleIndex}`;
       if (!this.spawnedMilestones.has(poleKey) && (z % 36) < 10) {
@@ -207,8 +246,8 @@ export class ScenerySpawner {
       }
     }
 
-    // 5. Arctic Snow Alignment Poles (Paline da Neve) - Only in Permafrost
-    if (biome.id === 'permafrost_highlands') {
+    // 5. Alpine & Arctic Snow Alignment Poles (Paline da Neve Catarifrangenti)
+    if (biome.id === 'alpine_peaks' || biome.id === 'polar_tundra') {
       const snowIndex = Math.floor(z / 22);
       const snowKey = `snow_${snowIndex}`;
       if (!this.spawnedMilestones.has(snowKey) && (z % 22) < 10) {
@@ -236,102 +275,142 @@ export class ScenerySpawner {
 
     let propsToSpawn = [];
 
-    if (biome.id === 'rusty_periphery') {
-      // Zone 1 (0-130m): Farmland with split-rail fences on right side
-      if (relZ < 130) {
-        propsToSpawn.push(this.createSplitRailFence(roadInfo.x + halfW + 4.5, roadInfo.y, z));
-        if (Math.random() < 0.45) {
-          propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
+    if (biome.id === 'mediterranean_coast') {
+      // Zone 1: Rural dry stone walls & olive terraces
+      if (relZ < 150) {
+        propsToSpawn.push(this.createDryStoneWall(roadInfo.x + halfW + 3.8, roadInfo.y, z));
+        if (Math.random() < 0.55) {
+          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 4.8, roadInfo.y, z));
         }
       }
-      // Zone 2 (130-330m): Concentrated Industrial Petrochemical Yard on Left (-X)
-      else if (relZ >= 180 && relZ < 250) {
-        const clusterKey = `refinery_${Math.floor(z / 650)}`;
+      // Zone 2 (180-260m): San Vito Harbor Coastal Fishery & Watchtower
+      else if (relZ >= 180 && relZ < 260) {
+        const clusterKey = `harbor_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(clusterKey)) {
           this.spawnedMilestones.add(clusterKey);
-          propsToSpawn.push(this.createRefineryCompound(roadInfo.x - halfW - 8.0, roadInfo.y, z));
+          propsToSpawn.push(this.createHarborFishery(roadInfo.x - halfW - 8.5, roadInfo.y, z));
         }
       }
-      // Zone 3 (330-470m): Highway Interchange with Jersey Barriers
-      else if (relZ >= 330 && relZ < 470) {
-        [-1, 1].forEach((s) => {
-          propsToSpawn.push(this.createJerseyBarrier(roadInfo.x + s * (halfW + 0.3), roadInfo.y, z));
-        });
-      }
-      // Zone 4 (470-650m): Junkyard perimeter on Right (+X)
-      else if (relZ >= 500 && relZ < 560) {
-        const junkKey = `junk_${Math.floor(z / 650)}`;
-        if (!this.spawnedMilestones.has(junkKey)) {
-          this.spawnedMilestones.add(junkKey);
-          propsToSpawn.push(this.createJunkyardCluster(roadInfo.x + halfW + 7.0, roadInfo.y, z));
+      // Zone 3: Maritime umbrella pines & coastal guardrails
+      else {
+        propsToSpawn.push(this.createMaritimePine(roadInfo.x + halfW + 6.0, roadInfo.y, z));
+        if (Math.random() < 0.45) {
+          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 5.5, roadInfo.y, z));
         }
       }
-    } else if (biome.id === 'black_pine_woods') {
-      // Natural Groves: Check if in clearings (160-220m or 420-480m)
-      const isClearing = (relZ >= 160 && relZ <= 220) || (relZ >= 420 && relZ <= 480);
-      if (isClearing) {
-        // Alpine open meadow: grass and low rocks only, wide view of sky/mountains!
-        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 3.0, roadInfo.y, z));
-        propsToSpawn.push(this.createGrassTuft(roadInfo.x + halfW + 3.0, roadInfo.y, z));
-      } else if (relZ >= 300 && relZ <= 330) {
-        // Forester Station Outpost (Single dedicated clearing at z ~ 315m)
+    } else if (biome.id === 'temperate_forest') {
+      // Zone 1: Split-rail fences and clearings
+      if (relZ < 140) {
+        propsToSpawn.push(this.createSplitRailFence(roadInfo.x + halfW + 4.2, roadInfo.y, z));
+        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
+      }
+      // Zone 2 (180-260m): Valbruna Hydraulic Water Mill & Log Yard
+      else if (relZ >= 180 && relZ < 260) {
+        const millKey = `mill_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(millKey)) {
+          this.spawnedMilestones.add(millKey);
+          propsToSpawn.push(this.createWaterMill(roadInfo.x - halfW - 9.0, roadInfo.y, z));
+        }
+      }
+      // Zone 3: Lush broadleaf stands of Deciduous Oaks & European Beeches
+      else {
+        propsToSpawn.push(this.createDeciduousOak(roadInfo.x - halfW - 6.0, roadInfo.y, z));
+        propsToSpawn.push(this.createEuropeanBeech(roadInfo.x + halfW + 6.5, roadInfo.y, z));
+      }
+    } else if (biome.id === 'arid_desert') {
+      // Zone 1 (180-260m): El Kantara Adobe Caravansary & Palm Oasis
+      if (relZ >= 180 && relZ < 260) {
+        const oasisKey = `oasis_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(oasisKey)) {
+          this.spawnedMilestones.add(oasisKey);
+          propsToSpawn.push(this.createOasisCaravansary(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Sweeping sand dune ridges, date palms and sun-bleached wrecks
+      else {
+        propsToSpawn.push(this.createSandDuneRidge(roadInfo.x + halfW + 7.5, roadInfo.y, z, 1));
+        if (Math.random() < 0.35) {
+          propsToSpawn.push(this.createDatePalm(roadInfo.x - halfW - 5.5, roadInfo.y, z));
+        }
+        if (Math.random() < 0.25) {
+          propsToSpawn.push(this.createWreck(roadInfo.x - halfW - 4.0, roadInfo.y, z));
+        }
+      }
+    } else if (biome.id === 'savanna_steppe') {
+      // Zone 1 (180-260m): Serengeti Ranger Station & Watchtower
+      if (relZ >= 180 && relZ < 260) {
+        const rangerKey = `ranger_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(rangerKey)) {
+          this.spawnedMilestones.add(rangerKey);
+          propsToSpawn.push(this.createRangerStation(roadInfo.x + halfW + 8.5, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Flat-topped umbrella acacias, monumental baobabs & dry golden straw
+      else {
+        propsToSpawn.push(this.createUmbrellaAcacia(roadInfo.x - halfW - 6.5, roadInfo.y, z));
+        if (Math.random() < 0.35) {
+          propsToSpawn.push(this.createBaobabTree(roadInfo.x + halfW + 11.0, roadInfo.y, z));
+        }
+        propsToSpawn.push(this.createGrassTuft(roadInfo.x + halfW + 2.5, roadInfo.y, z));
+      }
+    } else if (biome.id === 'tropical_rainforest') {
+      // Zone 1 (180-260m): Rio Verde Botanical Canopy Lab & Stilt Station
+      if (relZ >= 180 && relZ < 260) {
+        const labKey = `botanical_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(labKey)) {
+          this.spawnedMilestones.add(labKey);
+          propsToSpawn.push(this.createBotanicalLab(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Gigantic buttressed rainforest trees with multi-layered canopy & lianas
+      else {
+        propsToSpawn.push(this.createRainforestGiant(roadInfo.x - halfW - 7.5, roadInfo.y, z));
+        propsToSpawn.push(this.createRainforestGiant(roadInfo.x + halfW + 7.5, roadInfo.y, z));
+        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
+      }
+    } else if (biome.id === 'alpine_peaks') {
+      // Zone 1 (180-260m): Avalanche Defense Gallery & High Pass Shelter
+      if (relZ >= 180 && relZ < 260) {
+        const passKey = `pass_${Math.floor(z / 650)}`;
+        if (!this.spawnedMilestones.has(passKey)) {
+          this.spawnedMilestones.add(passKey);
+          propsToSpawn.push(this.createAvalancheTunnel(roadInfo.x, roadInfo.y, z));
+        }
+      }
+      // Zone 2: Colossal dark granite canyon walls, jagged peaks & rockfall scree
+      else {
+        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1));
+        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1));
+        if (Math.random() < 0.4) {
+          propsToSpawn.push(this.createRock(roadInfo.x + halfW + 2.5, roadInfo.y, z, 1.8));
+        }
+      }
+    } else if (biome.id === 'boreal_taiga') {
+      // Zone 1 (180-260m): Taiga Nord Forestry Station & Watchtower
+      if (relZ >= 180 && relZ < 260) {
         const outpostKey = `forester_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(outpostKey)) {
           this.spawnedMilestones.add(outpostKey);
-          propsToSpawn.push(this.createForesterOutpost(roadInfo.x + halfW + 12.0, roadInfo.y, z));
+          propsToSpawn.push(this.createForesterOutpost(roadInfo.x + halfW + 11.0, roadInfo.y, z));
         }
-      } else {
-        // Cohesive Forest Stands (Clusters of trees set back from road)
+      }
+      // Zone 2: Dense stands of black spruce and paper birch
+      else {
         [-1, 1].forEach((side) => {
           propsToSpawn.push(this.createForestStand(roadInfo.x + side * (halfW + 5.5), roadInfo.y, z, side));
         });
       }
-    } else if (biome.id === 'flooded_marshland') {
-      if (relZ >= 220 && relZ <= 270) {
-        // Stilt Village Cluster on Left
-        const villageKey = `stilt_${Math.floor(z / 650)}`;
-        if (!this.spawnedMilestones.has(villageKey)) {
-          this.spawnedMilestones.add(villageKey);
-          propsToSpawn.push(this.createStiltVillage(roadInfo.x - halfW - 8.0, roadInfo.y, z));
-        }
-      } else {
-        // Dead cypress in water, reeds, and glowing spore clusters
-        propsToSpawn.push(this.createSkeletalCypress(roadInfo.x - halfW - 7.0, roadInfo.y, z));
-        propsToSpawn.push(this.createBioluminescentSpores(roadInfo.x + halfW + 4.5, roadInfo.y, z));
-        propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 1.5, roadInfo.y, z));
-      }
-    } else if (biome.id === 'glass_crater') {
-      if (relZ >= 280 && relZ <= 320) {
-        // Ground Zero Anomalous Core
-        const coreKey = `core_${Math.floor(z / 650)}`;
-        if (!this.spawnedMilestones.has(coreKey)) {
-          this.spawnedMilestones.add(coreKey);
-          propsToSpawn.push(this.createLevitatingAnomalousCore(roadInfo.x + halfW + 9.0, roadInfo.y, z));
-        }
-      } else {
-        // Geological crystal vein clusters along impact fault line
-        propsToSpawn.push(this.createCrystalCluster(roadInfo.x - halfW - 6.0, roadInfo.y, z));
-        if (Math.random() < 0.4) {
-          propsToSpawn.push(this.createCraterSpikeField(roadInfo.x + halfW + 5.0, roadInfo.y, z));
-        }
-      }
-    } else if (biome.id === 'iron_gorge') {
-      // Continuous Towering Red-Rock Canyon Mesa Walls on both sides!
-      propsToSpawn.push(this.createCanyonCliff(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1));
-      propsToSpawn.push(this.createCanyonCliff(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1));
-      if (relZ >= 270 && relZ <= 290) {
-        propsToSpawn.push(this.createBalancedRockHoodoo(roadInfo.x + halfW + 14.0, roadInfo.y, z));
-      }
-    } else if (biome.id === 'permafrost_highlands') {
-      if (relZ >= 270 && relZ <= 310) {
-        // Polar Research Weather Station
+    } else if (biome.id === 'polar_tundra') {
+      // Zone 1 (180-260m): Arctic Geodesic Research Base 80 & METAR radar
+      if (relZ >= 180 && relZ < 260) {
         const polarKey = `polar_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(polarKey)) {
           this.spawnedMilestones.add(polarKey);
           propsToSpawn.push(this.createArcticGeodesicDome(roadInfo.x + halfW + 10.0, roadInfo.y, z));
         }
-      } else {
-        // Wind-resistant snow conifer stands & ice spires
+      }
+      // Zone 2: Glacial ice spires & snow-blanketed conifers
+      else {
         propsToSpawn.push(this.createSnowCoveredPines(roadInfo.x - halfW - 6.0, roadInfo.y, z));
         propsToSpawn.push(this.createGlacialIceSpire(roadInfo.x + halfW + 5.5, roadInfo.y, z));
       }
@@ -1455,4 +1534,599 @@ export class ScenerySpawner {
     group.position.set(x, y, z);
     return group;
   }
+
+  // --- MEDITERRANEAN COAST STRUCTURES & FLORA ---
+  createMaritimePine(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.4;
+
+    // Tall slender trunk with slight natural lean
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32, 0.52, 7.5, 7),
+      this.matTrunk
+    );
+    trunk.position.y = 3.75;
+    trunk.rotation.z = (Math.random() - 0.5) * 0.15;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Splayed upper branches
+    for (let b = 0; b < 3; b++) {
+      const angle = (b * Math.PI * 2) / 3;
+      const branch = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12, 0.22, 2.8, 5),
+        this.matTrunk
+      );
+      branch.position.set(Math.cos(angle) * 0.9, 6.8, Math.sin(angle) * 0.9);
+      branch.rotation.z = Math.cos(angle) * 0.55;
+      branch.rotation.x = Math.sin(angle) * 0.55;
+      group.add(branch);
+    }
+
+    // Broad umbrella dome canopy
+    const canopy = new THREE.Mesh(
+      new THREE.CylinderGeometry(4.2, 2.8, 1.8, 8),
+      this.matMaritimePineFoliage
+    );
+    canopy.position.y = 8.6;
+    canopy.castShadow = true;
+    group.add(canopy);
+
+    const canopyCap = new THREE.Mesh(
+      new THREE.SphereGeometry(3.6, 8, 5, 0, Math.PI * 2, 0, Math.PI * 0.4),
+      this.matMaritimePineFoliage
+    );
+    canopyCap.position.y = 9.4;
+    canopyCap.castShadow = true;
+    group.add(canopyCap);
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createOliveTree(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.85 + Math.random() * 0.35;
+
+    // Gnarled twisted trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.35, 0.65, 3.2, 6),
+      new THREE.MeshStandardMaterial({ color: 0x42382e, roughness: 0.98 })
+    );
+    trunk.position.y = 1.6;
+    trunk.rotation.z = (Math.random() - 0.5) * 0.25;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Silvery-olive rounded foliage clouds
+    const offsets = [
+      { x: -0.8, y: 3.2, z: 0.2, r: 1.6 },
+      { x: 0.7, y: 3.5, z: -0.6, r: 1.8 },
+      { x: 0.2, y: 3.9, z: 0.7, r: 1.5 }
+    ];
+    offsets.forEach((off) => {
+      const foliage = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(off.r, 1),
+        this.matOliveFoliage
+      );
+      foliage.position.set(off.x, off.y, off.z);
+      foliage.castShadow = true;
+      group.add(foliage);
+    });
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createDryStoneWall(x, y, z) {
+    const group = new THREE.Group();
+    // Traditional Mediterranean limestone stone wall module (length 6.8m)
+    const wall = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.95, 6.8),
+      this.matStoneWall
+    );
+    wall.position.y = 0.47;
+    wall.castShadow = true;
+    group.add(wall);
+
+    // Weathered coping stones on top
+    const cap = new THREE.Mesh(
+      new THREE.BoxGeometry(0.65, 0.12, 6.9),
+      this.matStoneWall
+    );
+    cap.position.y = 0.98;
+    group.add(cap);
+
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createHarborFishery(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Stone and whitewashed fisherman workshop
+    const building = new THREE.Mesh(
+      new THREE.BoxGeometry(7.5, 3.8, 9.0),
+      this.matStoneWall
+    );
+    building.position.set(0, 1.9, 0);
+    building.castShadow = true;
+    group.add(building);
+
+    // Terracotta tiled roof
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(5.8, 2.4, 4),
+      new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.85 })
+    );
+    roof.position.set(0, 4.9, 0);
+    roof.rotation.y = Math.PI / 4;
+    group.add(roof);
+
+    // Wooden boat dock pier extension
+    const pier = new THREE.Mesh(
+      new THREE.BoxGeometry(3.2, 0.35, 14.0),
+      this.matWoodLog
+    );
+    pier.position.set(-6.5, 0.25, 0);
+    group.add(pier);
+
+    // Warm harbor lantern
+    const light = new THREE.PointLight(0xffa834, 2.2, 24);
+    light.position.set(3.8, 3.2, 0);
+    group.add(light);
+
+    return group;
+  }
+
+  // --- TEMPERATE FOREST STRUCTURES & FLORA ---
+  createDeciduousOak(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Massive hardwood trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.48, 0.85, 4.6, 7),
+      this.matTrunk
+    );
+    trunk.position.y = 2.3;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // 4 Layered rich-green foliage domes
+    const crowns = [
+      { x: 0, y: 5.6, z: 0, r: 3.2 },
+      { x: -1.6, y: 5.0, z: 1.2, r: 2.4 },
+      { x: 1.8, y: 5.2, z: -1.0, r: 2.6 },
+      { x: 0.3, y: 6.8, z: 0.4, r: 2.2 }
+    ];
+    crowns.forEach((c) => {
+      const dome = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(c.r, 1),
+        this.matDeciduousOak
+      );
+      dome.position.set(c.x, c.y, c.z);
+      dome.castShadow = true;
+      group.add(dome);
+    });
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createEuropeanBeech(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.85 + Math.random() * 0.4;
+
+    // Slender smooth silver-grey trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.28, 0.45, 6.0, 7),
+      new THREE.MeshStandardMaterial({ color: 0x8e8e93, roughness: 0.85 })
+    );
+    trunk.position.y = 3.0;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Elegant conical beech crown
+    const foliage = new THREE.Mesh(
+      new THREE.ConeGeometry(3.2, 6.5, 7),
+      this.matBeechFoliage
+    );
+    foliage.position.y = 6.2;
+    foliage.castShadow = true;
+    group.add(foliage);
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createWaterMill(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Stone foundation mill building
+    const mill = new THREE.Mesh(
+      new THREE.BoxGeometry(8.0, 4.2, 7.5),
+      this.matWoodLog
+    );
+    mill.position.set(0, 2.1, 0);
+    mill.castShadow = true;
+    group.add(mill);
+
+    // Sloped wooden shingle roof
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(6.2, 2.8, 4),
+      new THREE.MeshStandardMaterial({ color: 0x2e2318, roughness: 0.9 })
+    );
+    roof.position.set(0, 5.5, 0);
+    roof.rotation.y = Math.PI / 4;
+    group.add(roof);
+
+    // Vertical hydraulic water wheel
+    const wheel = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.4, 2.4, 0.7, 12),
+      new THREE.MeshStandardMaterial({ color: 0x3d2719, roughness: 0.95 })
+    );
+    wheel.position.set(-4.5, 1.8, 0);
+    wheel.rotation.z = Math.PI / 2;
+    group.add(wheel);
+
+    // Firewood stacks
+    const logs = new THREE.Mesh(
+      new THREE.BoxGeometry(2.2, 1.4, 3.8),
+      this.matWoodLog
+    );
+    logs.position.set(4.8, 0.7, 2.0);
+    group.add(logs);
+
+    return group;
+  }
+
+  // --- ARID DESERT STRUCTURES & FLORA ---
+  createDatePalm(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Curved slender palm trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.48, 8.5, 7),
+      this.matPalmTrunk
+    );
+    trunk.position.set(0.4, 4.25, 0);
+    trunk.rotation.z = 0.12;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Radiating arching fronds
+    for (let f = 0; f < 8; f++) {
+      const angle = (f * Math.PI * 2) / 8;
+      const frond = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 0.08, 3.4),
+        this.matPalmFronds
+      );
+      frond.position.set(Math.cos(angle) * 1.5 + 0.8, 8.4, Math.sin(angle) * 1.5);
+      frond.rotation.y = -angle;
+      frond.rotation.x = 0.45;
+      frond.castShadow = true;
+      group.add(frond);
+    }
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createSandDuneRidge(x, y, z, side) {
+    const group = new THREE.Group();
+    // Sweeping aerodynamic desert barchan dune ridge
+    const dune = new THREE.Mesh(
+      new THREE.ConeGeometry(14.0, 5.5, 5),
+      this.matDuneSand
+    );
+    dune.position.y = 2.4;
+    dune.scale.set(1.6, 0.9, 2.8);
+    dune.rotation.y = side * 0.4;
+    dune.receiveShadow = true;
+    group.add(dune);
+
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createOasisCaravansary(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Thick adobe walled courtyard
+    const wall = new THREE.Mesh(
+      new THREE.BoxGeometry(12.0, 3.2, 16.0),
+      this.matAdobe
+    );
+    wall.position.set(0, 1.6, 0);
+    wall.castShadow = true;
+    group.add(wall);
+
+    // Domed central well / cistern
+    const wellDome = new THREE.Mesh(
+      new THREE.SphereGeometry(2.4, 8, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
+      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.9 })
+    );
+    wellDome.position.set(-8.0, 0, 0);
+    group.add(wellDome);
+
+    // Flanking date palms
+    [-5, 5].forEach((pz) => {
+      const palm = this.createDatePalm(-7.0, 0, pz);
+      group.add(palm);
+    });
+
+    const light = new THREE.PointLight(0xffa233, 2.0, 22);
+    light.position.set(0, 3.5, 0);
+    group.add(light);
+
+    return group;
+  }
+
+  // --- SAVANNA & STEPPE STRUCTURES & FLORA ---
+  createUmbrellaAcacia(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Dark angled trunk bifurcating upwards
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.3, 0.55, 5.2, 6),
+      this.matTrunk
+    );
+    trunk.position.y = 2.6;
+    trunk.rotation.z = (Math.random() - 0.5) * 0.3;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // 3 Splayed high lateral branches
+    for (let b = 0; b < 3; b++) {
+      const angle = (b * Math.PI * 2) / 3;
+      const arm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.14, 0.22, 3.2, 5),
+        this.matTrunk
+      );
+      arm.position.set(Math.cos(angle) * 1.2, 5.0, Math.sin(angle) * 1.2);
+      arm.rotation.z = Math.cos(angle) * 0.7;
+      arm.rotation.x = Math.sin(angle) * 0.7;
+      group.add(arm);
+    }
+
+    // Wide horizontal flat-topped umbrella foliage canopy
+    const flatCanopy = new THREE.Mesh(
+      new THREE.CylinderGeometry(5.2, 4.2, 0.8, 8),
+      this.matAcaciaCanopy
+    );
+    flatCanopy.position.y = 6.4;
+    flatCanopy.castShadow = true;
+    group.add(flatCanopy);
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    group.rotation.y = Math.random() * Math.PI * 2;
+    return group;
+  }
+
+  createBaobabTree(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.3;
+
+    // Colossal swollen bottle trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.4, 3.4, 8.5, 9),
+      this.matBaobabTrunk
+    );
+    trunk.position.y = 4.25;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Root-like top branch clusters
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * Math.PI * 2) / 5;
+      const branch = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.4, 0.8, 3.5, 5),
+        this.matBaobabTrunk
+      );
+      branch.position.set(Math.cos(angle) * 1.8, 9.2, Math.sin(angle) * 1.8);
+      branch.rotation.z = Math.cos(angle) * 0.6;
+      branch.rotation.x = Math.sin(angle) * 0.6;
+      group.add(branch);
+
+      // Foliage tuft at branch tip
+      const tuft = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(1.6, 1),
+        this.matAcaciaCanopy
+      );
+      tuft.position.set(Math.cos(angle) * 3.2, 10.5, Math.sin(angle) * 3.2);
+      group.add(tuft);
+    }
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createRangerStation(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Elevated timber ranger outpost
+    const legGeo = new THREE.CylinderGeometry(0.2, 0.25, 4.5, 5);
+    [-2.2, 2.2].forEach((lx) => {
+      [-2.2, 2.2].forEach((lz) => {
+        const leg = new THREE.Mesh(legGeo, this.matWoodLog);
+        leg.position.set(lx, 2.25, lz);
+        leg.castShadow = true;
+        group.add(leg);
+      });
+    });
+
+    const cabin = new THREE.Mesh(
+      new THREE.BoxGeometry(5.2, 2.6, 5.2),
+      this.matWoodLog
+    );
+    cabin.position.y = 5.6;
+    cabin.castShadow = true;
+    group.add(cabin);
+
+    // Shaded corrugated tin roof overhang
+    const roof = new THREE.Mesh(
+      new THREE.BoxGeometry(6.4, 0.2, 6.4),
+      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.3 })
+    );
+    roof.position.y = 7.0;
+    group.add(roof);
+
+    // Radio antenna mast
+    const mast = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.05, 6.5, 4),
+      new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.9 })
+    );
+    mast.position.set(2.4, 9.8, 2.4);
+    group.add(mast);
+
+    return group;
+  }
+
+  // --- TROPICAL RAINFOREST STRUCTURES & FLORA ---
+  createRainforestGiant(x, y, z) {
+    const group = new THREE.Group();
+    const scale = 0.9 + Math.random() * 0.45;
+
+    // Immense straight trunk reaching into the canopy
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.65, 1.3, 14.0, 8),
+      new THREE.MeshStandardMaterial({ color: 0x36271c, roughness: 0.95 })
+    );
+    trunk.position.y = 7.0;
+    trunk.castShadow = true;
+    group.add(trunk);
+
+    // Buttress roots flanking the base
+    for (let r = 0; r < 4; r++) {
+      const angle = (r * Math.PI * 2) / 4;
+      const buttress = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 3.8, 2.4),
+        this.matTrunk
+      );
+      buttress.position.set(Math.cos(angle) * 1.5, 1.9, Math.sin(angle) * 1.5);
+      buttress.rotation.y = -angle;
+      group.add(buttress);
+    }
+
+    // Dense tiered jungle emerald canopy
+    const canopies = [
+      { y: 13.5, r: 5.8, mat: this.matJungleFoliage },
+      { y: 15.8, r: 4.6, mat: this.matJungleCanopyDark },
+      { y: 17.6, r: 3.2, mat: this.matJungleFoliage }
+    ];
+    canopies.forEach((c) => {
+      const dome = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(c.r, 1),
+        c.mat
+      );
+      dome.position.y = c.y;
+      dome.scale.set(1.2, 0.65, 1.2);
+      dome.castShadow = true;
+      group.add(dome);
+    });
+
+    group.scale.set(scale, scale, scale);
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createBotanicalLab(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Stilt research module elevated above flood level
+    const stilts = new THREE.Mesh(
+      new THREE.BoxGeometry(8.5, 0.4, 12.0),
+      this.matWoodLog
+    );
+    stilts.position.y = 2.4;
+    group.add(stilts);
+
+    const labCabin = new THREE.Mesh(
+      new THREE.BoxGeometry(7.2, 3.2, 10.0),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 })
+    );
+    labCabin.position.y = 4.2;
+    group.add(labCabin);
+
+    // Green weather monitoring beacon
+    const beacon = new THREE.PointLight(0x10b981, 2.2, 22);
+    beacon.position.set(0, 6.5, 0);
+    group.add(beacon);
+
+    return group;
+  }
+
+  // --- ALPINE PEAKS STRUCTURES & CRAGS ---
+  createAlpineGraniteWall(x, y, z, side) {
+    const group = new THREE.Group();
+    const height = 30 + Math.random() * 12;
+    const width = 18 + Math.random() * 8;
+    const depth = 16;
+
+    // Dark granite precipice wall
+    const cliff = new THREE.Mesh(
+      new THREE.BoxGeometry(width, height, depth),
+      this.matAlpineGranite
+    );
+    cliff.position.y = height * 0.5 - 1.0;
+    cliff.castShadow = true;
+    cliff.receiveShadow = true;
+    group.add(cliff);
+
+    // Jagged snowy summit horn
+    const horn = new THREE.Mesh(
+      new THREE.ConeGeometry(width * 0.4, 9.0, 5),
+      this.matSnow
+    );
+    horn.position.set((Math.random() - 0.5) * 4, height + 3.5, (Math.random() - 0.5) * 3);
+    horn.castShadow = true;
+    group.add(horn);
+
+    group.position.set(x, y, z);
+    return group;
+  }
+
+  createAvalancheTunnel(x, y, z) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Concrete avalanche deflection gallery over the road
+    const roof = new THREE.Mesh(
+      new THREE.BoxGeometry(22, 0.8, 16),
+      this.matAlpineGranite
+    );
+    roof.position.set(0, 6.2, 0);
+    roof.rotation.z = 0.15; // Sloped to dump snow down valley
+    group.add(roof);
+
+    // Massive reinforced concrete pillars on mountain side
+    [-6, 0, 6].forEach((pz) => {
+      const col = new THREE.Mesh(
+        new THREE.BoxGeometry(1.2, 6.2, 1.2),
+        this.matAlpineGranite
+      );
+      col.position.set(-9.5, 3.1, pz);
+      group.add(col);
+    });
+
+    return group;
+  }
 }
+

@@ -31,55 +31,101 @@ export class WeatherDirector {
 
     switch (weather) {
       case 'clear':
+      case 'sea_breeze':
       case 'smog':
         frictionMultiplier = 1.0;
         roughness = 0.78;
         metalness = 0.12;
-        statusLabel = 'ASFALTO ASCIUTTO';
+        statusLabel = 'FONDO ASCIUTTO OTTIMALE';
         statusBadge = 'GRIP 100%';
         statusColor = '#22c55e';
         break;
 
+      case 'heatwave':
+        frictionMultiplier = 0.94;
+        roughness = 0.85;
+        metalness = 0.08;
+        statusLabel = 'CALDO ESTREMO / ASFALTO ROVENTE';
+        statusBadge = 'GRIP 94% 🔥';
+        statusColor = '#f97316';
+        break;
+
+      case 'sandstorm':
+      case 'dust_devil':
+        frictionMultiplier = 0.74;
+        roughness = 0.92;
+        metalness = 0.05;
+        statusLabel = 'SABBIA IN SOSPENSIONE / SCIVOLOSO';
+        statusBadge = 'GRIP 74% ⚠️';
+        statusColor = '#d97706';
+        break;
+
+      case 'dry_gale':
+      case 'gale_winds':
+      case 'mountain_gale':
+      case 'rock_dust':
+        frictionMultiplier = 0.82;
+        roughness = 0.86;
+        metalness = 0.08;
+        statusLabel = 'RAFFICHE & DETRITI ROCCIOSI';
+        statusBadge = 'GRIP 82%';
+        statusColor = '#eab308';
+        break;
+
       case 'overcast':
       case 'aurora_static':
-        frictionMultiplier = 0.98;
+      case 'ion_storm':
+        frictionMultiplier = 0.96;
         roughness = 0.72;
-        metalness = 0.15;
-        statusLabel = 'ASFALTO FREDDO';
-        statusBadge = 'GRIP 98%';
+        metalness = 0.18;
+        statusLabel = 'FONDO FREDDO / STABILE';
+        statusBadge = 'GRIP 96%';
         statusColor = '#38bdf8';
         break;
 
       case 'heavy_mist':
       case 'dense_fog':
-        frictionMultiplier = 0.90;
-        roughness = 0.45;
-        metalness = 0.35;
-        statusLabel = 'ASFALTO UMIDO';
-        statusBadge = 'GRIP 90%';
+        frictionMultiplier = 0.88;
+        roughness = 0.42;
+        metalness = 0.38;
+        statusLabel = 'NEBBIA FITTA / ASFALTO UMIDO';
+        statusBadge = 'GRIP 88%';
         statusColor = '#38bdf8';
         isWet = true;
         break;
 
-      case 'acid_drizzle':
       case 'rain':
-        frictionMultiplier = 0.72;
-        roughness = 0.14;
-        metalness = 0.82;
+      case 'light_rain':
+      case 'cold_drizzle':
+      case 'acid_drizzle':
+        frictionMultiplier = 0.74;
+        roughness = 0.16;
+        metalness = 0.80;
         statusLabel = 'ASFALTO BAGNATO';
-        statusBadge = 'GRIP 72%';
+        statusBadge = 'GRIP 74%';
         statusColor = '#eab308';
         isWet = true;
         break;
 
+      case 'tropical_monsoon':
       case 'torrential_rain':
-        frictionMultiplier = 0.58;
-        roughness = 0.08;
-        metalness = 0.92;
-        statusLabel = 'ACQUAPLANING SEVERO';
-        statusBadge = 'GRIP 58%';
+        frictionMultiplier = 0.52;
+        roughness = 0.05;
+        metalness = 0.96;
+        statusLabel = 'MONSONE / ACQUAPLANING & FANGO';
+        statusBadge = 'GRIP 52% ⚠️';
         statusColor = '#f97316';
         isWet = true;
+        break;
+
+      case 'light_snow':
+        frictionMultiplier = 0.65;
+        roughness = 0.50;
+        metalness = 0.40;
+        statusLabel = 'NEVE FRESCA COMPATTA';
+        statusBadge = 'GRIP 65% ❄️';
+        statusColor = '#38bdf8';
+        isIcy = true;
         break;
 
       case 'freezing_rain':
@@ -96,29 +142,20 @@ export class WeatherDirector {
         frictionMultiplier = 0.42;
         roughness = 0.38;
         metalness = 0.45;
-        statusLabel = 'NEVE COMPATTA / BUFERA';
+        statusLabel = 'BUFERA DI NEVE / POLARE';
         statusBadge = 'GRIP 42% ⚠️';
         statusColor = '#ef4444';
         isIcy = true;
         break;
 
-      case 'gale_winds':
-      case 'rock_dust':
-        frictionMultiplier = 0.82;
-        roughness = 0.85;
-        metalness = 0.08;
-        statusLabel = 'GHIAIETTO & RAFFICHE';
-        statusBadge = 'GRIP 82%';
-        statusColor = '#eab308';
-        break;
-
-      case 'ion_storm':
-        frictionMultiplier = 0.88;
-        roughness = 0.65;
-        metalness = 0.25;
-        statusLabel = 'CARICA STATICA IONICA';
-        statusBadge = 'GRIP 88%';
-        statusColor = '#a855f7';
+      case 'whiteout':
+        frictionMultiplier = 0.30;
+        roughness = 0.40;
+        metalness = 0.50;
+        statusLabel = 'WHITEOUT / VISIBILITÀ ZERO';
+        statusBadge = 'GRIP 30% ⚠️';
+        statusColor = '#ef4444';
+        isIcy = true;
         break;
 
       default:

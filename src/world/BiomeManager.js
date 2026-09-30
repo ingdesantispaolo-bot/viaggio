@@ -11,12 +11,14 @@ export class BiomeManager {
     this.audioEngine = audioEngine;
 
     this.biomeList = [
-      CONFIG.BIOMES.RUSTY_PERIPHERY,
-      CONFIG.BIOMES.BLACK_PINE_WOODS,
-      CONFIG.BIOMES.FLOODED_MARSHLAND,
-      CONFIG.BIOMES.GLASS_CRATER,
-      CONFIG.BIOMES.IRON_GORGE,
-      CONFIG.BIOMES.PERMAFROST_HIGHLANDS
+      CONFIG.BIOMES.MEDITERRANEAN_COAST,
+      CONFIG.BIOMES.TEMPERATE_FOREST,
+      CONFIG.BIOMES.ARID_DESERT,
+      CONFIG.BIOMES.SAVANNA_STEPPE,
+      CONFIG.BIOMES.TROPICAL_RAINFOREST,
+      CONFIG.BIOMES.ALPINE_PEAKS,
+      CONFIG.BIOMES.BOREAL_TAIGA,
+      CONFIG.BIOMES.POLAR_TUNDRA
     ];
 
     this.biomeLength = 650; // Distance in meters per biome
@@ -48,21 +50,26 @@ export class BiomeManager {
   }
 
   getCurrentSurface(chunkZ) {
-    // Choose surface based on current biome
     const biome = this.currentBiome;
-    if (biome.id === 'rusty_periphery') {
-      return Math.random() < 0.3 ? CONFIG.SURFACES.GRAVEL : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'black_pine_woods') {
-      return Math.random() < 0.6 ? CONFIG.SURFACES.DIRT : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'flooded_marshland') {
-      return Math.random() < 0.4 ? CONFIG.SURFACES.STEEL_BRIDGE : CONFIG.SURFACES.SLUDGE;
-    } else if (biome.id === 'glass_crater') {
-      return Math.random() < 0.5 ? CONFIG.SURFACES.SLUDGE : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'iron_gorge') {
-      return Math.random() < 0.5 ? CONFIG.SURFACES.GRAVEL : CONFIG.SURFACES.ASPHALT;
-    } else if (biome.id === 'permafrost_highlands') {
-      return Math.random() < 0.65 ? CONFIG.SURFACES.ICE : CONFIG.SURFACES.ASPHALT;
+    switch (biome.id) {
+      case 'mediterranean_coast':
+        return Math.random() < 0.25 ? CONFIG.SURFACES.GRAVEL : CONFIG.SURFACES.ASPHALT;
+      case 'temperate_forest':
+        return Math.random() < 0.4 ? CONFIG.SURFACES.DIRT : CONFIG.SURFACES.ASPHALT;
+      case 'arid_desert':
+        return Math.random() < 0.65 ? CONFIG.SURFACES.SAND : CONFIG.SURFACES.ASPHALT;
+      case 'savanna_steppe':
+        return Math.random() < 0.7 ? CONFIG.SURFACES.RED_DIRT : CONFIG.SURFACES.GRAVEL;
+      case 'tropical_rainforest':
+        return Math.random() < 0.6 ? CONFIG.SURFACES.SLUDGE : (Math.random() < 0.3 ? CONFIG.SURFACES.STEEL_BRIDGE : CONFIG.SURFACES.DIRT);
+      case 'alpine_peaks':
+        return Math.random() < 0.45 ? CONFIG.SURFACES.ALPINE_ROCK : CONFIG.SURFACES.ASPHALT;
+      case 'boreal_taiga':
+        return Math.random() < 0.5 ? CONFIG.SURFACES.GRAVEL : (Math.random() < 0.3 ? CONFIG.SURFACES.ICE : CONFIG.SURFACES.STEEL_BRIDGE);
+      case 'polar_tundra':
+        return Math.random() < 0.75 ? CONFIG.SURFACES.ICE : CONFIG.SURFACES.ASPHALT;
+      default:
+        return CONFIG.SURFACES.ASPHALT;
     }
-    return CONFIG.SURFACES.ASPHALT;
   }
 }
