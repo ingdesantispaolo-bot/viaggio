@@ -185,248 +185,317 @@ export class Renderer {
   initExhaustSystem() {
     this.exhaustGroup = new THREE.Group();
     this.scene.add(this.exhaustGroup);
-    this.exhaustMat = new THREE.MeshBasicMaterial({
-      color: 0x555555,
-      transparent: true,
-      opacity: 0.35,
-      depthWrite: false
-    });
     this.exhaustGeo = new THREE.SphereGeometry(0.2, 5, 5);
+    this.exhaustPool = [];
+    this.exhaustIndex = 0;
+
+    for (let i = 0; i < 40; i++) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0x555555,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false
+      });
+      const smoke = new THREE.Mesh(this.exhaustGeo, mat);
+      smoke.visible = false;
+      smoke.userData = { active: false, life: 0, maxLife: 1 };
+      this.exhaustGroup.add(smoke);
+      this.exhaustPool.push(smoke);
+    }
+
+    // Flame backfire pool
+    this.flamePool = [];
+    this.flameIndex = 0;
+    const flameGeo = new THREE.ConeGeometry(0.24, 0.65, 6);
+    flameGeo.rotateX(-Math.PI / 2);
+    for (let i = 0; i < 4; i++) {
+      const flameMat = new THREE.MeshBasicMaterial({
+        color: 0xffaa22,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const flame = new THREE.Mesh(flameGeo, flameMat);
+      flame.visible = false;
+      flame.userData = { active: false, life: 0, maxLife: 0.12, isFlame: true };
+      this.exhaustGroup.add(flame);
+      this.flamePool.push(flame);
+    }
   }
 
   initTireSpraySystem() {
     this.sprayGroup = new THREE.Group();
     this.scene.add(this.sprayGroup);
-    this.sprayParticles = [];
     this.sprayGeo = new THREE.SphereGeometry(0.22, 5, 5);
-    this.gravelSprayMat = new THREE.MeshBasicMaterial({
-      color: 0x8a735a,
-      transparent: true,
-      opacity: 0.45,
-      depthWrite: false
-    });
-    this.wetSprayMat = new THREE.MeshBasicMaterial({
-      color: 0xc8dcf0,
-      transparent: true,
-      opacity: 0.28,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
+    this.sprayPool = [];
+    this.sprayIndex = 0;
+
+    for (let i = 0; i < 50; i++) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0xc8dcf0,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      const spray = new THREE.Mesh(this.sprayGeo, mat);
+      spray.visible = false;
+      spray.userData = { active: false, life: 0, maxLife: 0.5 };
+      this.sprayGroup.add(spray);
+      this.sprayPool.push(spray);
+    }
+
+    // Impact Sparks Pool
+    this.sparkPool = [];
+    this.sparkIndex = 0;
+    const sparkGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+    for (let i = 0; i < 35; i++) {
+      const sparkMat = new THREE.MeshBasicMaterial({
+        color: 0xffea78,
+        transparent: true,
+        opacity: 0.9,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const spark = new THREE.Mesh(sparkGeo, sparkMat);
+      spark.visible = false;
+      spark.userData = { active: false, life: 0, maxLife: 0.3 };
+      this.sprayGroup.add(spark);
+      this.sparkPool.push(spark);
+    }
+
+    // Impact Debris Pool
+    this.debrisPool = [];
+    this.debrisIndex = 0;
+    const debrisGeoBox = new THREE.BoxGeometry(0.14, 0.1, 0.18);
+    const debrisMaterials = {
+      wood: new THREE.MeshStandardMaterial({ color: 0x855428, roughness: 0.9, metalness: 0.05 }),
+      rock: new THREE.MeshStandardMaterial({ color: 0x5a544e, roughness: 0.95, metalness: 0.1 }),
+      barrel: new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.45, metalness: 0.2 }),
+      rubber: new THREE.MeshStandardMaterial({ color: 0x1f242d, roughness: 0.95 }),
+      steam: new THREE.MeshBasicMaterial({ color: 0xf8fafc, transparent: true, opacity: 0.65, depthWrite: false })
+    };
+    this.debrisMaterials = debrisMaterials;
+
+    for (let i = 0; i < 40; i++) {
+      const debris = new THREE.Mesh(debrisGeoBox, debrisMaterials.wood);
+      debris.visible = false;
+      debris.userData = { active: false, life: 0, maxLife: 0.6 };
+      this.sprayGroup.add(debris);
+      this.debrisPool.push(debris);
+    }
   }
 
   emitExhaust(pos, isThrottle) {
-    if (!this.exhaustGroup || (!isThrottle && Math.random() > 0.3)) return;
-    const smoke = new THREE.Mesh(this.exhaustGeo, this.exhaustMat.clone());
+    if (!this.exhaustPool || (!isThrottle && Math.random() > 0.3)) return;
+    const smoke = this.exhaustPool[this.exhaustIndex % this.exhaustPool.length];
+    this.exhaustIndex++;
+
     smoke.position.copy(pos);
     smoke.position.x += (Math.random() - 0.5) * 0.15;
     smoke.position.y += (Math.random() - 0.5) * 0.1;
     smoke.scale.setScalar(0.4 + Math.random() * 0.3);
+    smoke.material.opacity = 0.35;
     smoke.userData = {
+      active: true,
       life: 0.0,
       maxLife: 0.8 + Math.random() * 0.4,
       vy: 0.8 + Math.random() * 0.8,
       vx: (Math.random() - 0.5) * 0.4,
-      vz: -1.0 - Math.random() * 1.5
+      vz: -1.0 - Math.random() * 1.5,
+      isFlame: false
     };
-    this.exhaustGroup.add(smoke);
-    this.exhaustParticles.push(smoke);
-
-    // Limit pool
-    if (this.exhaustParticles.length > 40) {
-      const old = this.exhaustParticles.shift();
-      this.exhaustGroup.remove(old);
-      if (old.material) old.material.dispose();
-    }
+    smoke.visible = true;
   }
 
   emitBackfire(pos) {
-    if (!this.exhaustGroup) return;
-    const flameMat = new THREE.MeshBasicMaterial({
-      color: 0xffaa22,
-      transparent: true,
-      opacity: 0.95,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    const flameGeo = new THREE.ConeGeometry(0.24, 0.65, 6);
-    flameGeo.rotateX(-Math.PI / 2);
-    const flame = new THREE.Mesh(flameGeo, flameMat);
+    if (!this.flamePool) return;
+    const flame = this.flamePool[this.flameIndex % this.flamePool.length];
+    this.flameIndex++;
+
     flame.position.copy(pos);
     flame.position.z -= 0.3;
+    flame.scale.set(1, 1, 1);
+    flame.material.opacity = 0.95;
     flame.userData = {
+      active: true,
       life: 0.0,
       maxLife: 0.12,
       isFlame: true
     };
-    this.exhaustGroup.add(flame);
-    this.exhaustParticles.push(flame);
+    flame.visible = true;
   }
 
   emitTireSpray(posLeft, posRight, surface, speedRatio, onShoulder) {
-    if (!this.sprayGroup || speedRatio < 0.12) return;
+    if (!this.sprayPool || speedRatio < 0.12) return;
     if (Math.random() > 0.6) return;
 
     const isGravel = onShoulder || (surface && (surface.id === 'gravel' || surface.id === 'dirt'));
-    const mat = isGravel ? this.gravelSprayMat : this.wetSprayMat;
-    const baseOpacity = isGravel ? 0.45 : 0.28;
+    const colorHex = isGravel ? 0x8a735a : 0xc8dcf0;
+    const baseOpacity = isGravel ? 0.42 : 0.28;
 
     [posLeft, posRight].forEach((p) => {
       if (!p) return;
-      const spray = new THREE.Mesh(this.sprayGeo, mat.clone());
+      const spray = this.sprayPool[this.sprayIndex % this.sprayPool.length];
+      this.sprayIndex++;
+
       spray.position.copy(p);
       spray.position.y += 0.06;
       spray.position.x += (Math.random() - 0.5) * 0.25;
       spray.position.z -= 0.15;
       spray.scale.setScalar(0.35 + speedRatio * 0.35);
+      spray.material.color.setHex(colorHex);
+      spray.material.opacity = baseOpacity;
       spray.userData = {
+        active: true,
         life: 0.0,
-        maxLife: isGravel ? 0.65 : 0.45,
+        maxLife: isGravel ? 0.60 : 0.42,
         baseOpacity: baseOpacity,
         vy: 0.3 + Math.random() * 0.6 * speedRatio,
         vx: (Math.random() - 0.5) * 0.6,
         vz: -0.6 - Math.random() * 1.5 * speedRatio
       };
-      this.sprayGroup.add(spray);
-      this.sprayParticles.push(spray);
+      spray.visible = true;
     });
-
-    if (this.sprayParticles.length > 45) {
-      const old = this.sprayParticles.shift();
-      this.sprayGroup.remove(old);
-      if (old.material) old.material.dispose();
-    }
   }
 
   updateTireSpray(delta) {
-    if (!this.sprayGroup) return;
-    for (let i = this.sprayParticles.length - 1; i >= 0; i--) {
-      const p = this.sprayParticles[i];
-      p.userData.life += delta;
-      const progress = p.userData.life / p.userData.maxLife;
-      if (progress >= 1.0) {
-        this.sprayGroup.remove(p);
-        if (p.material) p.material.dispose();
-        if (p.geometry && p.geometry !== this.sprayGeo) p.geometry.dispose();
-        this.sprayParticles.splice(i, 1);
-      } else {
-        if (p.userData.gravity) {
-          p.userData.vy -= p.userData.gravity * delta;
-        }
-        if (p.userData.rotSpeed) {
-          p.rotation.x += p.userData.rotSpeed.x * delta;
-          p.rotation.y += p.userData.rotSpeed.y * delta;
-          p.rotation.z += p.userData.rotSpeed.z * delta;
-        }
-        p.position.y += p.userData.vy * delta;
-        p.position.x += p.userData.vx * delta;
-        p.position.z += p.userData.vz * delta;
+    if (this.sprayPool) {
+      for (let i = 0; i < this.sprayPool.length; i++) {
+        const p = this.sprayPool[i];
+        if (!p.visible || !p.userData.active) continue;
 
-        if (p.userData.scaleGrowth) {
-          p.scale.setScalar(p.userData.initialScale * (1.0 + progress * p.userData.scaleGrowth));
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
         } else {
-          p.scale.setScalar(p.userData.initialScale ? p.userData.initialScale * (1.0 - progress * 0.4) : (0.4 + progress * 2.5));
+          p.position.y += p.userData.vy * delta;
+          p.position.x += p.userData.vx * delta;
+          p.position.z += p.userData.vz * delta;
+          p.scale.setScalar(0.35 + progress * 1.8);
+          p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
         }
-        p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
+      }
+    }
+
+    if (this.sparkPool) {
+      for (let i = 0; i < this.sparkPool.length; i++) {
+        const p = this.sparkPool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
+        } else {
+          p.userData.vy -= (p.userData.gravity || 9.81) * delta;
+          p.position.x += p.userData.vx * delta;
+          p.position.y += p.userData.vy * delta;
+          p.position.z += p.userData.vz * delta;
+          p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
+        }
+      }
+    }
+
+    if (this.debrisPool) {
+      for (let i = 0; i < this.debrisPool.length; i++) {
+        const p = this.debrisPool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
+        } else {
+          p.userData.vy -= (p.userData.gravity || 11.0) * delta;
+          p.position.x += p.userData.vx * delta;
+          p.position.y += p.userData.vy * delta;
+          p.position.z += p.userData.vz * delta;
+
+          if (p.userData.rotSpeed) {
+            p.rotation.x += p.userData.rotSpeed.x * delta;
+            p.rotation.y += p.userData.rotSpeed.y * delta;
+            p.rotation.z += p.userData.rotSpeed.z * delta;
+          }
+
+          if (p.userData.scaleGrowth) {
+            p.scale.setScalar(p.userData.initialScale * (1.0 + progress * p.userData.scaleGrowth));
+          } else {
+            p.scale.setScalar(p.userData.initialScale * (1.0 - progress * 0.35));
+          }
+          if (p.material.transparent) {
+            p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
+          }
+        }
       }
     }
   }
 
   emitImpactSparks(pos, count = 8) {
-    if (!this.sprayGroup) return;
-    const sparkMat = new THREE.MeshBasicMaterial({
-      color: 0xffea78,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    const sparkGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+    if (!this.sparkPool) return;
+    const toSpawn = Math.min(count, 14);
 
-    for (let i = 0; i < count; i++) {
-      const spark = new THREE.Mesh(sparkGeo, sparkMat);
+    for (let i = 0; i < toSpawn; i++) {
+      const spark = this.sparkPool[this.sparkIndex % this.sparkPool.length];
+      this.sparkIndex++;
+
       spark.position.copy(pos);
       spark.userData = {
+        active: true,
         life: 0.0,
-        maxLife: 0.22 + Math.random() * 0.22,
+        maxLife: 0.20 + Math.random() * 0.22,
         baseOpacity: 0.9,
-        vx: (Math.random() - 0.5) * 6.0,
-        vy: 1.5 + Math.random() * 3.5,
-        vz: (Math.random() - 0.5) * 6.0,
+        vx: (Math.random() - 0.5) * 7.0,
+        vy: 1.8 + Math.random() * 3.8,
+        vz: (Math.random() - 0.5) * 7.0,
         gravity: 9.81
       };
-      this.sprayGroup.add(spark);
-      this.sprayParticles.push(spark);
+      spark.material.opacity = 0.9;
+      spark.visible = true;
     }
   }
 
   emitImpactDebris(pos, type = 'wood', count = 12) {
-    if (!this.sprayGroup) return;
-
-    let mat, geo, scaleBase = 0.14, gravity = 11.0;
-
-    if (type === 'wood') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0x855428,
-        roughness: 0.9,
-        metalness: 0.05
-      });
-      geo = new THREE.BoxGeometry(0.14, 0.07, 0.26);
-      scaleBase = 0.18;
-    } else if (type === 'rock') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0x5a544e,
-        roughness: 0.95,
-        metalness: 0.1
-      });
-      geo = new THREE.DodecahedronGeometry(0.11, 0);
-      scaleBase = 0.22;
-      gravity = 14.0;
-    } else if (type === 'barrel') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0xf97316,
-        roughness: 0.45,
-        metalness: 0.2
-      });
-      geo = new THREE.BoxGeometry(0.18, 0.12, 0.06);
-      scaleBase = 0.24;
-    } else if (type === 'rubber') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0x1f242d,
-        roughness: 0.95
-      });
-      geo = new THREE.BoxGeometry(0.15, 0.06, 0.22);
-      scaleBase = 0.18;
-    } else if (type === 'steam') {
-      mat = new THREE.MeshBasicMaterial({
-        color: 0xf8fafc,
-        transparent: true,
-        opacity: 0.65,
-        depthWrite: false
-      });
-      geo = new THREE.SphereGeometry(0.24, 6, 6);
-      scaleBase = 0.32;
-      gravity = -2.5; // rises gently
-    } else {
+    if (!this.debrisPool) return;
+    if (type === 'sparks') {
       this.emitImpactSparks(pos, count);
       return;
     }
 
-    for (let i = 0; i < count; i++) {
-      const debris = new THREE.Mesh(geo, mat.clone());
+    const mat = this.debrisMaterials[type] || this.debrisMaterials.wood;
+    let scaleBase = 0.16;
+    let gravity = 11.0;
+    if (type === 'rock') { scaleBase = 0.22; gravity = 14.0; }
+    else if (type === 'barrel') { scaleBase = 0.24; }
+    else if (type === 'rubber') { scaleBase = 0.18; }
+    else if (type === 'steam') { scaleBase = 0.32; gravity = -2.5; }
+
+    const toSpawn = Math.min(count, 12);
+    for (let i = 0; i < toSpawn; i++) {
+      const debris = this.debrisPool[this.debrisIndex % this.debrisPool.length];
+      this.debrisIndex++;
+
+      debris.material = mat;
       debris.position.copy(pos);
       debris.position.x += (Math.random() - 0.5) * 0.35;
       debris.position.y += 0.15 + Math.random() * 0.25;
       debris.position.z += (Math.random() - 0.5) * 0.35;
 
-      const spreadX = (Math.random() - 0.5) * 8.5;
-      const spreadY = type === 'steam' ? 1.5 + Math.random() * 2.2 : 2.5 + Math.random() * 4.5;
-      const spreadZ = (Math.random() - 0.5) * 8.5;
-
+      const spreadX = (Math.random() - 0.5) * 8.0;
+      const spreadY = type === 'steam' ? 1.5 + Math.random() * 2.0 : 2.5 + Math.random() * 4.0;
+      const spreadZ = (Math.random() - 0.5) * 8.0;
       const initialScale = scaleBase * (0.6 + Math.random() * 0.8);
+
       debris.scale.setScalar(initialScale);
       debris.userData = {
+        active: true,
         life: 0.0,
-        maxLife: type === 'steam' ? 0.9 + Math.random() * 0.5 : 0.55 + Math.random() * 0.35,
+        maxLife: type === 'steam' ? 0.85 + Math.random() * 0.45 : 0.50 + Math.random() * 0.30,
         baseOpacity: mat.opacity !== undefined ? mat.opacity : 1.0,
         vx: spreadX,
         vy: spreadY,
@@ -440,42 +509,48 @@ export class Renderer {
         initialScale: initialScale,
         scaleGrowth: type === 'steam' ? 2.5 : 0.0
       };
-
-      this.sprayGroup.add(debris);
-      this.sprayParticles.push(debris);
-    }
-
-    // Pool limit
-    while (this.sprayParticles.length > 75) {
-      const old = this.sprayParticles.shift();
-      this.sprayGroup.remove(old);
-      if (old.material) old.material.dispose();
-      if (old.geometry && old.geometry !== this.sprayGeo) old.geometry.dispose();
+      debris.visible = true;
     }
   }
 
   updateExhaust(delta) {
-    for (let i = this.exhaustParticles.length - 1; i >= 0; i--) {
-      const p = this.exhaustParticles[i];
-      p.userData.life += delta;
-      const progress = p.userData.life / p.userData.maxLife;
-      if (progress >= 1.0) {
-        this.exhaustGroup.remove(p);
-        if (p.material) p.material.dispose();
-        this.exhaustParticles.splice(i, 1);
-      } else {
-        if (p.userData.isFlame) {
-          p.scale.setScalar(1.0 - progress);
-          p.material.opacity = 1.0 - progress;
+    if (this.exhaustPool) {
+      for (let i = 0; i < this.exhaustPool.length; i++) {
+        const p = this.exhaustPool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
         } else {
           p.position.y += p.userData.vy * delta;
           p.position.x += p.userData.vx * delta;
           p.position.z += p.userData.vz * delta;
-          p.scale.setScalar(0.5 + progress * 2.2);
-          p.material.opacity = (1.0 - progress) * 0.3;
+          p.scale.setScalar(0.45 + progress * 2.2);
+          p.material.opacity = (1.0 - progress) * 0.32;
         }
       }
     }
+
+    if (this.flamePool) {
+      for (let i = 0; i < this.flamePool.length; i++) {
+        const p = this.flamePool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
+        } else {
+          p.scale.setScalar(1.0 - progress);
+          p.material.opacity = 1.0 - progress;
+        }
+      }
+    }
+
     this.updateTireSpray(delta);
   }
 

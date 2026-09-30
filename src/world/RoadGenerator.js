@@ -82,6 +82,15 @@ export class RoadGenerator {
       })
     };
 
+    // Shared geometries to avoid heavy allocation/GC overhead per chunk
+    this.sharedGeos = {
+      post: new THREE.BoxGeometry(0.12, 0.95, 0.08),
+      refl: new THREE.BoxGeometry(0.08, 0.18, 0.02),
+      guardPost: new THREE.BoxGeometry(0.14, 1.05, 0.14),
+      guardRefl: new THREE.BoxGeometry(0.06, 0.14, 0.04)
+    };
+    Object.values(this.sharedGeos).forEach((g) => { g.userData.isShared = true; });
+
     // Initialize initial stretch of road ahead
     for (let i = 0; i < CONFIG.WORLD.VISIBLE_CHUNKS; i++) {
       this.generateChunk();
@@ -356,23 +365,22 @@ export class RoadGenerator {
       const shoulderEdge = p.width * 0.5 + 0.35;
 
       // 1. Right Delineator Post (with Red Reflector facing approaching car)
-      const postGeo = new THREE.BoxGeometry(0.12, 0.95, 0.08);
-      const rightPost = new THREE.Mesh(postGeo, postMat);
+      const rightPost = new THREE.Mesh(this.sharedGeos.post, postMat);
       rightPost.position.set(p.x + shoulderEdge, p.y + 0.46, p.z);
       rightPost.castShadow = true;
       group.add(rightPost);
 
-      const rightRefl = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, 0.02), reflRed);
+      const rightRefl = new THREE.Mesh(this.sharedGeos.refl, reflRed);
       rightRefl.position.set(p.x + shoulderEdge, p.y + 0.72, p.z - 0.045);
       group.add(rightRefl);
 
       // 2. Left Delineator Post (with White/Amber Reflector facing approaching car)
-      const leftPost = new THREE.Mesh(postGeo, postMat);
+      const leftPost = new THREE.Mesh(this.sharedGeos.post, postMat);
       leftPost.position.set(p.x - shoulderEdge, p.y + 0.46, p.z);
       leftPost.castShadow = true;
       group.add(leftPost);
 
-      const leftRefl = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, 0.02), reflWhite);
+      const leftRefl = new THREE.Mesh(this.sharedGeos.refl, reflWhite);
       leftRefl.position.set(p.x - shoulderEdge, p.y + 0.72, p.z - 0.045);
       group.add(leftRefl);
     }
@@ -408,23 +416,22 @@ export class RoadGenerator {
       const railX = p.width * 0.5 + 0.65;
 
       // Left & Right galvanized C-channel posts
-      const postGeo = new THREE.BoxGeometry(0.14, 1.05, 0.14);
-      const leftPost = new THREE.Mesh(postGeo, postMat);
+      const leftPost = new THREE.Mesh(this.sharedGeos.guardPost, postMat);
       leftPost.position.set(p.x - railX, p.y + 0.5, p.z);
       leftPost.castShadow = true;
       group.add(leftPost);
 
-      const rightPost = new THREE.Mesh(postGeo, postMat);
+      const rightPost = new THREE.Mesh(this.sharedGeos.guardPost, postMat);
       rightPost.position.set(p.x + railX, p.y + 0.5, p.z);
       rightPost.castShadow = true;
       group.add(rightPost);
 
       // Amber Cat's Eye Reflector facing approaching car (+Z)
-      const leftRefl = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.04), reflMat);
+      const leftRefl = new THREE.Mesh(this.sharedGeos.guardRefl, reflMat);
       leftRefl.position.set(p.x - railX + 0.08, p.y + 0.65, p.z - 0.08);
       group.add(leftRefl);
 
-      const rightRefl = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.04), reflMat);
+      const rightRefl = new THREE.Mesh(this.sharedGeos.guardRefl, reflMat);
       rightRefl.position.set(p.x + railX - 0.08, p.y + 0.65, p.z - 0.08);
       group.add(rightRefl);
 
@@ -470,7 +477,7 @@ export class RoadGenerator {
       if (chunk.endZ < despawnZ) {
         this.scene.remove(chunk.meshGroup);
         chunk.meshGroup.traverse((child) => {
-          if (child.isMesh) {
+          if (child.isMesh && child.geometry && !child.geometry.userData.isShared) {
             child.geometry.dispose();
           }
         });

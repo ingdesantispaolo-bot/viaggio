@@ -2802,248 +2802,317 @@ class Renderer {
   initExhaustSystem() {
     this.exhaustGroup = new THREE.Group();
     this.scene.add(this.exhaustGroup);
-    this.exhaustMat = new THREE.MeshBasicMaterial({
-      color: 0x555555,
-      transparent: true,
-      opacity: 0.35,
-      depthWrite: false
-    });
     this.exhaustGeo = new THREE.SphereGeometry(0.2, 5, 5);
+    this.exhaustPool = [];
+    this.exhaustIndex = 0;
+
+    for (let i = 0; i < 40; i++) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0x555555,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false
+      });
+      const smoke = new THREE.Mesh(this.exhaustGeo, mat);
+      smoke.visible = false;
+      smoke.userData = { active: false, life: 0, maxLife: 1 };
+      this.exhaustGroup.add(smoke);
+      this.exhaustPool.push(smoke);
+    }
+
+    // Flame backfire pool
+    this.flamePool = [];
+    this.flameIndex = 0;
+    const flameGeo = new THREE.ConeGeometry(0.24, 0.65, 6);
+    flameGeo.rotateX(-Math.PI / 2);
+    for (let i = 0; i < 4; i++) {
+      const flameMat = new THREE.MeshBasicMaterial({
+        color: 0xffaa22,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const flame = new THREE.Mesh(flameGeo, flameMat);
+      flame.visible = false;
+      flame.userData = { active: false, life: 0, maxLife: 0.12, isFlame: true };
+      this.exhaustGroup.add(flame);
+      this.flamePool.push(flame);
+    }
   }
 
   initTireSpraySystem() {
     this.sprayGroup = new THREE.Group();
     this.scene.add(this.sprayGroup);
-    this.sprayParticles = [];
     this.sprayGeo = new THREE.SphereGeometry(0.22, 5, 5);
-    this.gravelSprayMat = new THREE.MeshBasicMaterial({
-      color: 0x8a735a,
-      transparent: true,
-      opacity: 0.45,
-      depthWrite: false
-    });
-    this.wetSprayMat = new THREE.MeshBasicMaterial({
-      color: 0xc8dcf0,
-      transparent: true,
-      opacity: 0.28,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
+    this.sprayPool = [];
+    this.sprayIndex = 0;
+
+    for (let i = 0; i < 50; i++) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0xc8dcf0,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      const spray = new THREE.Mesh(this.sprayGeo, mat);
+      spray.visible = false;
+      spray.userData = { active: false, life: 0, maxLife: 0.5 };
+      this.sprayGroup.add(spray);
+      this.sprayPool.push(spray);
+    }
+
+    // Impact Sparks Pool
+    this.sparkPool = [];
+    this.sparkIndex = 0;
+    const sparkGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+    for (let i = 0; i < 35; i++) {
+      const sparkMat = new THREE.MeshBasicMaterial({
+        color: 0xffea78,
+        transparent: true,
+        opacity: 0.9,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const spark = new THREE.Mesh(sparkGeo, sparkMat);
+      spark.visible = false;
+      spark.userData = { active: false, life: 0, maxLife: 0.3 };
+      this.sprayGroup.add(spark);
+      this.sparkPool.push(spark);
+    }
+
+    // Impact Debris Pool
+    this.debrisPool = [];
+    this.debrisIndex = 0;
+    const debrisGeoBox = new THREE.BoxGeometry(0.14, 0.1, 0.18);
+    const debrisMaterials = {
+      wood: new THREE.MeshStandardMaterial({ color: 0x855428, roughness: 0.9, metalness: 0.05 }),
+      rock: new THREE.MeshStandardMaterial({ color: 0x5a544e, roughness: 0.95, metalness: 0.1 }),
+      barrel: new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.45, metalness: 0.2 }),
+      rubber: new THREE.MeshStandardMaterial({ color: 0x1f242d, roughness: 0.95 }),
+      steam: new THREE.MeshBasicMaterial({ color: 0xf8fafc, transparent: true, opacity: 0.65, depthWrite: false })
+    };
+    this.debrisMaterials = debrisMaterials;
+
+    for (let i = 0; i < 40; i++) {
+      const debris = new THREE.Mesh(debrisGeoBox, debrisMaterials.wood);
+      debris.visible = false;
+      debris.userData = { active: false, life: 0, maxLife: 0.6 };
+      this.sprayGroup.add(debris);
+      this.debrisPool.push(debris);
+    }
   }
 
   emitExhaust(pos, isThrottle) {
-    if (!this.exhaustGroup || (!isThrottle && Math.random() > 0.3)) return;
-    const smoke = new THREE.Mesh(this.exhaustGeo, this.exhaustMat.clone());
+    if (!this.exhaustPool || (!isThrottle && Math.random() > 0.3)) return;
+    const smoke = this.exhaustPool[this.exhaustIndex % this.exhaustPool.length];
+    this.exhaustIndex++;
+
     smoke.position.copy(pos);
     smoke.position.x += (Math.random() - 0.5) * 0.15;
     smoke.position.y += (Math.random() - 0.5) * 0.1;
     smoke.scale.setScalar(0.4 + Math.random() * 0.3);
+    smoke.material.opacity = 0.35;
     smoke.userData = {
+      active: true,
       life: 0.0,
       maxLife: 0.8 + Math.random() * 0.4,
       vy: 0.8 + Math.random() * 0.8,
       vx: (Math.random() - 0.5) * 0.4,
-      vz: -1.0 - Math.random() * 1.5
+      vz: -1.0 - Math.random() * 1.5,
+      isFlame: false
     };
-    this.exhaustGroup.add(smoke);
-    this.exhaustParticles.push(smoke);
-
-    // Limit pool
-    if (this.exhaustParticles.length > 40) {
-      const old = this.exhaustParticles.shift();
-      this.exhaustGroup.remove(old);
-      if (old.material) old.material.dispose();
-    }
+    smoke.visible = true;
   }
 
   emitBackfire(pos) {
-    if (!this.exhaustGroup) return;
-    const flameMat = new THREE.MeshBasicMaterial({
-      color: 0xffaa22,
-      transparent: true,
-      opacity: 0.95,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    const flameGeo = new THREE.ConeGeometry(0.24, 0.65, 6);
-    flameGeo.rotateX(-Math.PI / 2);
-    const flame = new THREE.Mesh(flameGeo, flameMat);
+    if (!this.flamePool) return;
+    const flame = this.flamePool[this.flameIndex % this.flamePool.length];
+    this.flameIndex++;
+
     flame.position.copy(pos);
     flame.position.z -= 0.3;
+    flame.scale.set(1, 1, 1);
+    flame.material.opacity = 0.95;
     flame.userData = {
+      active: true,
       life: 0.0,
       maxLife: 0.12,
       isFlame: true
     };
-    this.exhaustGroup.add(flame);
-    this.exhaustParticles.push(flame);
+    flame.visible = true;
   }
 
   emitTireSpray(posLeft, posRight, surface, speedRatio, onShoulder) {
-    if (!this.sprayGroup || speedRatio < 0.12) return;
+    if (!this.sprayPool || speedRatio < 0.12) return;
     if (Math.random() > 0.6) return;
 
     const isGravel = onShoulder || (surface && (surface.id === 'gravel' || surface.id === 'dirt'));
-    const mat = isGravel ? this.gravelSprayMat : this.wetSprayMat;
-    const baseOpacity = isGravel ? 0.45 : 0.28;
+    const colorHex = isGravel ? 0x8a735a : 0xc8dcf0;
+    const baseOpacity = isGravel ? 0.42 : 0.28;
 
     [posLeft, posRight].forEach((p) => {
       if (!p) return;
-      const spray = new THREE.Mesh(this.sprayGeo, mat.clone());
+      const spray = this.sprayPool[this.sprayIndex % this.sprayPool.length];
+      this.sprayIndex++;
+
       spray.position.copy(p);
       spray.position.y += 0.06;
       spray.position.x += (Math.random() - 0.5) * 0.25;
       spray.position.z -= 0.15;
       spray.scale.setScalar(0.35 + speedRatio * 0.35);
+      spray.material.color.setHex(colorHex);
+      spray.material.opacity = baseOpacity;
       spray.userData = {
+        active: true,
         life: 0.0,
-        maxLife: isGravel ? 0.65 : 0.45,
+        maxLife: isGravel ? 0.60 : 0.42,
         baseOpacity: baseOpacity,
         vy: 0.3 + Math.random() * 0.6 * speedRatio,
         vx: (Math.random() - 0.5) * 0.6,
         vz: -0.6 - Math.random() * 1.5 * speedRatio
       };
-      this.sprayGroup.add(spray);
-      this.sprayParticles.push(spray);
+      spray.visible = true;
     });
-
-    if (this.sprayParticles.length > 45) {
-      const old = this.sprayParticles.shift();
-      this.sprayGroup.remove(old);
-      if (old.material) old.material.dispose();
-    }
   }
 
   updateTireSpray(delta) {
-    if (!this.sprayGroup) return;
-    for (let i = this.sprayParticles.length - 1; i >= 0; i--) {
-      const p = this.sprayParticles[i];
-      p.userData.life += delta;
-      const progress = p.userData.life / p.userData.maxLife;
-      if (progress >= 1.0) {
-        this.sprayGroup.remove(p);
-        if (p.material) p.material.dispose();
-        if (p.geometry && p.geometry !== this.sprayGeo) p.geometry.dispose();
-        this.sprayParticles.splice(i, 1);
-      } else {
-        if (p.userData.gravity) {
-          p.userData.vy -= p.userData.gravity * delta;
-        }
-        if (p.userData.rotSpeed) {
-          p.rotation.x += p.userData.rotSpeed.x * delta;
-          p.rotation.y += p.userData.rotSpeed.y * delta;
-          p.rotation.z += p.userData.rotSpeed.z * delta;
-        }
-        p.position.y += p.userData.vy * delta;
-        p.position.x += p.userData.vx * delta;
-        p.position.z += p.userData.vz * delta;
+    if (this.sprayPool) {
+      for (let i = 0; i < this.sprayPool.length; i++) {
+        const p = this.sprayPool[i];
+        if (!p.visible || !p.userData.active) continue;
 
-        if (p.userData.scaleGrowth) {
-          p.scale.setScalar(p.userData.initialScale * (1.0 + progress * p.userData.scaleGrowth));
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
         } else {
-          p.scale.setScalar(p.userData.initialScale ? p.userData.initialScale * (1.0 - progress * 0.4) : (0.4 + progress * 2.5));
+          p.position.y += p.userData.vy * delta;
+          p.position.x += p.userData.vx * delta;
+          p.position.z += p.userData.vz * delta;
+          p.scale.setScalar(0.35 + progress * 1.8);
+          p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
         }
-        p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
+      }
+    }
+
+    if (this.sparkPool) {
+      for (let i = 0; i < this.sparkPool.length; i++) {
+        const p = this.sparkPool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
+        } else {
+          p.userData.vy -= (p.userData.gravity || 9.81) * delta;
+          p.position.x += p.userData.vx * delta;
+          p.position.y += p.userData.vy * delta;
+          p.position.z += p.userData.vz * delta;
+          p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
+        }
+      }
+    }
+
+    if (this.debrisPool) {
+      for (let i = 0; i < this.debrisPool.length; i++) {
+        const p = this.debrisPool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
+        } else {
+          p.userData.vy -= (p.userData.gravity || 11.0) * delta;
+          p.position.x += p.userData.vx * delta;
+          p.position.y += p.userData.vy * delta;
+          p.position.z += p.userData.vz * delta;
+
+          if (p.userData.rotSpeed) {
+            p.rotation.x += p.userData.rotSpeed.x * delta;
+            p.rotation.y += p.userData.rotSpeed.y * delta;
+            p.rotation.z += p.userData.rotSpeed.z * delta;
+          }
+
+          if (p.userData.scaleGrowth) {
+            p.scale.setScalar(p.userData.initialScale * (1.0 + progress * p.userData.scaleGrowth));
+          } else {
+            p.scale.setScalar(p.userData.initialScale * (1.0 - progress * 0.35));
+          }
+          if (p.material.transparent) {
+            p.material.opacity = (1.0 - progress) * p.userData.baseOpacity;
+          }
+        }
       }
     }
   }
 
   emitImpactSparks(pos, count = 8) {
-    if (!this.sprayGroup) return;
-    const sparkMat = new THREE.MeshBasicMaterial({
-      color: 0xffea78,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    const sparkGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+    if (!this.sparkPool) return;
+    const toSpawn = Math.min(count, 14);
 
-    for (let i = 0; i < count; i++) {
-      const spark = new THREE.Mesh(sparkGeo, sparkMat);
+    for (let i = 0; i < toSpawn; i++) {
+      const spark = this.sparkPool[this.sparkIndex % this.sparkPool.length];
+      this.sparkIndex++;
+
       spark.position.copy(pos);
       spark.userData = {
+        active: true,
         life: 0.0,
-        maxLife: 0.22 + Math.random() * 0.22,
+        maxLife: 0.20 + Math.random() * 0.22,
         baseOpacity: 0.9,
-        vx: (Math.random() - 0.5) * 6.0,
-        vy: 1.5 + Math.random() * 3.5,
-        vz: (Math.random() - 0.5) * 6.0,
+        vx: (Math.random() - 0.5) * 7.0,
+        vy: 1.8 + Math.random() * 3.8,
+        vz: (Math.random() - 0.5) * 7.0,
         gravity: 9.81
       };
-      this.sprayGroup.add(spark);
-      this.sprayParticles.push(spark);
+      spark.material.opacity = 0.9;
+      spark.visible = true;
     }
   }
 
   emitImpactDebris(pos, type = 'wood', count = 12) {
-    if (!this.sprayGroup) return;
-
-    let mat, geo, scaleBase = 0.14, gravity = 11.0;
-
-    if (type === 'wood') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0x855428,
-        roughness: 0.9,
-        metalness: 0.05
-      });
-      geo = new THREE.BoxGeometry(0.14, 0.07, 0.26);
-      scaleBase = 0.18;
-    } else if (type === 'rock') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0x5a544e,
-        roughness: 0.95,
-        metalness: 0.1
-      });
-      geo = new THREE.DodecahedronGeometry(0.11, 0);
-      scaleBase = 0.22;
-      gravity = 14.0;
-    } else if (type === 'barrel') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0xf97316,
-        roughness: 0.45,
-        metalness: 0.2
-      });
-      geo = new THREE.BoxGeometry(0.18, 0.12, 0.06);
-      scaleBase = 0.24;
-    } else if (type === 'rubber') {
-      mat = new THREE.MeshStandardMaterial({
-        color: 0x1f242d,
-        roughness: 0.95
-      });
-      geo = new THREE.BoxGeometry(0.15, 0.06, 0.22);
-      scaleBase = 0.18;
-    } else if (type === 'steam') {
-      mat = new THREE.MeshBasicMaterial({
-        color: 0xf8fafc,
-        transparent: true,
-        opacity: 0.65,
-        depthWrite: false
-      });
-      geo = new THREE.SphereGeometry(0.24, 6, 6);
-      scaleBase = 0.32;
-      gravity = -2.5; // rises gently
-    } else {
+    if (!this.debrisPool) return;
+    if (type === 'sparks') {
       this.emitImpactSparks(pos, count);
       return;
     }
 
-    for (let i = 0; i < count; i++) {
-      const debris = new THREE.Mesh(geo, mat.clone());
+    const mat = this.debrisMaterials[type] || this.debrisMaterials.wood;
+    let scaleBase = 0.16;
+    let gravity = 11.0;
+    if (type === 'rock') { scaleBase = 0.22; gravity = 14.0; }
+    else if (type === 'barrel') { scaleBase = 0.24; }
+    else if (type === 'rubber') { scaleBase = 0.18; }
+    else if (type === 'steam') { scaleBase = 0.32; gravity = -2.5; }
+
+    const toSpawn = Math.min(count, 12);
+    for (let i = 0; i < toSpawn; i++) {
+      const debris = this.debrisPool[this.debrisIndex % this.debrisPool.length];
+      this.debrisIndex++;
+
+      debris.material = mat;
       debris.position.copy(pos);
       debris.position.x += (Math.random() - 0.5) * 0.35;
       debris.position.y += 0.15 + Math.random() * 0.25;
       debris.position.z += (Math.random() - 0.5) * 0.35;
 
-      const spreadX = (Math.random() - 0.5) * 8.5;
-      const spreadY = type === 'steam' ? 1.5 + Math.random() * 2.2 : 2.5 + Math.random() * 4.5;
-      const spreadZ = (Math.random() - 0.5) * 8.5;
-
+      const spreadX = (Math.random() - 0.5) * 8.0;
+      const spreadY = type === 'steam' ? 1.5 + Math.random() * 2.0 : 2.5 + Math.random() * 4.0;
+      const spreadZ = (Math.random() - 0.5) * 8.0;
       const initialScale = scaleBase * (0.6 + Math.random() * 0.8);
+
       debris.scale.setScalar(initialScale);
       debris.userData = {
+        active: true,
         life: 0.0,
-        maxLife: type === 'steam' ? 0.9 + Math.random() * 0.5 : 0.55 + Math.random() * 0.35,
+        maxLife: type === 'steam' ? 0.85 + Math.random() * 0.45 : 0.50 + Math.random() * 0.30,
         baseOpacity: mat.opacity !== undefined ? mat.opacity : 1.0,
         vx: spreadX,
         vy: spreadY,
@@ -3057,42 +3126,48 @@ class Renderer {
         initialScale: initialScale,
         scaleGrowth: type === 'steam' ? 2.5 : 0.0
       };
-
-      this.sprayGroup.add(debris);
-      this.sprayParticles.push(debris);
-    }
-
-    // Pool limit
-    while (this.sprayParticles.length > 75) {
-      const old = this.sprayParticles.shift();
-      this.sprayGroup.remove(old);
-      if (old.material) old.material.dispose();
-      if (old.geometry && old.geometry !== this.sprayGeo) old.geometry.dispose();
+      debris.visible = true;
     }
   }
 
   updateExhaust(delta) {
-    for (let i = this.exhaustParticles.length - 1; i >= 0; i--) {
-      const p = this.exhaustParticles[i];
-      p.userData.life += delta;
-      const progress = p.userData.life / p.userData.maxLife;
-      if (progress >= 1.0) {
-        this.exhaustGroup.remove(p);
-        if (p.material) p.material.dispose();
-        this.exhaustParticles.splice(i, 1);
-      } else {
-        if (p.userData.isFlame) {
-          p.scale.setScalar(1.0 - progress);
-          p.material.opacity = 1.0 - progress;
+    if (this.exhaustPool) {
+      for (let i = 0; i < this.exhaustPool.length; i++) {
+        const p = this.exhaustPool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
         } else {
           p.position.y += p.userData.vy * delta;
           p.position.x += p.userData.vx * delta;
           p.position.z += p.userData.vz * delta;
-          p.scale.setScalar(0.5 + progress * 2.2);
-          p.material.opacity = (1.0 - progress) * 0.3;
+          p.scale.setScalar(0.45 + progress * 2.2);
+          p.material.opacity = (1.0 - progress) * 0.32;
         }
       }
     }
+
+    if (this.flamePool) {
+      for (let i = 0; i < this.flamePool.length; i++) {
+        const p = this.flamePool[i];
+        if (!p.visible || !p.userData.active) continue;
+
+        p.userData.life += delta;
+        const progress = p.userData.life / p.userData.maxLife;
+        if (progress >= 1.0) {
+          p.visible = false;
+          p.userData.active = false;
+        } else {
+          p.scale.setScalar(1.0 - progress);
+          p.material.opacity = 1.0 - progress;
+        }
+      }
+    }
+
     this.updateTireSpray(delta);
   }
 
@@ -3521,10 +3596,16 @@ class CameraController {
       this.shakeOffset.set(0, 0, 0);
     }
 
-    // Smooth position and look-at interpolation
-    const lerpFactor = Math.min(1.0, delta * this.posDamping);
-    this.currentPos.lerp(desiredPos, lerpFactor);
-    this.currentLookAt.lerp(desiredLookAt, lerpFactor * 1.2);
+    // Smooth position and look-at interpolation using directional damping:
+    // Tight longitudinal Z tracking eliminates forward/backward rubber-banding stutter,
+    // while smooth lateral X and vertical Y damping provide cinematic sweeping on turns and bumps.
+    this.currentPos.z = THREE.MathUtils.damp(this.currentPos.z, desiredPos.z, 22.0, delta);
+    this.currentPos.x = THREE.MathUtils.damp(this.currentPos.x, desiredPos.x, this.posDamping, delta);
+    this.currentPos.y = THREE.MathUtils.damp(this.currentPos.y, desiredPos.y, this.posDamping * 1.2, delta);
+
+    this.currentLookAt.z = THREE.MathUtils.damp(this.currentLookAt.z, desiredLookAt.z, 22.0, delta);
+    this.currentLookAt.x = THREE.MathUtils.damp(this.currentLookAt.x, desiredLookAt.x, this.posDamping * 1.2, delta);
+    this.currentLookAt.y = THREE.MathUtils.damp(this.currentLookAt.y, desiredLookAt.y, this.posDamping * 1.4, delta);
 
     // Safety safeguard: never let camera be more than 40m away horizontally from player
     const distToTarget = Math.hypot(this.currentPos.x - targetPos.x, this.currentPos.z - targetPos.z);
@@ -3819,6 +3900,15 @@ class RoadGenerator {
       })
     };
 
+    // Shared geometries to avoid heavy allocation/GC overhead per chunk
+    this.sharedGeos = {
+      post: new THREE.BoxGeometry(0.12, 0.95, 0.08),
+      refl: new THREE.BoxGeometry(0.08, 0.18, 0.02),
+      guardPost: new THREE.BoxGeometry(0.14, 1.05, 0.14),
+      guardRefl: new THREE.BoxGeometry(0.06, 0.14, 0.04)
+    };
+    Object.values(this.sharedGeos).forEach((g) => { g.userData.isShared = true; });
+
     // Initialize initial stretch of road ahead
     for (let i = 0; i < CONFIG.WORLD.VISIBLE_CHUNKS; i++) {
       this.generateChunk();
@@ -4093,23 +4183,22 @@ class RoadGenerator {
       const shoulderEdge = p.width * 0.5 + 0.35;
 
       // 1. Right Delineator Post (with Red Reflector facing approaching car)
-      const postGeo = new THREE.BoxGeometry(0.12, 0.95, 0.08);
-      const rightPost = new THREE.Mesh(postGeo, postMat);
+      const rightPost = new THREE.Mesh(this.sharedGeos.post, postMat);
       rightPost.position.set(p.x + shoulderEdge, p.y + 0.46, p.z);
       rightPost.castShadow = true;
       group.add(rightPost);
 
-      const rightRefl = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, 0.02), reflRed);
+      const rightRefl = new THREE.Mesh(this.sharedGeos.refl, reflRed);
       rightRefl.position.set(p.x + shoulderEdge, p.y + 0.72, p.z - 0.045);
       group.add(rightRefl);
 
       // 2. Left Delineator Post (with White/Amber Reflector facing approaching car)
-      const leftPost = new THREE.Mesh(postGeo, postMat);
+      const leftPost = new THREE.Mesh(this.sharedGeos.post, postMat);
       leftPost.position.set(p.x - shoulderEdge, p.y + 0.46, p.z);
       leftPost.castShadow = true;
       group.add(leftPost);
 
-      const leftRefl = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, 0.02), reflWhite);
+      const leftRefl = new THREE.Mesh(this.sharedGeos.refl, reflWhite);
       leftRefl.position.set(p.x - shoulderEdge, p.y + 0.72, p.z - 0.045);
       group.add(leftRefl);
     }
@@ -4145,23 +4234,22 @@ class RoadGenerator {
       const railX = p.width * 0.5 + 0.65;
 
       // Left & Right galvanized C-channel posts
-      const postGeo = new THREE.BoxGeometry(0.14, 1.05, 0.14);
-      const leftPost = new THREE.Mesh(postGeo, postMat);
+      const leftPost = new THREE.Mesh(this.sharedGeos.guardPost, postMat);
       leftPost.position.set(p.x - railX, p.y + 0.5, p.z);
       leftPost.castShadow = true;
       group.add(leftPost);
 
-      const rightPost = new THREE.Mesh(postGeo, postMat);
+      const rightPost = new THREE.Mesh(this.sharedGeos.guardPost, postMat);
       rightPost.position.set(p.x + railX, p.y + 0.5, p.z);
       rightPost.castShadow = true;
       group.add(rightPost);
 
       // Amber Cat's Eye Reflector facing approaching car (+Z)
-      const leftRefl = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.04), reflMat);
+      const leftRefl = new THREE.Mesh(this.sharedGeos.guardRefl, reflMat);
       leftRefl.position.set(p.x - railX + 0.08, p.y + 0.65, p.z - 0.08);
       group.add(leftRefl);
 
-      const rightRefl = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.04), reflMat);
+      const rightRefl = new THREE.Mesh(this.sharedGeos.guardRefl, reflMat);
       rightRefl.position.set(p.x + railX - 0.08, p.y + 0.65, p.z - 0.08);
       group.add(rightRefl);
 
@@ -4207,7 +4295,7 @@ class RoadGenerator {
       if (chunk.endZ < despawnZ) {
         this.scene.remove(chunk.meshGroup);
         chunk.meshGroup.traverse((child) => {
-          if (child.isMesh) {
+          if (child.isMesh && child.geometry && !child.geometry.userData.isShared) {
             child.geometry.dispose();
           }
         });
@@ -4297,6 +4385,9 @@ class ScenerySpawner {
     this.geoRock = new THREE.DodecahedronGeometry(1.3, 1);
     this.geoPole = new THREE.CylinderGeometry(0.14, 0.18, 7.5, 6);
     this.geoCrossArm = new THREE.BoxGeometry(2.6, 0.2, 0.2);
+    [this.geoTrunk, this.geoPineCone, this.geoRock, this.geoPole, this.geoCrossArm].forEach((g) => {
+      if (g) g.userData.isShared = true;
+    });
 
     this.matTrunk = new THREE.MeshStandardMaterial({ color: 0x332219, roughness: 0.95 });
     this.matPine1 = new THREE.MeshStandardMaterial({ color: 0x16261b, roughness: 0.85 });
@@ -4373,6 +4464,32 @@ class ScenerySpawner {
     this.matAlpineScree = new THREE.MeshStandardMaterial({ color: 0x5e636d, roughness: 0.95 });
   }
 
+  setCollider(group, radius, type, isBreakable = false) {
+    if (!group) return group;
+    group.userData.collider = { radius, type, isBreakable, solid: true };
+    return group;
+  }
+
+  getNearbyColliders(playerZ, range = 24.0) {
+    const minZ = playerZ - 8.0;
+    const maxZ = playerZ + range;
+    const colliders = [];
+    for (let i = 0; i < this.props.length; i++) {
+      const prop = this.props[i];
+      if (prop.userData && prop.userData.collider && prop.userData.collider.solid) {
+        const pz = prop.position.z;
+        if (pz >= minZ && pz <= maxZ) {
+          colliders.push({
+            position: prop.position,
+            mesh: prop,
+            collider: prop.userData.collider
+          });
+        }
+      }
+    }
+    return colliders;
+  }
+
   update(playerZ) {
     const maxZ = playerZ + 230;
 
@@ -4392,12 +4509,17 @@ class ScenerySpawner {
       this.nextClusterZ += 24.0;
     }
 
-    // 3. Despawn props left behind
+    // 3. Despawn props left behind with clean WebGL buffer disposal
     const despawnZ = playerZ - 75;
     for (let i = this.props.length - 1; i >= 0; i--) {
       const prop = this.props[i];
       if (prop.position.z < despawnZ) {
         this.scene.remove(prop);
+        prop.traverse((child) => {
+          if (child.isMesh && child.geometry && !child.geometry.userData?.isShared) {
+            child.geometry.dispose();
+          }
+        });
         this.props.splice(i, 1);
       }
     }
@@ -4422,6 +4544,7 @@ class ScenerySpawner {
         z,
         `PK ${km}`
       );
+      this.setCollider(post, 0.45, 'milestone', true);
       this.scene.add(post);
       this.props.push(post);
     }
@@ -4458,6 +4581,7 @@ class ScenerySpawner {
           z,
           signType
         );
+        this.setCollider(signMesh, 0.55, 'sign', true);
         this.scene.add(signMesh);
         this.props.push(signMesh);
       }
@@ -4490,6 +4614,7 @@ class ScenerySpawner {
           z,
           lampSide
         );
+        this.setCollider(lamp, 0.65, 'pole', false);
         this.scene.add(lamp);
         this.props.push(lamp);
       }
@@ -4514,6 +4639,7 @@ class ScenerySpawner {
           z,
           poleSide
         );
+        this.setCollider(pole, 0.70, 'pole', false);
         this.scene.add(pole);
         this.props.push(pole);
       }
@@ -4532,6 +4658,7 @@ class ScenerySpawner {
             roadInfo.y,
             z
           );
+          this.setCollider(pole, 0.35, 'snowpole', true);
           this.scene.add(pole);
           this.props.push(pole);
         });
@@ -4551,9 +4678,9 @@ class ScenerySpawner {
     if (biome.id === 'mediterranean_coast') {
       // Zone 1: Rural dry stone walls & olive terraces
       if (relZ < 150) {
-        propsToSpawn.push(this.createDryStoneWall(roadInfo.x + halfW + 3.8, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createDryStoneWall(roadInfo.x + halfW + 3.8, roadInfo.y, z), 2.2, 'wall', false));
         if (Math.random() < 0.55) {
-          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 4.8, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createOliveTree(roadInfo.x - halfW - 4.8, roadInfo.y, z), 1.5, 'tree', false));
         }
       }
       // Zone 2 (180-260m): San Vito Harbor Coastal Fishery & Watchtower
@@ -4561,20 +4688,20 @@ class ScenerySpawner {
         const clusterKey = `harbor_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(clusterKey)) {
           this.spawnedMilestones.add(clusterKey);
-          propsToSpawn.push(this.createHarborFishery(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createHarborFishery(roadInfo.x - halfW - 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 3: Maritime umbrella pines & coastal guardrails
       else {
-        propsToSpawn.push(this.createMaritimePine(roadInfo.x + halfW + 6.0, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createMaritimePine(roadInfo.x + halfW + 6.0, roadInfo.y, z), 1.6, 'tree', false));
         if (Math.random() < 0.45) {
-          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 5.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createOliveTree(roadInfo.x - halfW - 5.5, roadInfo.y, z), 1.5, 'tree', false));
         }
       }
     } else if (biome.id === 'temperate_forest') {
       // Zone 1: Split-rail fences and clearings
       if (relZ < 140) {
-        propsToSpawn.push(this.createSplitRailFence(roadInfo.x + halfW + 4.2, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createSplitRailFence(roadInfo.x + halfW + 4.2, roadInfo.y, z), 1.4, 'fence', true));
         propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
       }
       // Zone 2 (180-260m): Valbruna Hydraulic Water Mill & Log Yard
@@ -4582,13 +4709,13 @@ class ScenerySpawner {
         const millKey = `mill_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(millKey)) {
           this.spawnedMilestones.add(millKey);
-          propsToSpawn.push(this.createWaterMill(roadInfo.x - halfW - 9.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createWaterMill(roadInfo.x - halfW - 9.0, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 3: Lush broadleaf stands of Deciduous Oaks & European Beeches
       else {
-        propsToSpawn.push(this.createDeciduousOak(roadInfo.x - halfW - 6.0, roadInfo.y, z));
-        propsToSpawn.push(this.createEuropeanBeech(roadInfo.x + halfW + 6.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createDeciduousOak(roadInfo.x - halfW - 6.0, roadInfo.y, z), 1.7, 'tree', false));
+        propsToSpawn.push(this.setCollider(this.createEuropeanBeech(roadInfo.x + halfW + 6.5, roadInfo.y, z), 1.6, 'tree', false));
       }
     } else if (biome.id === 'arid_desert') {
       // Zone 1 (180-260m): El Kantara Adobe Caravansary & Palm Oasis
@@ -4596,17 +4723,17 @@ class ScenerySpawner {
         const oasisKey = `oasis_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(oasisKey)) {
           this.spawnedMilestones.add(oasisKey);
-          propsToSpawn.push(this.createOasisCaravansary(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createOasisCaravansary(roadInfo.x - halfW - 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Sweeping sand dune ridges, date palms and sun-bleached wrecks
       else {
         propsToSpawn.push(this.createSandDuneRidge(roadInfo.x + halfW + 7.5, roadInfo.y, z, 1));
         if (Math.random() < 0.35) {
-          propsToSpawn.push(this.createDatePalm(roadInfo.x - halfW - 5.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createDatePalm(roadInfo.x - halfW - 5.5, roadInfo.y, z), 1.4, 'tree', false));
         }
         if (Math.random() < 0.25) {
-          propsToSpawn.push(this.createWreck(roadInfo.x - halfW - 4.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createWreck(roadInfo.x - halfW - 4.0, roadInfo.y, z), 2.4, 'wreck', false));
         }
       }
     } else if (biome.id === 'savanna_steppe') {
@@ -4615,14 +4742,14 @@ class ScenerySpawner {
         const rangerKey = `ranger_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(rangerKey)) {
           this.spawnedMilestones.add(rangerKey);
-          propsToSpawn.push(this.createRangerStation(roadInfo.x + halfW + 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createRangerStation(roadInfo.x + halfW + 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Flat-topped umbrella acacias, monumental baobabs & dry golden straw
       else {
-        propsToSpawn.push(this.createUmbrellaAcacia(roadInfo.x - halfW - 6.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createUmbrellaAcacia(roadInfo.x - halfW - 6.5, roadInfo.y, z), 1.6, 'tree', false));
         if (Math.random() < 0.35) {
-          propsToSpawn.push(this.createBaobabTree(roadInfo.x + halfW + 11.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createBaobabTree(roadInfo.x + halfW + 11.0, roadInfo.y, z), 2.8, 'tree', false));
         }
         propsToSpawn.push(this.createGrassTuft(roadInfo.x + halfW + 2.5, roadInfo.y, z));
       }
@@ -4632,13 +4759,13 @@ class ScenerySpawner {
         const labKey = `botanical_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(labKey)) {
           this.spawnedMilestones.add(labKey);
-          propsToSpawn.push(this.createBotanicalLab(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createBotanicalLab(roadInfo.x - halfW - 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Gigantic buttressed rainforest trees with multi-layered canopy & lianas
       else {
-        propsToSpawn.push(this.createRainforestGiant(roadInfo.x - halfW - 7.5, roadInfo.y, z));
-        propsToSpawn.push(this.createRainforestGiant(roadInfo.x + halfW + 7.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createRainforestGiant(roadInfo.x - halfW - 7.5, roadInfo.y, z), 2.6, 'tree', false));
+        propsToSpawn.push(this.setCollider(this.createRainforestGiant(roadInfo.x + halfW + 7.5, roadInfo.y, z), 2.6, 'tree', false));
         propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
       }
     } else if (biome.id === 'alpine_peaks') {
@@ -4647,15 +4774,15 @@ class ScenerySpawner {
         const passKey = `pass_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(passKey)) {
           this.spawnedMilestones.add(passKey);
-          propsToSpawn.push(this.createAvalancheTunnel(roadInfo.x, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createAvalancheTunnel(roadInfo.x, roadInfo.y, z), 2.2, 'wall', false));
         }
       }
       // Zone 2: Colossal dark granite canyon walls, jagged peaks & rockfall scree
       else {
-        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1));
-        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1));
+        propsToSpawn.push(this.setCollider(this.createAlpineGraniteWall(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1), 5.0, 'cliff', false));
+        propsToSpawn.push(this.setCollider(this.createAlpineGraniteWall(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1), 5.0, 'cliff', false));
         if (Math.random() < 0.4) {
-          propsToSpawn.push(this.createRock(roadInfo.x + halfW + 2.5, roadInfo.y, z, 1.8));
+          propsToSpawn.push(this.setCollider(this.createRock(roadInfo.x + halfW + 2.5, roadInfo.y, z, 1.8), 2.0, 'rock', false));
         }
       }
     } else if (biome.id === 'boreal_taiga') {
@@ -4664,13 +4791,13 @@ class ScenerySpawner {
         const outpostKey = `forester_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(outpostKey)) {
           this.spawnedMilestones.add(outpostKey);
-          propsToSpawn.push(this.createForesterOutpost(roadInfo.x + halfW + 11.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createForesterOutpost(roadInfo.x + halfW + 11.0, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Dense stands of black spruce and paper birch
       else {
         [-1, 1].forEach((side) => {
-          propsToSpawn.push(this.createForestStand(roadInfo.x + side * (halfW + 5.5), roadInfo.y, z, side));
+          propsToSpawn.push(this.setCollider(this.createForestStand(roadInfo.x + side * (halfW + 5.5), roadInfo.y, z, side), 2.4, 'tree', false));
         });
       }
     } else if (biome.id === 'polar_tundra') {
@@ -4679,13 +4806,13 @@ class ScenerySpawner {
         const polarKey = `polar_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(polarKey)) {
           this.spawnedMilestones.add(polarKey);
-          propsToSpawn.push(this.createArcticGeodesicDome(roadInfo.x + halfW + 10.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createArcticGeodesicDome(roadInfo.x + halfW + 10.0, roadInfo.y, z), 6.0, 'building', false));
         }
       }
       // Zone 2: Glacial ice spires & snow-blanketed conifers
       else {
-        propsToSpawn.push(this.createSnowCoveredPines(roadInfo.x - halfW - 6.0, roadInfo.y, z));
-        propsToSpawn.push(this.createGlacialIceSpire(roadInfo.x + halfW + 5.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createSnowCoveredPines(roadInfo.x - halfW - 6.0, roadInfo.y, z), 2.2, 'tree', false));
+        propsToSpawn.push(this.setCollider(this.createGlacialIceSpire(roadInfo.x + halfW + 5.5, roadInfo.y, z), 2.0, 'rock', false));
       }
     }
 
@@ -7535,11 +7662,16 @@ class LandscapeManager {
       }
     }
 
-    // 5. Clean up landmarks behind
+    // 5. Clean up landmarks behind with proper geometry disposal
     for (let i = this.landmarks.length - 1; i >= 0; i--) {
       const lm = this.landmarks[i];
       if (lm.meshGroup.position.z < playerZ - 80) {
         this.scene.remove(lm.meshGroup);
+        lm.meshGroup.traverse((child) => {
+          if (child.isMesh && child.geometry) {
+            child.geometry.dispose();
+          }
+        });
         this.landmarks.splice(i, 1);
       }
     }
@@ -7551,6 +7683,25 @@ class LandscapeManager {
         lm.rotor.rotation.z += delta * 0.45;
       }
     }
+  }
+
+  getNearbyColliders(playerZ, range = 35.0) {
+    const minZ = playerZ - 10.0;
+    const maxZ = playerZ + range;
+    const colliders = [];
+    for (let i = 0; i < this.landmarks.length; i++) {
+      const lm = this.landmarks[i];
+      if (lm.z >= minZ && lm.z <= maxZ && lm.meshGroup && lm.meshGroup.userData && lm.meshGroup.userData.colliders) {
+        lm.meshGroup.userData.colliders.forEach((c) => {
+          colliders.push({
+            position: { x: c.x, y: 0, z: c.z },
+            mesh: lm.meshGroup,
+            collider: { radius: c.radius, type: c.type, solid: true, isBreakable: false }
+          });
+        });
+      }
+    }
+    return colliders;
   }
 
   createSuspensionBridgeTower(z) {
@@ -7603,6 +7754,11 @@ class LandscapeManager {
       group.add(cableLine);
     });
 
+    group.userData.colliders = [
+      { x: roadInfo.x - 14.5, z: z, radius: 1.8, type: 'structure' },
+      { x: roadInfo.x + 14.5, z: z, radius: 1.8, type: 'structure' }
+    ];
+
     return group;
   }
 
@@ -7643,6 +7799,10 @@ class LandscapeManager {
     cyanGlow.position.set(0, 2.5, 9);
     group.add(cyanGlow);
 
+    group.userData.colliders = [
+      { x: 16.0, z: z, radius: 6.5, type: 'building' }
+    ];
+
     return group;
   }
 
@@ -7679,6 +7839,11 @@ class LandscapeManager {
       group.add(pier);
     });
 
+    group.userData.colliders = [
+      { x: roadInfo.x - 14.2, z: z, radius: 1.8, type: 'structure' },
+      { x: roadInfo.x + 14.2, z: z, radius: 1.8, type: 'structure' }
+    ];
+
     return group;
   }
 
@@ -7710,6 +7875,10 @@ class LandscapeManager {
     subAntenna.position.set(0, 20.5, 3.5);
     subAntenna.rotation.x = -Math.PI / 3;
     group.add(subAntenna);
+
+    group.userData.colliders = [
+      { x: -32, z: z, radius: 5.5, type: 'structure' }
+    ];
 
     return group;
   }
@@ -7765,6 +7934,10 @@ class LandscapeManager {
     }
 
     group.add(rotorGroup);
+
+    group.userData.colliders = [
+      { x: side * 42, z: z, radius: 3.0, type: 'structure' }
+    ];
 
     return { group: group, rotor: rotorGroup };
   }
@@ -7857,6 +8030,11 @@ class LandscapeManager {
     flood.target.position.set(0, 0, 0);
     group.add(flood);
     group.add(flood.target);
+
+    group.userData.colliders = [
+      { x: roadInfo.x - 13.8, z: z, radius: 1.0, type: 'pole' },
+      { x: roadInfo.x + 13.8, z: z, radius: 1.0, type: 'pole' }
+    ];
 
     return group;
   }
@@ -9218,15 +9396,14 @@ class Vehicle {
     // dv/dt = (Fy_total / m) - u * r
     // dr/dt = Mz_total / Iz
     const dv_dt = (Fy_total / mass) - this.forwardSpeed * this.yawRate;
+    const v_dyn = this.lateralSpeed + dv_dt * delta;
     const dr_dt = Mz_total / yawInertia;
 
-    const v_dyn = THREE.MathUtils.clamp(this.lateralSpeed + dv_dt * delta, -12.0, 12.0);
     const r_dyn = this.yawRate + dr_dt * delta;
 
-    // Smooth blending between low-speed Kinematic Ackermann and high-speed Dynamic 2-DOF
+    // Smooth blending between low-speed Kinematic Ackermann and high-speed Dynamic 2-DOF yaw
     const blendDyn = THREE.MathUtils.clamp((speedAbs - 0.4) / 1.8, 0.0, 1.0);
     this.yawRate = THREE.MathUtils.lerp(r_kin, r_dyn, blendDyn);
-    this.lateralSpeed = THREE.MathUtils.lerp(v_kin, v_dyn, blendDyn);
 
     const maxRotSpeed = THREE.MathUtils.lerp(1.65, 0.72, Math.min(1.0, speedKmh / 120.0));
     this.yawRate = THREE.MathUtils.clamp(this.yawRate, -maxRotSpeed, maxRotSpeed);
@@ -9234,9 +9411,37 @@ class Vehicle {
 
     // Natural caster self-centering torque: returns rack to straight-ahead when hands off
     if (Math.abs(rawSteerTarget) < 0.02) {
-      this.yawRate *= Math.max(0.65, 1.0 - delta * 4.0);
-      this.lateralSpeed *= Math.max(0.65, 1.0 - delta * 4.5);
+      this.yawRate *= Math.max(0.60, 1.0 - delta * 6.5);
     }
+
+    // ==========================================
+    // AUTHENTIC TIRE LATERAL SCRUB & TRAJECTORY TRACKING
+    // ==========================================
+    // Real automotive tires rolling along road have massive lateral scrub resistance:
+    // Tires track along the wheel heading, rapidly extinguishing pure sideways sliding.
+    const isHandbrake = !!input.handbrake;
+    const isOffroad = absDist > pavedHalfW;
+
+    // Base tire scrub damping rate:
+    // - On grip surfaces without handbrake: slide decays in < 0.15s (damping ~18-24)
+    // - Handbrake engaged: breaks rear adhesion to allow controlled rally slide (damping ~3.5)
+    // - Off-road: tires plow into soil/gravel/snow, stopping sideways sliding even faster (1.6x)
+    let lateralScrubRate = isHandbrake ? 3.5 : (18.0 * Math.max(0.40, mu));
+    if (isOffroad && !isHandbrake) {
+      lateralScrubRate *= 1.6; // Soft soil opposes lateral skidding
+    }
+    if (Math.abs(rawSteerTarget) < 0.02 && !isHandbrake) {
+      lateralScrubRate = Math.max(lateralScrubRate, 24.0);
+    }
+
+    // Target lateral velocity: rolling Ackermann trajectory v_kin when gripping, 0 when straight
+    const targetLateral = isHandbrake ? (v_dyn * 0.7 + v_kin * 0.3) : ((Math.abs(rawSteerTarget) < 0.015) ? 0.0 : v_kin);
+    this.lateralSpeed = THREE.MathUtils.damp(this.lateralSpeed, targetLateral, lateralScrubRate, delta);
+
+    // Physically coherent slip velocity ceiling:
+    // Normal cornering slip is small (~10-12 deg), handbrake slide ~40 deg
+    const maxSlipSpeed = Math.max(0.6, speedAbs * (isHandbrake ? 0.70 : 0.18));
+    this.lateralSpeed = THREE.MathUtils.clamp(this.lateralSpeed, -maxSlipSpeed, maxSlipSpeed);
 
     // Longitudinal acceleration update (ALWAYS integrated across all speed regimes)
     const du_dt = (Fx_front * cosDelta + Fx_rear - Fy_front * sinDelta - F_rolling) / mass + this.lateralSpeed * this.yawRate;
@@ -9633,7 +9838,7 @@ class Hazards {
     });
   }
 
-  update(playerZ, vehicle, playerFoot, delta, malfunctionManager = null, renderer = null) {
+  update(playerZ, vehicle, playerFoot, delta, malfunctionManager = null, renderer = null, scenerySpawner = null, landscapeManager = null) {
     // 1. Spawning
     const maxZ = playerZ + 220;
     while (this.nextHazardZ < maxZ) {
@@ -9641,7 +9846,7 @@ class Hazards {
       this.nextHazardZ += this.spawnInterval + (Math.random() * 30 - 10);
     }
 
-    // 2. Collision Detection & Physics Resolution
+    // 2. Highway Lane Hazard Collision Detection & Physics Resolution
     for (let i = this.hazardList.length - 1; i >= 0; i--) {
       const h = this.hazardList[i];
 
@@ -9673,6 +9878,31 @@ class Hazards {
       if (h.position.z < playerZ - 60) {
         this.scene.remove(h.mesh);
         this.hazardList.splice(i, 1);
+      }
+    }
+
+    // 3. Roadside Environment & Off-Road Props Collision Resolution
+    const nearbyObstacles = [];
+    if (scenerySpawner && typeof scenerySpawner.getNearbyColliders === 'function') {
+      nearbyObstacles.push(...scenerySpawner.getNearbyColliders(playerZ, 28.0));
+    }
+    if (landscapeManager && typeof landscapeManager.getNearbyColliders === 'function') {
+      nearbyObstacles.push(...landscapeManager.getNearbyColliders(playerZ, 32.0));
+    }
+
+    const carRadius = vehicle.modelDims ? Math.max(vehicle.modelDims.width * 0.48, 0.95) : 1.0;
+    for (let i = 0; i < nearbyObstacles.length; i++) {
+      const obs = nearbyObstacles[i];
+      const col = obs.collider;
+      if (!col || !col.solid) continue;
+
+      const dx = vehicle.position.x - obs.position.x;
+      const dz = vehicle.position.z - obs.position.z;
+      const dist = Math.hypot(dx, dz);
+      const contactRadius = (col.radius || 1.2) + carRadius;
+
+      if (dist < contactRadius) {
+        this.resolveSolidObstacleCollision(obs, vehicle, dist, contactRadius, dx, dz, delta, malfunctionManager, renderer);
       }
     }
   }
@@ -10026,6 +10256,143 @@ class Hazards {
       hazard.position.x += shoveDir * 1.8;
       hazard.mesh.position.x = hazard.position.x;
       hazard.mesh.rotation.y += 0.4;
+    }
+  }
+
+  resolveSolidObstacleCollision(obs, vehicle, dist, contactRadius, dx, dz, delta, malfunctionManager, renderer) {
+    const col = obs.collider;
+    if (!col || !col.solid) return;
+
+    if (obs.hitCooldown && obs.hitCooldown > 0) {
+      obs.hitCooldown -= delta;
+      return;
+    }
+
+    let nx = dx / (dist || 0.001);
+    let nz = dz / (dist || 0.001);
+
+    // 1. OVERLAP PENETRATION RESOLUTION (Separation)
+    const overlap = Math.max(0.04, contactRadius - dist);
+    vehicle.position.x += nx * overlap;
+    vehicle.position.z += nz * overlap;
+
+    const psi = vehicle.rotation ? vehicle.rotation.y : 0;
+    const sinPsi = Math.sin(psi);
+    const cosPsi = Math.cos(psi);
+
+    // Current world velocities before impact
+    const Vx = vehicle.forwardSpeed * sinPsi + vehicle.lateralSpeed * cosPsi;
+    const Vz = vehicle.forwardSpeed * cosPsi - vehicle.lateralSpeed * sinPsi;
+    const speedTotal = Math.hypot(Vx, Vz);
+    const speedKmh = speedTotal * 3.6;
+
+    // Normal velocity: closing velocity towards the obstacle (negative means moving INTO obstacle)
+    const Vn = Vx * nx + Vz * nz;
+
+    // Tangential unit vector and velocity
+    const tx = -nz;
+    const tz = nx;
+    const Vt = Vx * tx + Vz * tz;
+
+    const contactPoint = new THREE.Vector3(
+      obs.position.x + nx * (col.radius || 1.0),
+      vehicle.position.y + 0.35,
+      obs.position.z + nz * (col.radius || 1.0)
+    );
+
+    // Only process dynamic collision if car was closing into obstacle
+    if (Vn < 0) {
+      obs.hitCooldown = 0.25;
+
+      // Case A: BREAKABLE ROADSIDE OBJECT (Wooden fence, snow marker pole, milestone post)
+      const hasBullbar = !!(vehicle.upgrades.heavy_bullbar || vehicle.upgrades.bullbar);
+      if (col.isBreakable && (speedKmh > 16.0 || hasBullbar)) {
+        col.solid = false;
+        if (obs.mesh) {
+          obs.mesh.position.y -= 0.55;
+          obs.mesh.rotation.x += (Math.random() - 0.5) * 0.9;
+          obs.mesh.rotation.z += (Math.random() - 0.5) * 0.9;
+        }
+
+        const breakDamage = Math.round(1 + speedTotal * 0.25);
+        vehicle.takeDamage(hasBullbar ? 0 : breakDamage);
+        vehicle.forwardSpeed = Math.max(2.5, vehicle.forwardSpeed * 0.88);
+
+        this.cameraController.addTrauma(0.25);
+        this.audioEngine.playImpact(0.45);
+
+        if (renderer) {
+          const debrisType = col.type === 'fence' ? 'wood' : (col.type === 'milestone' ? 'rock' : 'wood');
+          renderer.emitImpactDebris(contactPoint, debrisType, 16);
+          renderer.emitImpactSparks(contactPoint, 8);
+        }
+        return;
+      }
+
+      // Case B: SOLID RIGID OBSTACLE (Trees, Granite Walls, Rocks, Steel Utility Poles, Streetlamps, Buildings, Bridge Pylons, Wrecks)
+      const impactSeverity = Math.abs(Vn);
+
+      // Rebound Restitution (e = 0.24) and Tangential Friction (sliding along obstacle with drag)
+      const restitution = 0.24;
+      const tangentialFriction = 0.58;
+      const Vn_new = impactSeverity * restitution;
+      const Vt_new = Vt * tangentialFriction;
+
+      // New world velocity vector after rebound
+      const Vx_new = Vn_new * nx + Vt_new * tx;
+      const Vz_new = Vn_new * nz + Vt_new * tz;
+
+      // Project new world velocity back into vehicle local coordinate frame:
+      const u_new = Vx_new * sinPsi + Vz_new * cosPsi;
+      const v_new = Vx_new * cosPsi - Vz_new * sinPsi;
+
+      // Preserve rolling direction, damp velocity
+      vehicle.forwardSpeed = u_new;
+      vehicle.lateralSpeed = THREE.MathUtils.clamp(v_new, -3.5, 3.5);
+
+      // Rotational Torque Deflection:
+      const localAngle = Math.atan2(nx, nz) - psi;
+      const deflectSign = Math.sign(Math.sin(localAngle)) || (Math.random() < 0.5 ? 1 : -1);
+      vehicle.yawRate += deflectSign * THREE.MathUtils.clamp(impactSeverity * 0.22, 0.4, 2.5);
+
+      // Suspension Dynamic Shock (pitch dive / roll heave)
+      vehicle.impactShockPitch = -Math.sign(vehicle.forwardSpeed || 1) * Math.min(0.24, impactSeverity * 0.022);
+      vehicle.impactShockRoll = -deflectSign * Math.min(0.28, impactSeverity * 0.026);
+
+      // Physical Damage with Bullbar Armor Attenuation
+      const baseDmg = 8 + impactSeverity * 2.8;
+      let armorFactor = 1.0;
+      if (vehicle.upgrades.heavy_bullbar) armorFactor = 0.22;
+      else if (vehicle.upgrades.bullbar) armorFactor = 0.48;
+      vehicle.takeDamage(Math.round(baseDmg * armorFactor));
+
+      // Audio & Camera Trauma
+      this.cameraController.addTrauma(Math.min(1.0, 0.35 + impactSeverity * 0.06));
+      this.audioEngine.playImpact(Math.min(1.0, 0.55 + impactSeverity * 0.05));
+      this.audioEngine.playSuspensionThump(0.65);
+
+      // Visual Particles (Debris & High-Energy Sparks)
+      if (renderer) {
+        let debrisType = 'wood';
+        if (col.type === 'rock' || col.type === 'cliff' || col.type === 'wall' || col.type === 'milestone') {
+          debrisType = 'rock';
+        } else if (col.type === 'pole' || col.type === 'structure' || col.type === 'wreck' || col.type === 'barrier') {
+          debrisType = 'sparks';
+        }
+        renderer.emitImpactDebris(contactPoint, debrisType, 22);
+        renderer.emitImpactSparks(contactPoint, 18);
+      }
+
+      // Malfunction Risks
+      if (malfunctionManager && impactSeverity > 7.0 && !vehicle.upgrades.heavy_bullbar) {
+        if (!vehicle.upgrades.skid_plate && Math.random() < 0.35) {
+          malfunctionManager.triggerFault('flat_tire');
+        }
+        if (impactSeverity > 11.0 && Math.random() < 0.30) {
+          malfunctionManager.triggerFault('radiator_leak');
+          if (renderer) renderer.emitImpactDebris(vehicle.position, 'steam', 18);
+        }
+      }
     }
   }
 }
@@ -15939,8 +16306,12 @@ class Game {
     requestAnimationFrame((t) => this.loop(t));
 
     try {
-      const delta = Math.min((currentTime - this.lastTime) / 1000, 0.1);
+      if (!this.lastTime) this.lastTime = currentTime;
+      const rawDelta = Math.min(Math.max((currentTime - this.lastTime) / 1000, 0.001), 0.065);
       this.lastTime = currentTime;
+      // Exponential moving average filter for delta time to eliminate physics micro-jitter
+      this.smoothedDelta = this.smoothedDelta ? (this.smoothedDelta * 0.72 + rawDelta * 0.28) : rawDelta;
+      const delta = this.smoothedDelta;
 
       // 1. Process Input
       this.touchInput.update();
@@ -15967,15 +16338,16 @@ class Game {
       // Update Malfunctions
       this.malfunctionManager.update(delta, this.touchInput, this.renderer);
 
-      // 5. Update Hazards & Collisions
-      this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer);
-
-      // 6. Update World Systems & Landscapes
+      // 5. Update World Systems & Landscapes ahead of collisions
       this.biomeManager.update(activePos.z);
       this.roadGenerator.update(activePos.z);
       this.scenerySpawner.update(activePos.z);
-      this.poiManager.update(activePos);
       this.landscapeManager.update(activePos.z, delta, this.biomeManager.currentBiome);
+
+      // 6. Update Hazards & Physical Roadside Collisions
+      this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer, this.scenerySpawner, this.landscapeManager);
+
+      this.poiManager.update(activePos);
       this.weatherDirector.update(delta, activePos.z, this.roadGenerator);
       this.upgradeSystem.update(activePos.z);
       this.storyDirector.update(delta);

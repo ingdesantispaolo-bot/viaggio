@@ -320,8 +320,12 @@ export class Game {
     requestAnimationFrame((t) => this.loop(t));
 
     try {
-      const delta = Math.min((currentTime - this.lastTime) / 1000, 0.1);
+      if (!this.lastTime) this.lastTime = currentTime;
+      const rawDelta = Math.min(Math.max((currentTime - this.lastTime) / 1000, 0.001), 0.065);
       this.lastTime = currentTime;
+      // Exponential moving average filter for delta time to eliminate physics micro-jitter
+      this.smoothedDelta = this.smoothedDelta ? (this.smoothedDelta * 0.72 + rawDelta * 0.28) : rawDelta;
+      const delta = this.smoothedDelta;
 
       // 1. Process Input
       this.touchInput.update();
@@ -348,15 +352,16 @@ export class Game {
       // Update Malfunctions
       this.malfunctionManager.update(delta, this.touchInput, this.renderer);
 
-      // 5. Update Hazards & Collisions
-      this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer);
-
-      // 6. Update World Systems & Landscapes
+      // 5. Update World Systems & Landscapes ahead of collisions
       this.biomeManager.update(activePos.z);
       this.roadGenerator.update(activePos.z);
       this.scenerySpawner.update(activePos.z);
-      this.poiManager.update(activePos);
       this.landscapeManager.update(activePos.z, delta, this.biomeManager.currentBiome);
+
+      // 6. Update Hazards & Physical Roadside Collisions
+      this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer, this.scenerySpawner, this.landscapeManager);
+
+      this.poiManager.update(activePos);
       this.weatherDirector.update(delta, activePos.z, this.roadGenerator);
       this.upgradeSystem.update(activePos.z);
       this.storyDirector.update(delta);

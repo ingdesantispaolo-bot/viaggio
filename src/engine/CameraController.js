@@ -104,10 +104,16 @@ export class CameraController {
       this.shakeOffset.set(0, 0, 0);
     }
 
-    // Smooth position and look-at interpolation
-    const lerpFactor = Math.min(1.0, delta * this.posDamping);
-    this.currentPos.lerp(desiredPos, lerpFactor);
-    this.currentLookAt.lerp(desiredLookAt, lerpFactor * 1.2);
+    // Smooth position and look-at interpolation using directional damping:
+    // Tight longitudinal Z tracking eliminates forward/backward rubber-banding stutter,
+    // while smooth lateral X and vertical Y damping provide cinematic sweeping on turns and bumps.
+    this.currentPos.z = THREE.MathUtils.damp(this.currentPos.z, desiredPos.z, 22.0, delta);
+    this.currentPos.x = THREE.MathUtils.damp(this.currentPos.x, desiredPos.x, this.posDamping, delta);
+    this.currentPos.y = THREE.MathUtils.damp(this.currentPos.y, desiredPos.y, this.posDamping * 1.2, delta);
+
+    this.currentLookAt.z = THREE.MathUtils.damp(this.currentLookAt.z, desiredLookAt.z, 22.0, delta);
+    this.currentLookAt.x = THREE.MathUtils.damp(this.currentLookAt.x, desiredLookAt.x, this.posDamping * 1.2, delta);
+    this.currentLookAt.y = THREE.MathUtils.damp(this.currentLookAt.y, desiredLookAt.y, this.posDamping * 1.4, delta);
 
     // Safety safeguard: never let camera be more than 40m away horizontally from player
     const distToTarget = Math.hypot(this.currentPos.x - targetPos.x, this.currentPos.z - targetPos.z);

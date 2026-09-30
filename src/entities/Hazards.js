@@ -82,7 +82,7 @@ export class Hazards {
     });
   }
 
-  update(playerZ, vehicle, playerFoot, delta, malfunctionManager = null, renderer = null) {
+  update(playerZ, vehicle, playerFoot, delta, malfunctionManager = null, renderer = null, scenerySpawner = null, landscapeManager = null) {
     // 1. Spawning
     const maxZ = playerZ + 220;
     while (this.nextHazardZ < maxZ) {
@@ -90,7 +90,7 @@ export class Hazards {
       this.nextHazardZ += this.spawnInterval + (Math.random() * 30 - 10);
     }
 
-    // 2. Collision Detection & Physics Resolution
+    // 2. Highway Lane Hazard Collision Detection & Physics Resolution
     for (let i = this.hazardList.length - 1; i >= 0; i--) {
       const h = this.hazardList[i];
 
@@ -122,6 +122,31 @@ export class Hazards {
       if (h.position.z < playerZ - 60) {
         this.scene.remove(h.mesh);
         this.hazardList.splice(i, 1);
+      }
+    }
+
+    // 3. Roadside Environment & Off-Road Props Collision Resolution
+    const nearbyObstacles = [];
+    if (scenerySpawner && typeof scenerySpawner.getNearbyColliders === 'function') {
+      nearbyObstacles.push(...scenerySpawner.getNearbyColliders(playerZ, 28.0));
+    }
+    if (landscapeManager && typeof landscapeManager.getNearbyColliders === 'function') {
+      nearbyObstacles.push(...landscapeManager.getNearbyColliders(playerZ, 32.0));
+    }
+
+    const carRadius = vehicle.modelDims ? Math.max(vehicle.modelDims.width * 0.48, 0.95) : 1.0;
+    for (let i = 0; i < nearbyObstacles.length; i++) {
+      const obs = nearbyObstacles[i];
+      const col = obs.collider;
+      if (!col || !col.solid) continue;
+
+      const dx = vehicle.position.x - obs.position.x;
+      const dz = vehicle.position.z - obs.position.z;
+      const dist = Math.hypot(dx, dz);
+      const contactRadius = (col.radius || 1.2) + carRadius;
+
+      if (dist < contactRadius) {
+        this.resolveSolidObstacleCollision(obs, vehicle, dist, contactRadius, dx, dz, delta, malfunctionManager, renderer);
       }
     }
   }
@@ -475,6 +500,143 @@ export class Hazards {
       hazard.position.x += shoveDir * 1.8;
       hazard.mesh.position.x = hazard.position.x;
       hazard.mesh.rotation.y += 0.4;
+    }
+  }
+
+  resolveSolidObstacleCollision(obs, vehicle, dist, contactRadius, dx, dz, delta, malfunctionManager, renderer) {
+    const col = obs.collider;
+    if (!col || !col.solid) return;
+
+    if (obs.hitCooldown && obs.hitCooldown > 0) {
+      obs.hitCooldown -= delta;
+      return;
+    }
+
+    let nx = dx / (dist || 0.001);
+    let nz = dz / (dist || 0.001);
+
+    // 1. OVERLAP PENETRATION RESOLUTION (Separation)
+    const overlap = Math.max(0.04, contactRadius - dist);
+    vehicle.position.x += nx * overlap;
+    vehicle.position.z += nz * overlap;
+
+    const psi = vehicle.rotation ? vehicle.rotation.y : 0;
+    const sinPsi = Math.sin(psi);
+    const cosPsi = Math.cos(psi);
+
+    // Current world velocities before impact
+    const Vx = vehicle.forwardSpeed * sinPsi + vehicle.lateralSpeed * cosPsi;
+    const Vz = vehicle.forwardSpeed * cosPsi - vehicle.lateralSpeed * sinPsi;
+    const speedTotal = Math.hypot(Vx, Vz);
+    const speedKmh = speedTotal * 3.6;
+
+    // Normal velocity: closing velocity towards the obstacle (negative means moving INTO obstacle)
+    const Vn = Vx * nx + Vz * nz;
+
+    // Tangential unit vector and velocity
+    const tx = -nz;
+    const tz = nx;
+    const Vt = Vx * tx + Vz * tz;
+
+    const contactPoint = new THREE.Vector3(
+      obs.position.x + nx * (col.radius || 1.0),
+      vehicle.position.y + 0.35,
+      obs.position.z + nz * (col.radius || 1.0)
+    );
+
+    // Only process dynamic collision if car was closing into obstacle
+    if (Vn < 0) {
+      obs.hitCooldown = 0.25;
+
+      // Case A: BREAKABLE ROADSIDE OBJECT (Wooden fence, snow marker pole, milestone post)
+      const hasBullbar = !!(vehicle.upgrades.heavy_bullbar || vehicle.upgrades.bullbar);
+      if (col.isBreakable && (speedKmh > 16.0 || hasBullbar)) {
+        col.solid = false;
+        if (obs.mesh) {
+          obs.mesh.position.y -= 0.55;
+          obs.mesh.rotation.x += (Math.random() - 0.5) * 0.9;
+          obs.mesh.rotation.z += (Math.random() - 0.5) * 0.9;
+        }
+
+        const breakDamage = Math.round(1 + speedTotal * 0.25);
+        vehicle.takeDamage(hasBullbar ? 0 : breakDamage);
+        vehicle.forwardSpeed = Math.max(2.5, vehicle.forwardSpeed * 0.88);
+
+        this.cameraController.addTrauma(0.25);
+        this.audioEngine.playImpact(0.45);
+
+        if (renderer) {
+          const debrisType = col.type === 'fence' ? 'wood' : (col.type === 'milestone' ? 'rock' : 'wood');
+          renderer.emitImpactDebris(contactPoint, debrisType, 16);
+          renderer.emitImpactSparks(contactPoint, 8);
+        }
+        return;
+      }
+
+      // Case B: SOLID RIGID OBSTACLE (Trees, Granite Walls, Rocks, Steel Utility Poles, Streetlamps, Buildings, Bridge Pylons, Wrecks)
+      const impactSeverity = Math.abs(Vn);
+
+      // Rebound Restitution (e = 0.24) and Tangential Friction (sliding along obstacle with drag)
+      const restitution = 0.24;
+      const tangentialFriction = 0.58;
+      const Vn_new = impactSeverity * restitution;
+      const Vt_new = Vt * tangentialFriction;
+
+      // New world velocity vector after rebound
+      const Vx_new = Vn_new * nx + Vt_new * tx;
+      const Vz_new = Vn_new * nz + Vt_new * tz;
+
+      // Project new world velocity back into vehicle local coordinate frame:
+      const u_new = Vx_new * sinPsi + Vz_new * cosPsi;
+      const v_new = Vx_new * cosPsi - Vz_new * sinPsi;
+
+      // Preserve rolling direction, damp velocity
+      vehicle.forwardSpeed = u_new;
+      vehicle.lateralSpeed = THREE.MathUtils.clamp(v_new, -3.5, 3.5);
+
+      // Rotational Torque Deflection:
+      const localAngle = Math.atan2(nx, nz) - psi;
+      const deflectSign = Math.sign(Math.sin(localAngle)) || (Math.random() < 0.5 ? 1 : -1);
+      vehicle.yawRate += deflectSign * THREE.MathUtils.clamp(impactSeverity * 0.22, 0.4, 2.5);
+
+      // Suspension Dynamic Shock (pitch dive / roll heave)
+      vehicle.impactShockPitch = -Math.sign(vehicle.forwardSpeed || 1) * Math.min(0.24, impactSeverity * 0.022);
+      vehicle.impactShockRoll = -deflectSign * Math.min(0.28, impactSeverity * 0.026);
+
+      // Physical Damage with Bullbar Armor Attenuation
+      const baseDmg = 8 + impactSeverity * 2.8;
+      let armorFactor = 1.0;
+      if (vehicle.upgrades.heavy_bullbar) armorFactor = 0.22;
+      else if (vehicle.upgrades.bullbar) armorFactor = 0.48;
+      vehicle.takeDamage(Math.round(baseDmg * armorFactor));
+
+      // Audio & Camera Trauma
+      this.cameraController.addTrauma(Math.min(1.0, 0.35 + impactSeverity * 0.06));
+      this.audioEngine.playImpact(Math.min(1.0, 0.55 + impactSeverity * 0.05));
+      this.audioEngine.playSuspensionThump(0.65);
+
+      // Visual Particles (Debris & High-Energy Sparks)
+      if (renderer) {
+        let debrisType = 'wood';
+        if (col.type === 'rock' || col.type === 'cliff' || col.type === 'wall' || col.type === 'milestone') {
+          debrisType = 'rock';
+        } else if (col.type === 'pole' || col.type === 'structure' || col.type === 'wreck' || col.type === 'barrier') {
+          debrisType = 'sparks';
+        }
+        renderer.emitImpactDebris(contactPoint, debrisType, 22);
+        renderer.emitImpactSparks(contactPoint, 18);
+      }
+
+      // Malfunction Risks
+      if (malfunctionManager && impactSeverity > 7.0 && !vehicle.upgrades.heavy_bullbar) {
+        if (!vehicle.upgrades.skid_plate && Math.random() < 0.35) {
+          malfunctionManager.triggerFault('flat_tire');
+        }
+        if (impactSeverity > 11.0 && Math.random() < 0.30) {
+          malfunctionManager.triggerFault('radiator_leak');
+          if (renderer) renderer.emitImpactDebris(vehicle.position, 'steam', 18);
+        }
+      }
     }
   }
 }

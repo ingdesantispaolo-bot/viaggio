@@ -260,11 +260,16 @@ export class LandscapeManager {
       }
     }
 
-    // 5. Clean up landmarks behind
+    // 5. Clean up landmarks behind with proper geometry disposal
     for (let i = this.landmarks.length - 1; i >= 0; i--) {
       const lm = this.landmarks[i];
       if (lm.meshGroup.position.z < playerZ - 80) {
         this.scene.remove(lm.meshGroup);
+        lm.meshGroup.traverse((child) => {
+          if (child.isMesh && child.geometry) {
+            child.geometry.dispose();
+          }
+        });
         this.landmarks.splice(i, 1);
       }
     }
@@ -276,6 +281,25 @@ export class LandscapeManager {
         lm.rotor.rotation.z += delta * 0.45;
       }
     }
+  }
+
+  getNearbyColliders(playerZ, range = 35.0) {
+    const minZ = playerZ - 10.0;
+    const maxZ = playerZ + range;
+    const colliders = [];
+    for (let i = 0; i < this.landmarks.length; i++) {
+      const lm = this.landmarks[i];
+      if (lm.z >= minZ && lm.z <= maxZ && lm.meshGroup && lm.meshGroup.userData && lm.meshGroup.userData.colliders) {
+        lm.meshGroup.userData.colliders.forEach((c) => {
+          colliders.push({
+            position: { x: c.x, y: 0, z: c.z },
+            mesh: lm.meshGroup,
+            collider: { radius: c.radius, type: c.type, solid: true, isBreakable: false }
+          });
+        });
+      }
+    }
+    return colliders;
   }
 
   createSuspensionBridgeTower(z) {
@@ -328,6 +352,11 @@ export class LandscapeManager {
       group.add(cableLine);
     });
 
+    group.userData.colliders = [
+      { x: roadInfo.x - 14.5, z: z, radius: 1.8, type: 'structure' },
+      { x: roadInfo.x + 14.5, z: z, radius: 1.8, type: 'structure' }
+    ];
+
     return group;
   }
 
@@ -368,6 +397,10 @@ export class LandscapeManager {
     cyanGlow.position.set(0, 2.5, 9);
     group.add(cyanGlow);
 
+    group.userData.colliders = [
+      { x: 16.0, z: z, radius: 6.5, type: 'building' }
+    ];
+
     return group;
   }
 
@@ -404,6 +437,11 @@ export class LandscapeManager {
       group.add(pier);
     });
 
+    group.userData.colliders = [
+      { x: roadInfo.x - 14.2, z: z, radius: 1.8, type: 'structure' },
+      { x: roadInfo.x + 14.2, z: z, radius: 1.8, type: 'structure' }
+    ];
+
     return group;
   }
 
@@ -435,6 +473,10 @@ export class LandscapeManager {
     subAntenna.position.set(0, 20.5, 3.5);
     subAntenna.rotation.x = -Math.PI / 3;
     group.add(subAntenna);
+
+    group.userData.colliders = [
+      { x: -32, z: z, radius: 5.5, type: 'structure' }
+    ];
 
     return group;
   }
@@ -490,6 +532,10 @@ export class LandscapeManager {
     }
 
     group.add(rotorGroup);
+
+    group.userData.colliders = [
+      { x: side * 42, z: z, radius: 3.0, type: 'structure' }
+    ];
 
     return { group: group, rotor: rotorGroup };
   }
@@ -582,6 +628,11 @@ export class LandscapeManager {
     flood.target.position.set(0, 0, 0);
     group.add(flood);
     group.add(flood.target);
+
+    group.userData.colliders = [
+      { x: roadInfo.x - 13.8, z: z, radius: 1.0, type: 'pole' },
+      { x: roadInfo.x + 13.8, z: z, radius: 1.0, type: 'pole' }
+    ];
 
     return group;
   }

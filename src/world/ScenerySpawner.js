@@ -24,6 +24,9 @@ export class ScenerySpawner {
     this.geoRock = new THREE.DodecahedronGeometry(1.3, 1);
     this.geoPole = new THREE.CylinderGeometry(0.14, 0.18, 7.5, 6);
     this.geoCrossArm = new THREE.BoxGeometry(2.6, 0.2, 0.2);
+    [this.geoTrunk, this.geoPineCone, this.geoRock, this.geoPole, this.geoCrossArm].forEach((g) => {
+      if (g) g.userData.isShared = true;
+    });
 
     this.matTrunk = new THREE.MeshStandardMaterial({ color: 0x332219, roughness: 0.95 });
     this.matPine1 = new THREE.MeshStandardMaterial({ color: 0x16261b, roughness: 0.85 });
@@ -100,6 +103,32 @@ export class ScenerySpawner {
     this.matAlpineScree = new THREE.MeshStandardMaterial({ color: 0x5e636d, roughness: 0.95 });
   }
 
+  setCollider(group, radius, type, isBreakable = false) {
+    if (!group) return group;
+    group.userData.collider = { radius, type, isBreakable, solid: true };
+    return group;
+  }
+
+  getNearbyColliders(playerZ, range = 24.0) {
+    const minZ = playerZ - 8.0;
+    const maxZ = playerZ + range;
+    const colliders = [];
+    for (let i = 0; i < this.props.length; i++) {
+      const prop = this.props[i];
+      if (prop.userData && prop.userData.collider && prop.userData.collider.solid) {
+        const pz = prop.position.z;
+        if (pz >= minZ && pz <= maxZ) {
+          colliders.push({
+            position: prop.position,
+            mesh: prop,
+            collider: prop.userData.collider
+          });
+        }
+      }
+    }
+    return colliders;
+  }
+
   update(playerZ) {
     const maxZ = playerZ + 230;
 
@@ -119,12 +148,17 @@ export class ScenerySpawner {
       this.nextClusterZ += 24.0;
     }
 
-    // 3. Despawn props left behind
+    // 3. Despawn props left behind with clean WebGL buffer disposal
     const despawnZ = playerZ - 75;
     for (let i = this.props.length - 1; i >= 0; i--) {
       const prop = this.props[i];
       if (prop.position.z < despawnZ) {
         this.scene.remove(prop);
+        prop.traverse((child) => {
+          if (child.isMesh && child.geometry && !child.geometry.userData?.isShared) {
+            child.geometry.dispose();
+          }
+        });
         this.props.splice(i, 1);
       }
     }
@@ -149,6 +183,7 @@ export class ScenerySpawner {
         z,
         `PK ${km}`
       );
+      this.setCollider(post, 0.45, 'milestone', true);
       this.scene.add(post);
       this.props.push(post);
     }
@@ -185,6 +220,7 @@ export class ScenerySpawner {
           z,
           signType
         );
+        this.setCollider(signMesh, 0.55, 'sign', true);
         this.scene.add(signMesh);
         this.props.push(signMesh);
       }
@@ -217,6 +253,7 @@ export class ScenerySpawner {
           z,
           lampSide
         );
+        this.setCollider(lamp, 0.65, 'pole', false);
         this.scene.add(lamp);
         this.props.push(lamp);
       }
@@ -241,6 +278,7 @@ export class ScenerySpawner {
           z,
           poleSide
         );
+        this.setCollider(pole, 0.70, 'pole', false);
         this.scene.add(pole);
         this.props.push(pole);
       }
@@ -259,6 +297,7 @@ export class ScenerySpawner {
             roadInfo.y,
             z
           );
+          this.setCollider(pole, 0.35, 'snowpole', true);
           this.scene.add(pole);
           this.props.push(pole);
         });
@@ -278,9 +317,9 @@ export class ScenerySpawner {
     if (biome.id === 'mediterranean_coast') {
       // Zone 1: Rural dry stone walls & olive terraces
       if (relZ < 150) {
-        propsToSpawn.push(this.createDryStoneWall(roadInfo.x + halfW + 3.8, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createDryStoneWall(roadInfo.x + halfW + 3.8, roadInfo.y, z), 2.2, 'wall', false));
         if (Math.random() < 0.55) {
-          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 4.8, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createOliveTree(roadInfo.x - halfW - 4.8, roadInfo.y, z), 1.5, 'tree', false));
         }
       }
       // Zone 2 (180-260m): San Vito Harbor Coastal Fishery & Watchtower
@@ -288,20 +327,20 @@ export class ScenerySpawner {
         const clusterKey = `harbor_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(clusterKey)) {
           this.spawnedMilestones.add(clusterKey);
-          propsToSpawn.push(this.createHarborFishery(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createHarborFishery(roadInfo.x - halfW - 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 3: Maritime umbrella pines & coastal guardrails
       else {
-        propsToSpawn.push(this.createMaritimePine(roadInfo.x + halfW + 6.0, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createMaritimePine(roadInfo.x + halfW + 6.0, roadInfo.y, z), 1.6, 'tree', false));
         if (Math.random() < 0.45) {
-          propsToSpawn.push(this.createOliveTree(roadInfo.x - halfW - 5.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createOliveTree(roadInfo.x - halfW - 5.5, roadInfo.y, z), 1.5, 'tree', false));
         }
       }
     } else if (biome.id === 'temperate_forest') {
       // Zone 1: Split-rail fences and clearings
       if (relZ < 140) {
-        propsToSpawn.push(this.createSplitRailFence(roadInfo.x + halfW + 4.2, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createSplitRailFence(roadInfo.x + halfW + 4.2, roadInfo.y, z), 1.4, 'fence', true));
         propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
       }
       // Zone 2 (180-260m): Valbruna Hydraulic Water Mill & Log Yard
@@ -309,13 +348,13 @@ export class ScenerySpawner {
         const millKey = `mill_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(millKey)) {
           this.spawnedMilestones.add(millKey);
-          propsToSpawn.push(this.createWaterMill(roadInfo.x - halfW - 9.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createWaterMill(roadInfo.x - halfW - 9.0, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 3: Lush broadleaf stands of Deciduous Oaks & European Beeches
       else {
-        propsToSpawn.push(this.createDeciduousOak(roadInfo.x - halfW - 6.0, roadInfo.y, z));
-        propsToSpawn.push(this.createEuropeanBeech(roadInfo.x + halfW + 6.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createDeciduousOak(roadInfo.x - halfW - 6.0, roadInfo.y, z), 1.7, 'tree', false));
+        propsToSpawn.push(this.setCollider(this.createEuropeanBeech(roadInfo.x + halfW + 6.5, roadInfo.y, z), 1.6, 'tree', false));
       }
     } else if (biome.id === 'arid_desert') {
       // Zone 1 (180-260m): El Kantara Adobe Caravansary & Palm Oasis
@@ -323,17 +362,17 @@ export class ScenerySpawner {
         const oasisKey = `oasis_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(oasisKey)) {
           this.spawnedMilestones.add(oasisKey);
-          propsToSpawn.push(this.createOasisCaravansary(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createOasisCaravansary(roadInfo.x - halfW - 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Sweeping sand dune ridges, date palms and sun-bleached wrecks
       else {
         propsToSpawn.push(this.createSandDuneRidge(roadInfo.x + halfW + 7.5, roadInfo.y, z, 1));
         if (Math.random() < 0.35) {
-          propsToSpawn.push(this.createDatePalm(roadInfo.x - halfW - 5.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createDatePalm(roadInfo.x - halfW - 5.5, roadInfo.y, z), 1.4, 'tree', false));
         }
         if (Math.random() < 0.25) {
-          propsToSpawn.push(this.createWreck(roadInfo.x - halfW - 4.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createWreck(roadInfo.x - halfW - 4.0, roadInfo.y, z), 2.4, 'wreck', false));
         }
       }
     } else if (biome.id === 'savanna_steppe') {
@@ -342,14 +381,14 @@ export class ScenerySpawner {
         const rangerKey = `ranger_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(rangerKey)) {
           this.spawnedMilestones.add(rangerKey);
-          propsToSpawn.push(this.createRangerStation(roadInfo.x + halfW + 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createRangerStation(roadInfo.x + halfW + 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Flat-topped umbrella acacias, monumental baobabs & dry golden straw
       else {
-        propsToSpawn.push(this.createUmbrellaAcacia(roadInfo.x - halfW - 6.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createUmbrellaAcacia(roadInfo.x - halfW - 6.5, roadInfo.y, z), 1.6, 'tree', false));
         if (Math.random() < 0.35) {
-          propsToSpawn.push(this.createBaobabTree(roadInfo.x + halfW + 11.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createBaobabTree(roadInfo.x + halfW + 11.0, roadInfo.y, z), 2.8, 'tree', false));
         }
         propsToSpawn.push(this.createGrassTuft(roadInfo.x + halfW + 2.5, roadInfo.y, z));
       }
@@ -359,13 +398,13 @@ export class ScenerySpawner {
         const labKey = `botanical_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(labKey)) {
           this.spawnedMilestones.add(labKey);
-          propsToSpawn.push(this.createBotanicalLab(roadInfo.x - halfW - 8.5, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createBotanicalLab(roadInfo.x - halfW - 8.5, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Gigantic buttressed rainforest trees with multi-layered canopy & lianas
       else {
-        propsToSpawn.push(this.createRainforestGiant(roadInfo.x - halfW - 7.5, roadInfo.y, z));
-        propsToSpawn.push(this.createRainforestGiant(roadInfo.x + halfW + 7.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createRainforestGiant(roadInfo.x - halfW - 7.5, roadInfo.y, z), 2.6, 'tree', false));
+        propsToSpawn.push(this.setCollider(this.createRainforestGiant(roadInfo.x + halfW + 7.5, roadInfo.y, z), 2.6, 'tree', false));
         propsToSpawn.push(this.createGrassTuft(roadInfo.x - halfW - 2.0, roadInfo.y, z));
       }
     } else if (biome.id === 'alpine_peaks') {
@@ -374,15 +413,15 @@ export class ScenerySpawner {
         const passKey = `pass_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(passKey)) {
           this.spawnedMilestones.add(passKey);
-          propsToSpawn.push(this.createAvalancheTunnel(roadInfo.x, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createAvalancheTunnel(roadInfo.x, roadInfo.y, z), 2.2, 'wall', false));
         }
       }
       // Zone 2: Colossal dark granite canyon walls, jagged peaks & rockfall scree
       else {
-        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1));
-        propsToSpawn.push(this.createAlpineGraniteWall(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1));
+        propsToSpawn.push(this.setCollider(this.createAlpineGraniteWall(roadInfo.x - halfW - 4.5, roadInfo.y, z, -1), 5.0, 'cliff', false));
+        propsToSpawn.push(this.setCollider(this.createAlpineGraniteWall(roadInfo.x + halfW + 4.5, roadInfo.y, z, 1), 5.0, 'cliff', false));
         if (Math.random() < 0.4) {
-          propsToSpawn.push(this.createRock(roadInfo.x + halfW + 2.5, roadInfo.y, z, 1.8));
+          propsToSpawn.push(this.setCollider(this.createRock(roadInfo.x + halfW + 2.5, roadInfo.y, z, 1.8), 2.0, 'rock', false));
         }
       }
     } else if (biome.id === 'boreal_taiga') {
@@ -391,13 +430,13 @@ export class ScenerySpawner {
         const outpostKey = `forester_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(outpostKey)) {
           this.spawnedMilestones.add(outpostKey);
-          propsToSpawn.push(this.createForesterOutpost(roadInfo.x + halfW + 11.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createForesterOutpost(roadInfo.x + halfW + 11.0, roadInfo.y, z), 5.5, 'building', false));
         }
       }
       // Zone 2: Dense stands of black spruce and paper birch
       else {
         [-1, 1].forEach((side) => {
-          propsToSpawn.push(this.createForestStand(roadInfo.x + side * (halfW + 5.5), roadInfo.y, z, side));
+          propsToSpawn.push(this.setCollider(this.createForestStand(roadInfo.x + side * (halfW + 5.5), roadInfo.y, z, side), 2.4, 'tree', false));
         });
       }
     } else if (biome.id === 'polar_tundra') {
@@ -406,13 +445,13 @@ export class ScenerySpawner {
         const polarKey = `polar_${Math.floor(z / 650)}`;
         if (!this.spawnedMilestones.has(polarKey)) {
           this.spawnedMilestones.add(polarKey);
-          propsToSpawn.push(this.createArcticGeodesicDome(roadInfo.x + halfW + 10.0, roadInfo.y, z));
+          propsToSpawn.push(this.setCollider(this.createArcticGeodesicDome(roadInfo.x + halfW + 10.0, roadInfo.y, z), 6.0, 'building', false));
         }
       }
       // Zone 2: Glacial ice spires & snow-blanketed conifers
       else {
-        propsToSpawn.push(this.createSnowCoveredPines(roadInfo.x - halfW - 6.0, roadInfo.y, z));
-        propsToSpawn.push(this.createGlacialIceSpire(roadInfo.x + halfW + 5.5, roadInfo.y, z));
+        propsToSpawn.push(this.setCollider(this.createSnowCoveredPines(roadInfo.x - halfW - 6.0, roadInfo.y, z), 2.2, 'tree', false));
+        propsToSpawn.push(this.setCollider(this.createGlacialIceSpire(roadInfo.x + halfW + 5.5, roadInfo.y, z), 2.0, 'rock', false));
       }
     }
 

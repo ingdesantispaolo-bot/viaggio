@@ -1355,15 +1355,14 @@ export class Vehicle {
     // dv/dt = (Fy_total / m) - u * r
     // dr/dt = Mz_total / Iz
     const dv_dt = (Fy_total / mass) - this.forwardSpeed * this.yawRate;
+    const v_dyn = this.lateralSpeed + dv_dt * delta;
     const dr_dt = Mz_total / yawInertia;
 
-    const v_dyn = THREE.MathUtils.clamp(this.lateralSpeed + dv_dt * delta, -12.0, 12.0);
     const r_dyn = this.yawRate + dr_dt * delta;
 
-    // Smooth blending between low-speed Kinematic Ackermann and high-speed Dynamic 2-DOF
+    // Smooth blending between low-speed Kinematic Ackermann and high-speed Dynamic 2-DOF yaw
     const blendDyn = THREE.MathUtils.clamp((speedAbs - 0.4) / 1.8, 0.0, 1.0);
     this.yawRate = THREE.MathUtils.lerp(r_kin, r_dyn, blendDyn);
-    this.lateralSpeed = THREE.MathUtils.lerp(v_kin, v_dyn, blendDyn);
 
     const maxRotSpeed = THREE.MathUtils.lerp(1.65, 0.72, Math.min(1.0, speedKmh / 120.0));
     this.yawRate = THREE.MathUtils.clamp(this.yawRate, -maxRotSpeed, maxRotSpeed);
@@ -1371,9 +1370,37 @@ export class Vehicle {
 
     // Natural caster self-centering torque: returns rack to straight-ahead when hands off
     if (Math.abs(rawSteerTarget) < 0.02) {
-      this.yawRate *= Math.max(0.65, 1.0 - delta * 4.0);
-      this.lateralSpeed *= Math.max(0.65, 1.0 - delta * 4.5);
+      this.yawRate *= Math.max(0.60, 1.0 - delta * 6.5);
     }
+
+    // ==========================================
+    // AUTHENTIC TIRE LATERAL SCRUB & TRAJECTORY TRACKING
+    // ==========================================
+    // Real automotive tires rolling along road have massive lateral scrub resistance:
+    // Tires track along the wheel heading, rapidly extinguishing pure sideways sliding.
+    const isHandbrake = !!input.handbrake;
+    const isOffroad = absDist > pavedHalfW;
+
+    // Base tire scrub damping rate:
+    // - On grip surfaces without handbrake: slide decays in < 0.15s (damping ~18-24)
+    // - Handbrake engaged: breaks rear adhesion to allow controlled rally slide (damping ~3.5)
+    // - Off-road: tires plow into soil/gravel/snow, stopping sideways sliding even faster (1.6x)
+    let lateralScrubRate = isHandbrake ? 3.5 : (18.0 * Math.max(0.40, mu));
+    if (isOffroad && !isHandbrake) {
+      lateralScrubRate *= 1.6; // Soft soil opposes lateral skidding
+    }
+    if (Math.abs(rawSteerTarget) < 0.02 && !isHandbrake) {
+      lateralScrubRate = Math.max(lateralScrubRate, 24.0);
+    }
+
+    // Target lateral velocity: rolling Ackermann trajectory v_kin when gripping, 0 when straight
+    const targetLateral = isHandbrake ? (v_dyn * 0.7 + v_kin * 0.3) : ((Math.abs(rawSteerTarget) < 0.015) ? 0.0 : v_kin);
+    this.lateralSpeed = THREE.MathUtils.damp(this.lateralSpeed, targetLateral, lateralScrubRate, delta);
+
+    // Physically coherent slip velocity ceiling:
+    // Normal cornering slip is small (~10-12 deg), handbrake slide ~40 deg
+    const maxSlipSpeed = Math.max(0.6, speedAbs * (isHandbrake ? 0.70 : 0.18));
+    this.lateralSpeed = THREE.MathUtils.clamp(this.lateralSpeed, -maxSlipSpeed, maxSlipSpeed);
 
     // Longitudinal acceleration update (ALWAYS integrated across all speed regimes)
     const du_dt = (Fx_front * cosDelta + Fx_rear - Fy_front * sinDelta - F_rolling) / mass + this.lateralSpeed * this.yawRate;
