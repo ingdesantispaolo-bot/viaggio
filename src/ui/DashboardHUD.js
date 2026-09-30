@@ -85,7 +85,7 @@ export class DashboardHUD {
                 <div class="wheel-spoke spoke-left"></div>
                 <div class="wheel-spoke spoke-right"></div>
                 <div class="wheel-spoke spoke-bottom"></div>
-                <div class="wheel-hub">
+                <div class="wheel-hub" id="wheel-hub" title="Clacson • Premi per suonare (oppure premi H)">
                   <span class="hub-logo">MERIDIAN</span>
                 </div>
               </div>
@@ -463,6 +463,20 @@ export class DashboardHUD {
     };
     track.addEventListener('pointerup', resetSteer);
     track.addEventListener('pointercancel', resetSteer);
+
+    // 7b. Steering Wheel Center Hub (Horn / Clacson)
+    const wheelHub = this.element.querySelector('#wheel-hub') || this.element.querySelector('.wheel-hub');
+    if (wheelHub) {
+      wheelHub.style.cursor = 'pointer';
+      wheelHub.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        if (this.vehicle && this.vehicle.honkHorn) {
+          this.vehicle.honkHorn();
+        }
+        wheelHub.classList.add('hub-pressed');
+        setTimeout(() => wheelHub.classList.remove('hub-pressed'), 350);
+      });
+    }
 
     // 8. Throttle Pedal
     const pedalGas = this.element.querySelector('#pedal-gas');
@@ -851,6 +865,30 @@ export class DashboardHUD {
 
     // Symmetric 5-Element Center Binnacle: Speedo | Tach | MFD | Clinometer | Clock/Turbo
     clusterRow.innerHTML = speedoHtml + tachHtml + mfdHtml + inclinometerHtml + rightDialHtml;
+
+    // Interactive Model Controls (Steyr 4WD Lever, Primina, etc.)
+    const steyrConsole = this.element.querySelector('.steyr-lever-console');
+    if (steyrConsole) {
+      steyrConsole.style.cursor = 'pointer';
+      steyrConsole.title = 'Leva Trazione Steyr-Puch: Clicca per inserire/disinserire 4WD (Tasto X)';
+      steyrConsole.onclick = () => {
+        if (this.vehicle && this.vehicle.toggle4WD) {
+          const res = this.vehicle.toggle4WD();
+          if (res) this.showToast(res.message);
+        }
+      };
+    }
+    const priminaLamp = this.element.querySelector('#lamp-primina');
+    if (priminaLamp) {
+      priminaLamp.style.cursor = 'pointer';
+      priminaLamp.title = 'Primina Ridotta: Clicca per inserire/disinserire marcia ridotta (Tasto P)';
+      priminaLamp.onclick = () => {
+        if (this.vehicle && this.vehicle.togglePrimina) {
+          const res = this.vehicle.togglePrimina();
+          if (res) this.showToast(res.message);
+        }
+      };
+    }
   }
 
   generateCustomAuxWidgetHtml(cur) {
@@ -1291,7 +1329,40 @@ export class DashboardHUD {
     }
 
     // 4. Car-Specific Auxiliary Widgets
-    if (cur.id === 'delta_integrale') {
+    if (cur.id === 'panda_4x4') {
+      const lamp4wd = this.element.querySelector('#lamp-4wd-steyr');
+      const lampPrimina = this.element.querySelector('#lamp-primina');
+      const steyrKnob = this.element.querySelector('#steyr-knob-pos');
+
+      const is4wd = this.vehicle.is4WDEngaged !== undefined ? this.vehicle.is4WDEngaged : true;
+      const isPrimina = !!this.vehicle.priminaCrawlerActive;
+
+      if (lamp4wd) {
+        lamp4wd.className = `steyr-lamp ${is4wd ? 'active-steyr' : ''}`;
+        const dot = lamp4wd.querySelector('.ann-dot');
+        if (dot) dot.style.background = is4wd ? '#22c55e' : '#475569';
+      }
+      if (lampPrimina) {
+        lampPrimina.className = `steyr-lamp ${isPrimina ? 'active-primina' : ''}`;
+        const dot = lampPrimina.querySelector('.ann-dot');
+        if (dot) dot.style.background = isPrimina ? '#eab308' : '#475569';
+      }
+      if (steyrKnob) {
+        steyrKnob.style.transform = is4wd ? 'translateY(-8px)' : 'translateY(4px)';
+        steyrKnob.style.boxShadow = is4wd ? '0 0 8px rgba(34, 197, 94, 0.7)' : 'none';
+      }
+
+      const driveEl = this.element.querySelector('#hud-drivetrain-badge');
+      if (driveEl) {
+        if (is4wd) {
+          driveEl.textContent = isPrimina ? '4WD STEYR + PRIMINA CRAWLER' : '4WD STEYR INSERITA [50:50]';
+          driveEl.style.color = isPrimina ? '#eab308' : '#22c55e';
+        } else {
+          driveEl.textContent = '2WD TRAZIONE ANTERIORE [100:0]';
+          driveEl.style.color = '#94a3b8';
+        }
+      }
+    } else if (cur.id === 'delta_integrale') {
       const torsenBar = this.element.querySelector('#torsen-front-bar');
       const torsenText = this.element.querySelector('#torsen-split-text');
       if (torsenBar && torsenText) {

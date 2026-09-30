@@ -96,6 +96,8 @@ export class Renderer {
     this.initWeatherParticles();
     this.initExhaustSystem();
     this.initTireSpraySystem();
+    this.initStarfield();
+    this.initAuroraBorealis();
 
     // 7. Event listeners
     window.addEventListener('resize', () => this.onWindowResize());
@@ -126,6 +128,58 @@ export class Renderer {
 
     this.particleSystem = new THREE.Points(this.particleGeo, this.particleMat);
     this.scene.add(this.particleSystem);
+  }
+
+  initStarfield() {
+    const starGeo = new THREE.BufferGeometry();
+    const starCount = 380;
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      starPos[i * 3 + 0] = (Math.random() - 0.5) * 320;
+      starPos[i * 3 + 1] = 22 + Math.random() * 55;
+      starPos[i * 3 + 2] = (Math.random() - 0.5) * 320;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    this.starMat = new THREE.PointsMaterial({
+      color: 0xe0f2fe,
+      size: 0.75,
+      transparent: true,
+      opacity: 0.0,
+      blending: THREE.AdditiveBlending
+    });
+    this.starfield = new THREE.Points(starGeo, this.starMat);
+    this.scene.add(this.starfield);
+  }
+
+  initAuroraBorealis() {
+    this.auroraGroup = new THREE.Group();
+    this.auroraRibbons = [];
+    this.auroraTime = 0.0;
+
+    const ribbonConfigs = [
+      { color: 0x10b981, y: 48, zOffset: 140, opacity: 0.32, width: 280, height: 26 },
+      { color: 0x06b6d4, y: 54, zOffset: 175, opacity: 0.28, width: 310, height: 28 },
+      { color: 0xa855f7, y: 60, zOffset: 215, opacity: 0.24, width: 330, height: 30 }
+    ];
+
+    ribbonConfigs.forEach((rc, idx) => {
+      const geo = new THREE.PlaneGeometry(rc.width, rc.height, 42, 6);
+      const mat = new THREE.MeshBasicMaterial({
+        color: rc.color,
+        transparent: true,
+        opacity: 0.0,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(0, rc.y, rc.zOffset);
+      mesh.rotation.x = Math.PI * 0.12;
+      this.auroraGroup.add(mesh);
+      this.auroraRibbons.push({ mesh, mat, config: rc, basePos: geo.attributes.position.clone() });
+    });
+
+    this.scene.add(this.auroraGroup);
   }
 
   initExhaustSystem() {
@@ -501,7 +555,7 @@ export class Renderer {
     }
   }
 
-  updateDayNightLighting(timeOfDay = 8.5, weatherType = 'clear', currentBiome = null, headlightsOn = true) {
+  updateDayNightLighting(timeOfDay = 8.5, weatherType = 'clear', currentBiome = null, headlightsOn = true, delta = 0.016) {
     if (currentBiome) this.currentBiome = currentBiome;
     if (!this.currentBiome) return;
 
@@ -627,6 +681,67 @@ export class Renderer {
     this.ambientLight.intensity = ambientIntensity;
     this.sunLight.intensity = sunIntensity;
     this.sunLight.color.copy(sunColor);
+
+    this.updateAuroraAndStars(delta, timeOfDay, weatherType);
+  }
+
+  updateAuroraAndStars(delta = 0.016, timeOfDay = 8.5, weatherType = 'clear') {
+    const t = timeOfDay;
+    // Calculate night intensity factor: 0.0 (daylight) to 1.0 (deep night)
+    let nightFactor = 0.0;
+    if (t < 5.0 || t >= 19.5) {
+      nightFactor = 1.0;
+    } else if (t >= 5.0 && t < 7.0) {
+      nightFactor = (7.0 - t) / 2.0;
+    } else if (t >= 17.5 && t < 19.5) {
+      nightFactor = (t - 17.5) / 2.0;
+    }
+
+    // Weather impact on celestial visibility
+    let weatherFactor = 1.0;
+    if (weatherType === 'torrential_rain' || weatherType === 'blizzard') {
+      weatherFactor = 0.1;
+    } else if (weatherType === 'rain' || weatherType === 'freezing_rain') {
+      weatherFactor = 0.4;
+    } else if (weatherType === 'heavy_mist' || weatherType === 'dense_fog') {
+      weatherFactor = 0.3;
+    }
+
+    // Starfield twinkle and fade
+    if (this.starMat) {
+      this.starMat.opacity = Math.max(0.0, nightFactor * 0.85 * weatherFactor);
+    }
+
+    // Aurora ribbons undulation and opacity
+    if (this.auroraRibbons && this.auroraRibbons.length > 0) {
+      this.auroraTime += delta * 0.65;
+      const aTime = this.auroraTime;
+
+      this.auroraRibbons.forEach((ribbon, rIdx) => {
+        const targetOpacity = ribbon.config.opacity * nightFactor * weatherFactor;
+        ribbon.mat.opacity = targetOpacity;
+
+        if (targetOpacity > 0.01) {
+          const posAttr = ribbon.mesh.geometry.attributes.position;
+          const basePos = ribbon.basePos;
+          const count = posAttr.count;
+
+          for (let i = 0; i < count; i++) {
+            const bx = basePos.getX(i);
+            const by = basePos.getY(i);
+            const bz = basePos.getZ(i);
+
+            // Composite sinusoidal displacement for flowing curtains of light
+            const wave1 = Math.sin(bx * 0.03 + aTime * 1.1 + rIdx * 1.8) * 5.0;
+            const wave2 = Math.cos(bx * 0.015 - aTime * 0.7 + rIdx) * 3.0;
+            const vertWave = Math.sin(bx * 0.025 + aTime * 0.8) * 3.5;
+
+            posAttr.setXYZ(i, bx, by + vertWave, bz + wave1 + wave2);
+          }
+          posAttr.needsUpdate = true;
+        }
+      });
+    }
   }
 
   applyAtmosphereLighting() {
@@ -656,6 +771,13 @@ export class Renderer {
 
     this.sunLight.position.set(targetPos.x + sunX, targetPos.y + sunY, targetPos.z + 16);
     this.sunLight.target.position.set(targetPos.x, targetPos.y, targetPos.z + 8);
+
+    if (this.starfield) {
+      this.starfield.position.set(targetPos.x, targetPos.y, targetPos.z);
+    }
+    if (this.auroraGroup) {
+      this.auroraGroup.position.set(targetPos.x, targetPos.y, targetPos.z);
+    }
   }
 
   onWindowResize() {

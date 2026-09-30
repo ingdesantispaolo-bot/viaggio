@@ -32,6 +32,9 @@ export class TouchInput {
 
     this.onToggleIgnition = null;
     this.onOpenJournal = null;
+    this.onHonkHorn = null;
+    this.onToggle4WD = null;
+    this.onTogglePrimina = null;
 
     // Keyboard state tracking
     this.keys = {};
@@ -44,7 +47,12 @@ export class TouchInput {
       this.keys[e.code] = true;
       if (e.code === 'KeyE') this.interact = true;
       if (e.code === 'KeyL') this.lights = !this.lights;
-      if (e.code === 'KeyH') this.horn = true;
+      if (e.code === 'KeyH') {
+        this.horn = true;
+        if (this.onHonkHorn) this.onHonkHorn();
+      }
+      if (e.code === 'KeyX' && this.onToggle4WD) this.onToggle4WD();
+      if (e.code === 'KeyP' && this.onTogglePrimina) this.onTogglePrimina();
       if (e.code === 'KeyI' && this.onToggleIgnition) this.onToggleIgnition();
       if ((e.code === 'KeyJ' || e.code === 'KeyM') && this.onOpenJournal) this.onOpenJournal();
     });

@@ -915,5 +915,119 @@ export class WebAudioEngine {
     osc.start(now);
     osc.stop(now + 0.6);
   }
+
+  playHorn(modelId = 'panda_4x4') {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Frequencies tailored to vehicle origin & era:
+    // Italian: Fiamm high-pitch dual trumpet (420Hz & 510Hz)
+    // German: Bosch authoritative dual tone (340Hz & 415Hz)
+    // British/Truck: Lucas heavy tone (290Hz & 370Hz)
+    let f1 = 420;
+    let f2 = 510;
+    if (modelId === 'mercedes_w123' || modelId === 'mercedes_gwagen' || modelId === 'bmw_e30_ix' || modelId === 'audi_quattro') {
+      f1 = 340;
+      f2 = 415;
+    } else if (modelId === 'defender_110' || modelId === 'volvo_245') {
+      f1 = 295;
+      f2 = 370;
+    }
+
+    [f1, f2].forEach((freq) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, now);
+      // Slight pitch droop on attack
+      osc.frequency.setValueAtTime(freq + 15, now);
+      osc.frequency.exponentialRampToValueAtTime(freq, now + 0.04);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(freq, now);
+      filter.Q.setValueAtTime(3.5, now);
+
+      g.gain.setValueAtTime(0.01, now);
+      g.gain.linearRampToValueAtTime(0.22, now + 0.02);
+      g.gain.setValueAtTime(0.22, now + 0.35);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(filter);
+      filter.connect(g);
+      g.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.46);
+    });
+  }
+
+  play4WDEngage(engaged = true) {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Steyr-Puch mechanical dog-clutch engage clunk
+    const thud = this.createNoiseBurst(0.06, 600, 0.4);
+    if (thud) thud.start(now);
+
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(engaged ? 180 : 120, now);
+    osc.frequency.exponentialRampToValueAtTime(engaged ? 90 : 60, now + 0.09);
+
+    g.gain.setValueAtTime(0.35, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+    osc.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.11);
+  }
+
+  playGlowPlugChime() {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, now); // A5
+    g.gain.setValueAtTime(0.2, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    osc.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.85);
+  }
+
+  playRadioStatic() {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // 1. Initial RF squelch burst (white noise through bandpass)
+    const noise = this.createNoiseBurst(0.18, 1800, 0.28);
+    if (noise) noise.start(now);
+
+    // 2. Midland Alan 48 classic dual-tone Roger-Beep
+    const beepTime = now + 0.2;
+    [1046.5, 1318.5].forEach((freq, idx) => {
+      const t = beepTime + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.18, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.075);
+      osc.connect(g);
+      g.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.08);
+    });
+  }
 }
+
 

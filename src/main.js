@@ -227,6 +227,23 @@ export class Game {
       this.touchInput.onOpenJournal = () => {
         this.storyDiaryModal.toggle();
       };
+      this.touchInput.onHonkHorn = () => {
+        if (!this.isFootMode && this.vehicle && this.vehicle.honkHorn) {
+          this.vehicle.honkHorn();
+        }
+      };
+      this.touchInput.onToggle4WD = () => {
+        if (!this.isFootMode && this.vehicle && this.vehicle.toggle4WD) {
+          const res = this.vehicle.toggle4WD();
+          if (res) this.dashboardHUD.showToast(res.message);
+        }
+      };
+      this.touchInput.onTogglePrimina = () => {
+        if (!this.isFootMode && this.vehicle && this.vehicle.togglePrimina) {
+          const res = this.vehicle.togglePrimina();
+          if (res) this.dashboardHUD.showToast(res.message);
+        }
+      };
     }
 
     // Story Director callbacks
@@ -352,7 +369,8 @@ export class Game {
       this.survivalState.timeOfDay,
       this.weatherDirector.currentWeather,
       this.biomeManager.currentBiome,
-      this.vehicle.isLightsOn
+      this.vehicle.isLightsOn,
+      delta
     );
     this.renderer.updateLightFollow(activePos);
 

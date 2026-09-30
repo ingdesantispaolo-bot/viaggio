@@ -2388,7 +2388,121 @@ class WebAudioEngine {
     osc.start(now);
     osc.stop(now + 0.6);
   }
+
+  playHorn(modelId = 'panda_4x4') {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Frequencies tailored to vehicle origin & era:
+    // Italian: Fiamm high-pitch dual trumpet (420Hz & 510Hz)
+    // German: Bosch authoritative dual tone (340Hz & 415Hz)
+    // British/Truck: Lucas heavy tone (290Hz & 370Hz)
+    let f1 = 420;
+    let f2 = 510;
+    if (modelId === 'mercedes_w123' || modelId === 'mercedes_gwagen' || modelId === 'bmw_e30_ix' || modelId === 'audi_quattro') {
+      f1 = 340;
+      f2 = 415;
+    } else if (modelId === 'defender_110' || modelId === 'volvo_245') {
+      f1 = 295;
+      f2 = 370;
+    }
+
+    [f1, f2].forEach((freq) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, now);
+      // Slight pitch droop on attack
+      osc.frequency.setValueAtTime(freq + 15, now);
+      osc.frequency.exponentialRampToValueAtTime(freq, now + 0.04);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(freq, now);
+      filter.Q.setValueAtTime(3.5, now);
+
+      g.gain.setValueAtTime(0.01, now);
+      g.gain.linearRampToValueAtTime(0.22, now + 0.02);
+      g.gain.setValueAtTime(0.22, now + 0.35);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(filter);
+      filter.connect(g);
+      g.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.46);
+    });
+  }
+
+  play4WDEngage(engaged = true) {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Steyr-Puch mechanical dog-clutch engage clunk
+    const thud = this.createNoiseBurst(0.06, 600, 0.4);
+    if (thud) thud.start(now);
+
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(engaged ? 180 : 120, now);
+    osc.frequency.exponentialRampToValueAtTime(engaged ? 90 : 60, now + 0.09);
+
+    g.gain.setValueAtTime(0.35, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+    osc.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.11);
+  }
+
+  playGlowPlugChime() {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, now); // A5
+    g.gain.setValueAtTime(0.2, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    osc.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.85);
+  }
+
+  playRadioStatic() {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // 1. Initial RF squelch burst (white noise through bandpass)
+    const noise = this.createNoiseBurst(0.18, 1800, 0.28);
+    if (noise) noise.start(now);
+
+    // 2. Midland Alan 48 classic dual-tone Roger-Beep
+    const beepTime = now + 0.2;
+    [1046.5, 1318.5].forEach((freq, idx) => {
+      const t = beepTime + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.18, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.075);
+      osc.connect(g);
+      g.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.08);
+    });
+  }
 }
+
 
 
 
@@ -2491,6 +2605,8 @@ class Renderer {
     this.initWeatherParticles();
     this.initExhaustSystem();
     this.initTireSpraySystem();
+    this.initStarfield();
+    this.initAuroraBorealis();
 
     // 7. Event listeners
     window.addEventListener('resize', () => this.onWindowResize());
@@ -2521,6 +2637,58 @@ class Renderer {
 
     this.particleSystem = new THREE.Points(this.particleGeo, this.particleMat);
     this.scene.add(this.particleSystem);
+  }
+
+  initStarfield() {
+    const starGeo = new THREE.BufferGeometry();
+    const starCount = 380;
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      starPos[i * 3 + 0] = (Math.random() - 0.5) * 320;
+      starPos[i * 3 + 1] = 22 + Math.random() * 55;
+      starPos[i * 3 + 2] = (Math.random() - 0.5) * 320;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    this.starMat = new THREE.PointsMaterial({
+      color: 0xe0f2fe,
+      size: 0.75,
+      transparent: true,
+      opacity: 0.0,
+      blending: THREE.AdditiveBlending
+    });
+    this.starfield = new THREE.Points(starGeo, this.starMat);
+    this.scene.add(this.starfield);
+  }
+
+  initAuroraBorealis() {
+    this.auroraGroup = new THREE.Group();
+    this.auroraRibbons = [];
+    this.auroraTime = 0.0;
+
+    const ribbonConfigs = [
+      { color: 0x10b981, y: 48, zOffset: 140, opacity: 0.32, width: 280, height: 26 },
+      { color: 0x06b6d4, y: 54, zOffset: 175, opacity: 0.28, width: 310, height: 28 },
+      { color: 0xa855f7, y: 60, zOffset: 215, opacity: 0.24, width: 330, height: 30 }
+    ];
+
+    ribbonConfigs.forEach((rc, idx) => {
+      const geo = new THREE.PlaneGeometry(rc.width, rc.height, 42, 6);
+      const mat = new THREE.MeshBasicMaterial({
+        color: rc.color,
+        transparent: true,
+        opacity: 0.0,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(0, rc.y, rc.zOffset);
+      mesh.rotation.x = Math.PI * 0.12;
+      this.auroraGroup.add(mesh);
+      this.auroraRibbons.push({ mesh, mat, config: rc, basePos: geo.attributes.position.clone() });
+    });
+
+    this.scene.add(this.auroraGroup);
   }
 
   initExhaustSystem() {
@@ -2896,7 +3064,7 @@ class Renderer {
     }
   }
 
-  updateDayNightLighting(timeOfDay = 8.5, weatherType = 'clear', currentBiome = null, headlightsOn = true) {
+  updateDayNightLighting(timeOfDay = 8.5, weatherType = 'clear', currentBiome = null, headlightsOn = true, delta = 0.016) {
     if (currentBiome) this.currentBiome = currentBiome;
     if (!this.currentBiome) return;
 
@@ -3022,6 +3190,67 @@ class Renderer {
     this.ambientLight.intensity = ambientIntensity;
     this.sunLight.intensity = sunIntensity;
     this.sunLight.color.copy(sunColor);
+
+    this.updateAuroraAndStars(delta, timeOfDay, weatherType);
+  }
+
+  updateAuroraAndStars(delta = 0.016, timeOfDay = 8.5, weatherType = 'clear') {
+    const t = timeOfDay;
+    // Calculate night intensity factor: 0.0 (daylight) to 1.0 (deep night)
+    let nightFactor = 0.0;
+    if (t < 5.0 || t >= 19.5) {
+      nightFactor = 1.0;
+    } else if (t >= 5.0 && t < 7.0) {
+      nightFactor = (7.0 - t) / 2.0;
+    } else if (t >= 17.5 && t < 19.5) {
+      nightFactor = (t - 17.5) / 2.0;
+    }
+
+    // Weather impact on celestial visibility
+    let weatherFactor = 1.0;
+    if (weatherType === 'torrential_rain' || weatherType === 'blizzard') {
+      weatherFactor = 0.1;
+    } else if (weatherType === 'rain' || weatherType === 'freezing_rain') {
+      weatherFactor = 0.4;
+    } else if (weatherType === 'heavy_mist' || weatherType === 'dense_fog') {
+      weatherFactor = 0.3;
+    }
+
+    // Starfield twinkle and fade
+    if (this.starMat) {
+      this.starMat.opacity = Math.max(0.0, nightFactor * 0.85 * weatherFactor);
+    }
+
+    // Aurora ribbons undulation and opacity
+    if (this.auroraRibbons && this.auroraRibbons.length > 0) {
+      this.auroraTime += delta * 0.65;
+      const aTime = this.auroraTime;
+
+      this.auroraRibbons.forEach((ribbon, rIdx) => {
+        const targetOpacity = ribbon.config.opacity * nightFactor * weatherFactor;
+        ribbon.mat.opacity = targetOpacity;
+
+        if (targetOpacity > 0.01) {
+          const posAttr = ribbon.mesh.geometry.attributes.position;
+          const basePos = ribbon.basePos;
+          const count = posAttr.count;
+
+          for (let i = 0; i < count; i++) {
+            const bx = basePos.getX(i);
+            const by = basePos.getY(i);
+            const bz = basePos.getZ(i);
+
+            // Composite sinusoidal displacement for flowing curtains of light
+            const wave1 = Math.sin(bx * 0.03 + aTime * 1.1 + rIdx * 1.8) * 5.0;
+            const wave2 = Math.cos(bx * 0.015 - aTime * 0.7 + rIdx) * 3.0;
+            const vertWave = Math.sin(bx * 0.025 + aTime * 0.8) * 3.5;
+
+            posAttr.setXYZ(i, bx, by + vertWave, bz + wave1 + wave2);
+          }
+          posAttr.needsUpdate = true;
+        }
+      });
+    }
   }
 
   applyAtmosphereLighting() {
@@ -3051,6 +3280,13 @@ class Renderer {
 
     this.sunLight.position.set(targetPos.x + sunX, targetPos.y + sunY, targetPos.z + 16);
     this.sunLight.target.position.set(targetPos.x, targetPos.y, targetPos.z + 8);
+
+    if (this.starfield) {
+      this.starfield.position.set(targetPos.x, targetPos.y, targetPos.z);
+    }
+    if (this.auroraGroup) {
+      this.auroraGroup.position.set(targetPos.x, targetPos.y, targetPos.z);
+    }
   }
 
   onWindowResize() {
@@ -3230,6 +3466,9 @@ class TouchInput {
 
     this.onToggleIgnition = null;
     this.onOpenJournal = null;
+    this.onHonkHorn = null;
+    this.onToggle4WD = null;
+    this.onTogglePrimina = null;
 
     // Keyboard state tracking
     this.keys = {};
@@ -3242,7 +3481,12 @@ class TouchInput {
       this.keys[e.code] = true;
       if (e.code === 'KeyE') this.interact = true;
       if (e.code === 'KeyL') this.lights = !this.lights;
-      if (e.code === 'KeyH') this.horn = true;
+      if (e.code === 'KeyH') {
+        this.horn = true;
+        if (this.onHonkHorn) this.onHonkHorn();
+      }
+      if (e.code === 'KeyX' && this.onToggle4WD) this.onToggle4WD();
+      if (e.code === 'KeyP' && this.onTogglePrimina) this.onTogglePrimina();
       if (e.code === 'KeyI' && this.onToggleIgnition) this.onToggleIgnition();
       if ((e.code === 'KeyJ' || e.code === 'KeyM') && this.onOpenJournal) this.onOpenJournal();
     });
@@ -6639,6 +6883,8 @@ class Vehicle {
     this.standstillTimer = 0.0;
     this.wasBraking = false;
     this.reverseArmed = false;
+    this.is4WDEngaged = true; // Steyr-Puch 4WD engaged by default
+    this.priminaCrawlerActive = false; // Primina crawler 1st gear for Panda 4x4
 
     // Engine & Drivetrain Live Telemetry
     this.speedKmh = 0;
@@ -7470,6 +7716,28 @@ class Vehicle {
     this.audioEngine.playSwitchClick(this.isLightsOn);
   }
 
+  honkHorn() {
+    if (this.audioEngine && this.audioEngine.playHorn) {
+      this.audioEngine.playHorn(this.modelId);
+    }
+    this.impactShockPitch = 0.025;
+  }
+
+  toggle4WD() {
+    this.is4WDEngaged = !this.is4WDEngaged;
+    if (this.audioEngine && this.audioEngine.play4WDEngage) {
+      this.audioEngine.play4WDEngage(this.is4WDEngaged);
+    }
+  }
+
+  togglePrimina() {
+    if (this.modelId !== 'panda_4x4') return;
+    this.priminaCrawlerActive = !this.priminaCrawlerActive;
+    if (this.audioEngine && this.audioEngine.playSwitchClick) {
+      this.audioEngine.playSwitchClick(this.priminaCrawlerActive);
+    }
+  }
+
   getExhaustPosition() {
     const worldPos = this.exhaustTip.clone();
     worldPos.applyEuler(this.rotation);
@@ -7808,23 +8076,44 @@ class Vehicle {
     let Fx_rear = 0.0;
 
     if (F_drive > 0) {
-      if (cfg.drivetrain === 'RWD') {
-        // Rear-Wheel-Drive (Giulia Super, W123, Volvo 245): All drive torque at the rear!
+      // Model-specific powertrain physics overrides
+      if (this.modelId === 'panda_4x4') {
+        const isCrawler = this.priminaCrawlerActive || (speedKmh < 24.0 && (input.throttle > 0.45 || absDist > pavedHalfW));
+        if (isCrawler) {
+          F_drive *= 1.85; // Primina Crawler massive mechanical reduction ratio
+        }
+        if (this.is4WDEngaged) {
+          Fx_front = F_drive * 0.50;
+          Fx_rear = F_drive * 0.50;
+        } else {
+          Fx_front = F_drive * 1.0;
+          Fx_rear = 0.0;
+        }
+      } else if (cfg.id === 'delta_integrale' || cfg.id === 'audi_quattro') {
+        // Rally Turbo boost surge at medium-high RPM
+        const turboSurge = (this.rpm > 0.40 && isThrottle) ? (1.0 + (this.boostBar || 0.5) * 0.42) : 1.0;
+        F_drive *= turboSurge;
+        Fx_front = F_drive * 0.47;
+        Fx_rear = F_drive * 0.53;
+      } else if (cfg.id === 'defender_110') {
+        // High torque diesel 200Tdi in low gears
+        const lowEndGrunt = (speedKmh < 35.0 && isThrottle) ? 1.45 : 1.0;
+        F_drive *= lowEndGrunt;
+        Fx_front = F_drive * 0.50;
+        Fx_rear = F_drive * 0.50;
+      } else if (cfg.drivetrain === 'RWD') {
         Fx_rear = F_drive;
         Fx_front = 0.0;
       } else if (cfg.drivetrain === 'FWD') {
         Fx_front = F_drive;
         Fx_rear = 0.0;
       } else if (cfg.drivetrain === 'AWD_TORSEN') {
-        // Lancia Delta HF / Audi Quattro: 47% Front, 53% Rear
         Fx_front = F_drive * 0.47;
         Fx_rear = F_drive * 0.53;
       } else if (cfg.drivetrain === 'AWD_VISCOUS') {
-        // BMW 325iX: 37% Front, 63% Rear
         Fx_front = F_drive * 0.37;
         Fx_rear = F_drive * 0.63;
       } else {
-        // 4WD (Panda 4x4, Defender, G-Wagen, Golf Country, 504 Dangel): 50:50 locked split
         Fx_front = F_drive * 0.50;
         Fx_rear = F_drive * 0.50;
       }
@@ -10583,7 +10872,7 @@ class DashboardHUD {
                 <div class="wheel-spoke spoke-left"></div>
                 <div class="wheel-spoke spoke-right"></div>
                 <div class="wheel-spoke spoke-bottom"></div>
-                <div class="wheel-hub">
+                <div class="wheel-hub" id="wheel-hub" title="Clacson • Premi per suonare (oppure premi H)">
                   <span class="hub-logo">MERIDIAN</span>
                 </div>
               </div>
@@ -10961,6 +11250,20 @@ class DashboardHUD {
     };
     track.addEventListener('pointerup', resetSteer);
     track.addEventListener('pointercancel', resetSteer);
+
+    // 7b. Steering Wheel Center Hub (Horn / Clacson)
+    const wheelHub = this.element.querySelector('#wheel-hub') || this.element.querySelector('.wheel-hub');
+    if (wheelHub) {
+      wheelHub.style.cursor = 'pointer';
+      wheelHub.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        if (this.vehicle && this.vehicle.honkHorn) {
+          this.vehicle.honkHorn();
+        }
+        wheelHub.classList.add('hub-pressed');
+        setTimeout(() => wheelHub.classList.remove('hub-pressed'), 350);
+      });
+    }
 
     // 8. Throttle Pedal
     const pedalGas = this.element.querySelector('#pedal-gas');
@@ -11349,6 +11652,30 @@ class DashboardHUD {
 
     // Symmetric 5-Element Center Binnacle: Speedo | Tach | MFD | Clinometer | Clock/Turbo
     clusterRow.innerHTML = speedoHtml + tachHtml + mfdHtml + inclinometerHtml + rightDialHtml;
+
+    // Interactive Model Controls (Steyr 4WD Lever, Primina, etc.)
+    const steyrConsole = this.element.querySelector('.steyr-lever-console');
+    if (steyrConsole) {
+      steyrConsole.style.cursor = 'pointer';
+      steyrConsole.title = 'Leva Trazione Steyr-Puch: Clicca per inserire/disinserire 4WD (Tasto X)';
+      steyrConsole.onclick = () => {
+        if (this.vehicle && this.vehicle.toggle4WD) {
+          const res = this.vehicle.toggle4WD();
+          if (res) this.showToast(res.message);
+        }
+      };
+    }
+    const priminaLamp = this.element.querySelector('#lamp-primina');
+    if (priminaLamp) {
+      priminaLamp.style.cursor = 'pointer';
+      priminaLamp.title = 'Primina Ridotta: Clicca per inserire/disinserire marcia ridotta (Tasto P)';
+      priminaLamp.onclick = () => {
+        if (this.vehicle && this.vehicle.togglePrimina) {
+          const res = this.vehicle.togglePrimina();
+          if (res) this.showToast(res.message);
+        }
+      };
+    }
   }
 
   generateCustomAuxWidgetHtml(cur) {
@@ -11789,7 +12116,40 @@ class DashboardHUD {
     }
 
     // 4. Car-Specific Auxiliary Widgets
-    if (cur.id === 'delta_integrale') {
+    if (cur.id === 'panda_4x4') {
+      const lamp4wd = this.element.querySelector('#lamp-4wd-steyr');
+      const lampPrimina = this.element.querySelector('#lamp-primina');
+      const steyrKnob = this.element.querySelector('#steyr-knob-pos');
+
+      const is4wd = this.vehicle.is4WDEngaged !== undefined ? this.vehicle.is4WDEngaged : true;
+      const isPrimina = !!this.vehicle.priminaCrawlerActive;
+
+      if (lamp4wd) {
+        lamp4wd.className = `steyr-lamp ${is4wd ? 'active-steyr' : ''}`;
+        const dot = lamp4wd.querySelector('.ann-dot');
+        if (dot) dot.style.background = is4wd ? '#22c55e' : '#475569';
+      }
+      if (lampPrimina) {
+        lampPrimina.className = `steyr-lamp ${isPrimina ? 'active-primina' : ''}`;
+        const dot = lampPrimina.querySelector('.ann-dot');
+        if (dot) dot.style.background = isPrimina ? '#eab308' : '#475569';
+      }
+      if (steyrKnob) {
+        steyrKnob.style.transform = is4wd ? 'translateY(-8px)' : 'translateY(4px)';
+        steyrKnob.style.boxShadow = is4wd ? '0 0 8px rgba(34, 197, 94, 0.7)' : 'none';
+      }
+
+      const driveEl = this.element.querySelector('#hud-drivetrain-badge');
+      if (driveEl) {
+        if (is4wd) {
+          driveEl.textContent = isPrimina ? '4WD STEYR + PRIMINA CRAWLER' : '4WD STEYR INSERITA [50:50]';
+          driveEl.style.color = isPrimina ? '#eab308' : '#22c55e';
+        } else {
+          driveEl.textContent = '2WD TRAZIONE ANTERIORE [100:0]';
+          driveEl.style.color = '#94a3b8';
+        }
+      }
+    } else if (cur.id === 'delta_integrale') {
       const torsenBar = this.element.querySelector('#torsen-front-bar');
       const torsenText = this.element.querySelector('#torsen-split-text');
       if (torsenBar && torsenText) {
@@ -14258,6 +14618,23 @@ class Game {
       this.touchInput.onOpenJournal = () => {
         this.storyDiaryModal.toggle();
       };
+      this.touchInput.onHonkHorn = () => {
+        if (!this.isFootMode && this.vehicle && this.vehicle.honkHorn) {
+          this.vehicle.honkHorn();
+        }
+      };
+      this.touchInput.onToggle4WD = () => {
+        if (!this.isFootMode && this.vehicle && this.vehicle.toggle4WD) {
+          const res = this.vehicle.toggle4WD();
+          if (res) this.dashboardHUD.showToast(res.message);
+        }
+      };
+      this.touchInput.onTogglePrimina = () => {
+        if (!this.isFootMode && this.vehicle && this.vehicle.togglePrimina) {
+          const res = this.vehicle.togglePrimina();
+          if (res) this.dashboardHUD.showToast(res.message);
+        }
+      };
     }
 
     // Story Director callbacks
@@ -14383,7 +14760,8 @@ class Game {
       this.survivalState.timeOfDay,
       this.weatherDirector.currentWeather,
       this.biomeManager.currentBiome,
-      this.vehicle.isLightsOn
+      this.vehicle.isLightsOn,
+      delta
     );
     this.renderer.updateLightFollow(activePos);
 

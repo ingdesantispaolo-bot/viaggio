@@ -33,6 +33,8 @@ export class Vehicle {
     this.standstillTimer = 0.0;
     this.wasBraking = false;
     this.reverseArmed = false;
+    this.is4WDEngaged = true; // Steyr-Puch 4WD engaged by default
+    this.priminaCrawlerActive = false; // Primina crawler 1st gear for Panda 4x4
 
     // Engine & Drivetrain Live Telemetry
     this.speedKmh = 0;
@@ -864,6 +866,28 @@ export class Vehicle {
     this.audioEngine.playSwitchClick(this.isLightsOn);
   }
 
+  honkHorn() {
+    if (this.audioEngine && this.audioEngine.playHorn) {
+      this.audioEngine.playHorn(this.modelId);
+    }
+    this.impactShockPitch = 0.025;
+  }
+
+  toggle4WD() {
+    this.is4WDEngaged = !this.is4WDEngaged;
+    if (this.audioEngine && this.audioEngine.play4WDEngage) {
+      this.audioEngine.play4WDEngage(this.is4WDEngaged);
+    }
+  }
+
+  togglePrimina() {
+    if (this.modelId !== 'panda_4x4') return;
+    this.priminaCrawlerActive = !this.priminaCrawlerActive;
+    if (this.audioEngine && this.audioEngine.playSwitchClick) {
+      this.audioEngine.playSwitchClick(this.priminaCrawlerActive);
+    }
+  }
+
   getExhaustPosition() {
     const worldPos = this.exhaustTip.clone();
     worldPos.applyEuler(this.rotation);
@@ -1202,23 +1226,44 @@ export class Vehicle {
     let Fx_rear = 0.0;
 
     if (F_drive > 0) {
-      if (cfg.drivetrain === 'RWD') {
-        // Rear-Wheel-Drive (Giulia Super, W123, Volvo 245): All drive torque at the rear!
+      // Model-specific powertrain physics overrides
+      if (this.modelId === 'panda_4x4') {
+        const isCrawler = this.priminaCrawlerActive || (speedKmh < 24.0 && (input.throttle > 0.45 || absDist > pavedHalfW));
+        if (isCrawler) {
+          F_drive *= 1.85; // Primina Crawler massive mechanical reduction ratio
+        }
+        if (this.is4WDEngaged) {
+          Fx_front = F_drive * 0.50;
+          Fx_rear = F_drive * 0.50;
+        } else {
+          Fx_front = F_drive * 1.0;
+          Fx_rear = 0.0;
+        }
+      } else if (cfg.id === 'delta_integrale' || cfg.id === 'audi_quattro') {
+        // Rally Turbo boost surge at medium-high RPM
+        const turboSurge = (this.rpm > 0.40 && isThrottle) ? (1.0 + (this.boostBar || 0.5) * 0.42) : 1.0;
+        F_drive *= turboSurge;
+        Fx_front = F_drive * 0.47;
+        Fx_rear = F_drive * 0.53;
+      } else if (cfg.id === 'defender_110') {
+        // High torque diesel 200Tdi in low gears
+        const lowEndGrunt = (speedKmh < 35.0 && isThrottle) ? 1.45 : 1.0;
+        F_drive *= lowEndGrunt;
+        Fx_front = F_drive * 0.50;
+        Fx_rear = F_drive * 0.50;
+      } else if (cfg.drivetrain === 'RWD') {
         Fx_rear = F_drive;
         Fx_front = 0.0;
       } else if (cfg.drivetrain === 'FWD') {
         Fx_front = F_drive;
         Fx_rear = 0.0;
       } else if (cfg.drivetrain === 'AWD_TORSEN') {
-        // Lancia Delta HF / Audi Quattro: 47% Front, 53% Rear
         Fx_front = F_drive * 0.47;
         Fx_rear = F_drive * 0.53;
       } else if (cfg.drivetrain === 'AWD_VISCOUS') {
-        // BMW 325iX: 37% Front, 63% Rear
         Fx_front = F_drive * 0.37;
         Fx_rear = F_drive * 0.63;
       } else {
-        // 4WD (Panda 4x4, Defender, G-Wagen, Golf Country, 504 Dangel): 50:50 locked split
         Fx_front = F_drive * 0.50;
         Fx_rear = F_drive * 0.50;
       }
