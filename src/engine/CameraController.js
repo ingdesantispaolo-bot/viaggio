@@ -12,13 +12,13 @@ export class CameraController {
     this.currentHeading = 0.0;
     this.initialized = false;
 
-    // Baseline offsets calibrated for wide 24m highway
-    this.offset = new THREE.Vector3(0, 22.5, -18.0);
-    this.lookAheadDistance = 22.0;
+    // Baseline offsets calibrated for stylized diorama framing (Art of Rally / Circuit Superstars)
+    this.offset = new THREE.Vector3(0, 20.8, -17.2);
+    this.lookAheadDistance = 21.0;
 
     // Dynamic camera damping factors
-    this.posDamping = 6.0;
-    this.rotDamping = 4.2;
+    this.posDamping = 6.2;
+    this.rotDamping = 4.5;
 
     // Screen shake / trauma system
     this.trauma = 0; // 0 to 1
@@ -31,6 +31,14 @@ export class CameraController {
 
   update(delta, targetPos, forwardVelocity = 0, targetHeading = 0, roadHeading = 0) {
     if (!targetPos) return;
+
+    // Dynamic diorama FOV scaling (Art of Rally style: subtle expansion at speed)
+    const normalizedSpeed = Math.max(0, Math.min(1.6, Math.abs(forwardVelocity) / 35.0));
+    const targetFov = 48.0 + normalizedSpeed * 4.5;
+    if (this.camera && this.camera.fov !== undefined) {
+      this.camera.fov = THREE.MathUtils.damp(this.camera.fov, targetFov, 4.0, delta);
+      this.camera.updateProjectionMatrix();
+    }
 
     // If first frame, snap camera immediately behind target
     if (!this.initialized) {
@@ -68,10 +76,9 @@ export class CameraController {
     this.currentHeading += angleDiff * Math.min(1.0, delta * this.rotDamping);
 
     // Dynamic distance & lookahead scaling with forward speed
-    const normalizedSpeed = Math.max(0, Math.min(1.6, Math.abs(forwardVelocity) / 35.0));
-    const dynamicLookAhead = this.lookAheadDistance + normalizedSpeed * 11.0;
-    const dynamicHeight = this.offset.y + normalizedSpeed * 3.2;
-    const dynamicDistance = Math.abs(this.offset.z) + normalizedSpeed * 4.0;
+    const dynamicLookAhead = this.lookAheadDistance + normalizedSpeed * 10.0;
+    const dynamicHeight = this.offset.y + normalizedSpeed * 2.8;
+    const dynamicDistance = Math.abs(this.offset.z) + normalizedSpeed * 3.5;
 
     const sinH = Math.sin(this.currentHeading);
     const cosH = Math.cos(this.currentHeading);

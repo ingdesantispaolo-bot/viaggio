@@ -611,6 +611,60 @@ export class WebAudioEngine {
     osc.stop(now + 0.23);
   }
 
+  playConeKnock(strength = 1.0) {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Resonant hollow plastic clatter
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(420, now);
+    osc.frequency.exponentialRampToValueAtTime(140, now + 0.12);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(560, now);
+    filter.Q.setValueAtTime(4.5, now);
+
+    g.gain.setValueAtTime(Math.min(0.45 * strength, 0.6), now);
+    g.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+
+    osc.connect(filter);
+    filter.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.15);
+
+    const noise = this.createNoiseBurst(0.08, 1200, 0.25 * strength);
+    if (noise) noise.start(now);
+  }
+
+  playWaterSplash(strength = 1.0) {
+    this.ensureContext();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // High frequency watery fizz and low displacement slosh
+    const splash = this.createNoiseBurst(0.35, 3200, 0.38 * strength);
+    if (splash) splash.start(now);
+
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(65, now + 0.25);
+    g.gain.setValueAtTime(0.32 * strength, now);
+    g.gain.exponentialRampToValueAtTime(0.01, now + 0.26);
+
+    osc.connect(g);
+    g.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.27);
+  }
+
   playSwitchClick(isOn = true) {
     this.ensureContext();
     if (!this.ctx) return;

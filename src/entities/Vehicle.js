@@ -191,8 +191,8 @@ export class Vehicle {
 
     const bodyMat = new THREE.MeshStandardMaterial({
       color: palette.bodyColor,
-      roughness: palette.roughness || 0.45,
-      metalness: palette.metalness || 0.55
+      roughness: palette.roughness ? Math.max(0.28, palette.roughness * 0.75) : 0.35,
+      metalness: palette.metalness ? Math.min(0.68, palette.metalness * 1.15) : 0.55
     });
 
     const trimMat = new THREE.MeshStandardMaterial({

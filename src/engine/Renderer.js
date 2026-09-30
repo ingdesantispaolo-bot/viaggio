@@ -57,7 +57,7 @@ export class Renderer {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMappingExposure = 1.18;
 
     this.container.appendChild(this.renderer.domElement);
 
@@ -66,16 +66,16 @@ export class Renderer {
     this.scene.fog = this.fog;
 
     // 5. Multi-tiered Lighting
-    // Ambient light
-    this.ambientLight = new THREE.AmbientLight(0xffeedd, 0.5);
+    // Ambient light with soft warm ground bounce
+    this.ambientLight = new THREE.AmbientLight(0xffeedd, 0.52);
     this.scene.add(this.ambientLight);
 
-    // Hemisphere light: subtle blue sky vs warm ground bounce
-    this.hemiLight = new THREE.HemisphereLight(0x7ba3cc, 0x3d3228, 0.6);
+    // Hemisphere light: subtle blue sky vs warm ground bounce (Dorfromantik & Tiny Glade style)
+    this.hemiLight = new THREE.HemisphereLight(0x8cb6e0, 0x42362b, 0.65);
     this.scene.add(this.hemiLight);
 
     // Directional Sun/Moon with crisp soft shadow frustum
-    this.sunLight = new THREE.DirectionalLight(0xffdfb8, 1.1);
+    this.sunLight = new THREE.DirectionalLight(0xffe2bd, 1.15);
     this.sunLight.position.set(22, 45, 15);
     this.sunLight.castShadow = true;
     this.sunLight.shadow.mapSize.width = 2048;
@@ -87,8 +87,8 @@ export class Renderer {
     this.sunLight.shadow.camera.right = shadowD;
     this.sunLight.shadow.camera.top = shadowD;
     this.sunLight.shadow.camera.bottom = -shadowD;
-    this.sunLight.shadow.bias = -0.0008;
-    this.sunLight.shadow.radius = 2.5;
+    this.sunLight.shadow.bias = -0.0006;
+    this.sunLight.shadow.radius = 2.8;
     this.scene.add(this.sunLight);
     this.scene.add(this.sunLight.target);
 
