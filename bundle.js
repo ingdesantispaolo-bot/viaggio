@@ -8953,6 +8953,7 @@ class Vehicle {
     let F_brake = 0.0;
     const maxSpeedMs = cfg.topSpeedKmh / 3.6;
     const speedAbs = Math.abs(this.forwardSpeed);
+    const speedKmh = speedAbs * 3.6;
 
     // ==========================================
     // REVERSE TRANSMISSION INTERLOCK (PAOLO'S RULES)
@@ -9154,7 +9155,7 @@ class Vehicle {
     const flatTireBias = (this.hasFlatTire && speedAbs > 1.2) ? 0.035 : 0.0;
     const steerCmd = Math.max(-1.0, Math.min(1.0, shapedSteer + flatTireBias));
 
-    const speedKmh = speedAbs * 3.6;
+    // speedKmh is already computed at top of method
     const speedFactor = 1.0 / (1.0 + Math.pow(speedKmh / 38.0, 1.35));
     const modelAgility = cfg.handling.agility || 1.0;
     const maxSteerAngleRad = THREE.MathUtils.lerp(0.12, 0.44, speedFactor) * modelAgility;
@@ -11238,6 +11239,7 @@ class StoryDirector {
     this.claimedRewards = new Set();
     this.receivedDispatches = [];
     this.activeRadioDispatch = null;
+    this.maxDispatchDuration = 24.0;
     this.radioDispatchTimer = 0;
 
     // Callbacks for UI updates
@@ -11818,9 +11820,9 @@ class StoryDirector {
     if (!this.vehicle) return;
 
     const z = this.vehicle.position ? this.vehicle.position.z : 0;
-    const speedKmh = Math.abs(this.vehicle.speed || 0) * 3.6;
-    const fuelLevel = this.survivalState ? this.survivalState.fuel : 30;
-    const hullPercent = this.survivalState ? this.survivalState.hull : 100;
+    const speedKmh = this.vehicle.speedKmh !== undefined ? this.vehicle.speedKmh : Math.abs(this.vehicle.forwardSpeed || 0) * 3.6;
+    const fuelLevel = this.vehicle ? this.vehicle.fuel : (this.survivalState ? this.survivalState.fuel : 30);
+    const hullPercent = this.vehicle ? this.vehicle.hull : (this.survivalState ? this.survivalState.hull : 100);
     const inventoryScrap = this.inventorySystem ? this.inventorySystem.scrapMetal : 0;
 
     // Build context for checks
@@ -11831,7 +11833,7 @@ class StoryDirector {
       hullPercent: hullPercent,
       inventoryScrap: inventoryScrap,
       visitedSettlements: this.poiManager ? this.poiManager.visitedSettlements || new Set() : new Set(),
-      activeVehicleId: this.vehicle.currentModelId || 'panda_4x4'
+      activeVehicleId: this.vehicle.modelId || this.vehicle.currentModelId || 'panda_4x4'
     };
 
     // 1. Check scripted radio triggers based on Z
@@ -11883,7 +11885,8 @@ class StoryDirector {
     });
 
     this.activeRadioDispatch = tx;
-    this.radioDispatchTimer = 9.0; // 9 seconds visible
+    this.maxDispatchDuration = 24.0;
+    this.radioDispatchTimer = this.maxDispatchDuration; // 24 seconds generous reading time
 
     // Play authentic CB audio squelch & roger-beep
     if (this.audioEngine && typeof this.audioEngine.playRadioStatic === 'function') {
@@ -12268,7 +12271,7 @@ class DashboardHUD {
             <span class="cb-rec-text">CB RX LIVE • 27.185 MHz</span>
           </div>
           <span class="cb-channel-badge">CH 19</span>
-          <button class="cb-dismiss-btn" id="btn-dismiss-cb">✕ CHIUDI</button>
+          <button class="cb-dismiss-btn" id="btn-dismiss-cb" title="Chiudi trasmissione (oppure premi [C] o [Esc])">✕ CHIUDI [C]</button>
         </div>
         <div class="cb-overlay-body">
           <div class="cb-avatar-box" id="cb-avatar">🐻</div>
@@ -12279,6 +12282,13 @@ class DashboardHUD {
             </div>
             <p class="cb-message-text" id="cb-message">Messaggio in arrivo...</p>
           </div>
+        </div>
+        <div class="cb-progress-bar-container">
+          <div class="cb-progress-bar-fill" id="cb-progress-fill" style="width: 100%;"></div>
+        </div>
+        <div class="cb-hint-bar">
+          <span>📻 Hai tempo per leggere. Premi <strong style="color:#f1f5f9;">[C]</strong> o <span class="cb-dismiss-link" id="cb-dismiss-link">✕ CHIUDI</span> quando hai finito</span>
+          <span>📖 Rileggi sempre nel <strong>Diario (J)</strong></span>
         </div>
       </div>
 
@@ -12382,15 +12392,6 @@ class DashboardHUD {
     if (storyBanner) {
       storyBanner.addEventListener('click', () => {
         if (this.onOpenStoryDiary) this.onOpenStoryDiary();
-      });
-    }
-
-    const btnDismissCb = this.element.querySelector('#btn-dismiss-cb');
-    if (btnDismissCb) {
-      btnDismissCb.addEventListener('click', () => {
-        const overlay = this.element.querySelector('#cb-radio-overlay');
-        if (overlay) overlay.style.display = 'none';
-        if (this.storyDirector) this.storyDirector.dismissRadioMessage();
       });
     }
 
@@ -12545,6 +12546,30 @@ class DashboardHUD {
         }
       });
     }
+
+    // 14. CB Radio Dispatch Dismiss Controls & Hotkeys
+    const btnDismissCb = this.element.querySelector('#btn-dismiss-cb');
+    const linkDismissCb = this.element.querySelector('#cb-dismiss-link');
+    const dismissRadio = () => {
+      if (this.storyDirector) {
+        this.storyDirector.dismissRadioMessage();
+      } else {
+        const overlay = this.element.querySelector('#cb-radio-overlay');
+        if (overlay) overlay.style.display = 'none';
+      }
+    };
+    if (btnDismissCb) btnDismissCb.addEventListener('click', dismissRadio);
+    if (linkDismissCb) linkDismissCb.addEventListener('click', dismissRadio);
+
+    // Keyboard listener for 'KeyC', 'KeyX', or 'Escape' to dismiss radio message
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyC' || e.code === 'KeyX' || e.code === 'Escape') {
+        const overlay = this.element.querySelector('#cb-radio-overlay');
+        if (overlay && overlay.style.display !== 'none') {
+          dismissRadio();
+        }
+      }
+    });
   }
 
   updateSwitchesVisuals() {
@@ -13578,6 +13603,17 @@ class DashboardHUD {
           if (cbSignal) cbSignal.style.width = '75%';
         }
       }
+
+      // Update CB radio dispatch timer progress bar
+      const progFill = this.element.querySelector('#cb-progress-fill');
+      if (progFill && this.storyDirector) {
+        if (this.storyDirector.activeRadioDispatch && this.storyDirector.maxDispatchDuration > 0) {
+          const total = this.storyDirector.maxDispatchDuration || 24.0;
+          const remain = Math.max(0, this.storyDirector.radioDispatchTimer || 0);
+          const pct = Math.min(100, Math.max(0, (remain / total) * 100));
+          progFill.style.width = `${pct.toFixed(1)}%`;
+        }
+      }
     }
   }
 
@@ -13606,6 +13642,9 @@ class DashboardHUD {
 
     const msg = this.element.querySelector('#cb-message');
     if (msg) msg.textContent = `"${tx.text}"`;
+
+    const progFill = this.element.querySelector('#cb-progress-fill');
+    if (progFill) progFill.style.width = '100%';
   }
 
   handleObjectiveCompleted(obj) {
@@ -13619,14 +13658,14 @@ class DashboardHUD {
     toast.style.opacity = '1';
 
     setTimeout(() => {
-      toast.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      toast.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
       toast.style.opacity = '0';
       toast.style.transform = 'translate(-50%, -20px)';
       setTimeout(() => {
         toast.style.display = 'none';
         toast.style.transform = 'translateX(-50%)';
-      }, 500);
-    }, 4500);
+      }, 600);
+    }, 9500); // 9.5s duration to comfortably read expedition milestones
   }
 
   executeEmergencyRepair() {
@@ -13654,7 +13693,7 @@ class DashboardHUD {
       toast.style.opacity = '0';
       toast.style.transform = 'translate(-50%, -15px)';
       setTimeout(() => toast.remove(), 400);
-    }, 3200);
+    }, 6500); // 6.5s duration for ample time to read HUD alerts
   }
 }
 
@@ -15755,7 +15794,7 @@ class Game {
         this.derelictToast.style.opacity = '0';
         this.derelictToast.style.transform = 'translateX(-50%) translateY(-10px)';
       }
-    }, 6000);
+    }, 11000); // 11s duration for comfortable reading while driving
   }
 
   showBiomeToast(biome) {
@@ -15771,7 +15810,7 @@ class Game {
     setTimeout(() => {
       this.biomeToast.style.opacity = '0';
       this.biomeToast.style.transform = 'translateX(-50%) translateY(-10px)';
-    }, 5500);
+    }, 10500); // 10.5s duration for comfortable reading while driving
   }
 
   bindCallbacks() {
@@ -15895,72 +15934,78 @@ class Game {
 
   loop(currentTime) {
     if (!this.isRunning) return;
-    const delta = Math.min((currentTime - this.lastTime) / 1000, 0.1);
-    this.lastTime = currentTime;
 
-    // 1. Process Input
-    this.touchInput.update();
-
-    // 2. Active target (Vehicle or Foot)
-    const activeTarget = this.isFootMode ? this.playerCharacter : this.vehicle;
-    const activePos = activeTarget.position;
-
-    // 3. Query Road Info at active Z
-    const roadInfo = this.roadGenerator.getRoadInfoAt(activePos.z);
-    const roadImpact = this.weatherDirector.getRoadImpact();
-
-    // 4. Update Entities
-    if (this.isFootMode) {
-      this.playerCharacter.update(delta, this.touchInput, roadInfo);
-      this.vehicle.update(delta, { throttle: 0, brake: 1.0, steer: 0 }, roadInfo, this.renderer, roadImpact);
-    } else {
-      this.vehicle.update(delta, this.touchInput, roadInfo, this.renderer, roadImpact);
-    }
-
-    // Update exhaust particles
-    this.renderer.updateExhaust(delta);
-
-    // Update Malfunctions
-    this.malfunctionManager.update(delta, this.touchInput, this.renderer);
-
-    // 5. Update Hazards & Collisions
-    this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer);
-
-    // 6. Update World Systems & Landscapes
-    this.biomeManager.update(activePos.z);
-    this.roadGenerator.update(activePos.z);
-    this.scenerySpawner.update(activePos.z);
-    this.poiManager.update(activePos);
-    this.landscapeManager.update(activePos.z, delta, this.biomeManager.currentBiome);
-    this.weatherDirector.update(delta, activePos.z, this.roadGenerator);
-    this.upgradeSystem.update(activePos.z);
-    this.storyDirector.update(delta);
-
-    // 7. Update Survival State
-    this.survivalState.update(delta, activePos.z, this.biomeManager.currentBiome, !this.isFootMode);
-
-    // 8. Update Camera & Dynamic Celestial Day/Night Lighting
-    const forwardVel = this.isFootMode ? this.playerCharacter.walkSpeed * 0.5 : this.vehicle.forwardSpeed;
-    const targetHeading = this.isFootMode ? (this.playerCharacter.rotationY || 0) : (this.vehicle.rotation ? this.vehicle.rotation.y : 0);
-    const roadHeading = (roadInfo && roadInfo.roadAngle !== undefined) ? roadInfo.roadAngle : 0;
-    this.cameraController.update(delta, activePos, forwardVel, targetHeading, roadHeading);
-
-    this.renderer.updateDayNightLighting(
-      this.survivalState.timeOfDay,
-      this.weatherDirector.currentWeather,
-      this.biomeManager.currentBiome,
-      this.vehicle.isLightsOn,
-      delta
-    );
-    this.renderer.updateLightFollow(activePos);
-
-    // 9. Update Cockpit Dashboard HUD
-    this.dashboardHUD.update(this.biomeManager.currentBiome, this.poiManager.activeNearbyPOI, this.weatherDirector);
-
-    // 10. Render 3D Scene
-    this.renderer.render();
-
+    // Resilient continuous RAF scheduling: request next frame immediately
     requestAnimationFrame((t) => this.loop(t));
+
+    try {
+      const delta = Math.min((currentTime - this.lastTime) / 1000, 0.1);
+      this.lastTime = currentTime;
+
+      // 1. Process Input
+      this.touchInput.update();
+
+      // 2. Active target (Vehicle or Foot)
+      const activeTarget = this.isFootMode ? this.playerCharacter : this.vehicle;
+      const activePos = activeTarget.position;
+
+      // 3. Query Road Info at active Z
+      const roadInfo = this.roadGenerator.getRoadInfoAt(activePos.z);
+      const roadImpact = this.weatherDirector.getRoadImpact();
+
+      // 4. Update Entities
+      if (this.isFootMode) {
+        this.playerCharacter.update(delta, this.touchInput, roadInfo);
+        this.vehicle.update(delta, { throttle: 0, brake: 1.0, steer: 0 }, roadInfo, this.renderer, roadImpact);
+      } else {
+        this.vehicle.update(delta, this.touchInput, roadInfo, this.renderer, roadImpact);
+      }
+
+      // Update exhaust particles
+      this.renderer.updateExhaust(delta);
+
+      // Update Malfunctions
+      this.malfunctionManager.update(delta, this.touchInput, this.renderer);
+
+      // 5. Update Hazards & Collisions
+      this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer);
+
+      // 6. Update World Systems & Landscapes
+      this.biomeManager.update(activePos.z);
+      this.roadGenerator.update(activePos.z);
+      this.scenerySpawner.update(activePos.z);
+      this.poiManager.update(activePos);
+      this.landscapeManager.update(activePos.z, delta, this.biomeManager.currentBiome);
+      this.weatherDirector.update(delta, activePos.z, this.roadGenerator);
+      this.upgradeSystem.update(activePos.z);
+      this.storyDirector.update(delta);
+
+      // 7. Update Survival State
+      this.survivalState.update(delta, activePos.z, this.biomeManager.currentBiome, !this.isFootMode);
+
+      // 8. Update Camera & Dynamic Celestial Day/Night Lighting
+      const forwardVel = this.isFootMode ? this.playerCharacter.walkSpeed * 0.5 : this.vehicle.forwardSpeed;
+      const targetHeading = this.isFootMode ? (this.playerCharacter.rotationY || 0) : (this.vehicle.rotation ? this.vehicle.rotation.y : 0);
+      const roadHeading = (roadInfo && roadInfo.roadAngle !== undefined) ? roadInfo.roadAngle : 0;
+      this.cameraController.update(delta, activePos, forwardVel, targetHeading, roadHeading);
+
+      this.renderer.updateDayNightLighting(
+        this.survivalState.timeOfDay,
+        this.weatherDirector.currentWeather,
+        this.biomeManager.currentBiome,
+        this.vehicle.isLightsOn,
+        delta
+      );
+      this.renderer.updateLightFollow(activePos);
+
+      // 9. Update Cockpit Dashboard HUD
+      this.dashboardHUD.update(this.biomeManager.currentBiome, this.poiManager.activeNearbyPOI, this.weatherDirector);
+
+      // 10. Render 3D Scene
+      this.renderer.render();
+    } catch (loopErr) {
+      console.error('[THE LONG MERIDIAN - 3D LOOP EXCEPTION]', loopErr);
+    }
   }
 }
 

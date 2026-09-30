@@ -1090,6 +1090,7 @@ export class Vehicle {
     let F_brake = 0.0;
     const maxSpeedMs = cfg.topSpeedKmh / 3.6;
     const speedAbs = Math.abs(this.forwardSpeed);
+    const speedKmh = speedAbs * 3.6;
 
     // ==========================================
     // REVERSE TRANSMISSION INTERLOCK (PAOLO'S RULES)
@@ -1291,7 +1292,7 @@ export class Vehicle {
     const flatTireBias = (this.hasFlatTire && speedAbs > 1.2) ? 0.035 : 0.0;
     const steerCmd = Math.max(-1.0, Math.min(1.0, shapedSteer + flatTireBias));
 
-    const speedKmh = speedAbs * 3.6;
+    // speedKmh is already computed at top of method
     const speedFactor = 1.0 / (1.0 + Math.pow(speedKmh / 38.0, 1.35));
     const modelAgility = cfg.handling.agility || 1.0;
     const maxSteerAngleRad = THREE.MathUtils.lerp(0.12, 0.44, speedFactor) * modelAgility;

@@ -18,6 +18,7 @@ export class StoryDirector {
     this.claimedRewards = new Set();
     this.receivedDispatches = [];
     this.activeRadioDispatch = null;
+    this.maxDispatchDuration = 24.0;
     this.radioDispatchTimer = 0;
 
     // Callbacks for UI updates
@@ -598,9 +599,9 @@ export class StoryDirector {
     if (!this.vehicle) return;
 
     const z = this.vehicle.position ? this.vehicle.position.z : 0;
-    const speedKmh = Math.abs(this.vehicle.speed || 0) * 3.6;
-    const fuelLevel = this.survivalState ? this.survivalState.fuel : 30;
-    const hullPercent = this.survivalState ? this.survivalState.hull : 100;
+    const speedKmh = this.vehicle.speedKmh !== undefined ? this.vehicle.speedKmh : Math.abs(this.vehicle.forwardSpeed || 0) * 3.6;
+    const fuelLevel = this.vehicle ? this.vehicle.fuel : (this.survivalState ? this.survivalState.fuel : 30);
+    const hullPercent = this.vehicle ? this.vehicle.hull : (this.survivalState ? this.survivalState.hull : 100);
     const inventoryScrap = this.inventorySystem ? this.inventorySystem.scrapMetal : 0;
 
     // Build context for checks
@@ -611,7 +612,7 @@ export class StoryDirector {
       hullPercent: hullPercent,
       inventoryScrap: inventoryScrap,
       visitedSettlements: this.poiManager ? this.poiManager.visitedSettlements || new Set() : new Set(),
-      activeVehicleId: this.vehicle.currentModelId || 'panda_4x4'
+      activeVehicleId: this.vehicle.modelId || this.vehicle.currentModelId || 'panda_4x4'
     };
 
     // 1. Check scripted radio triggers based on Z
@@ -663,7 +664,8 @@ export class StoryDirector {
     });
 
     this.activeRadioDispatch = tx;
-    this.radioDispatchTimer = 9.0; // 9 seconds visible
+    this.maxDispatchDuration = 24.0;
+    this.radioDispatchTimer = this.maxDispatchDuration; // 24 seconds generous reading time
 
     // Play authentic CB audio squelch & roger-beep
     if (this.audioEngine && typeof this.audioEngine.playRadioStatic === 'function') {

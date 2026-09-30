@@ -175,7 +175,7 @@ export class Game {
         this.derelictToast.style.opacity = '0';
         this.derelictToast.style.transform = 'translateX(-50%) translateY(-10px)';
       }
-    }, 6000);
+    }, 11000); // 11s duration for comfortable reading while driving
   }
 
   showBiomeToast(biome) {
@@ -191,7 +191,7 @@ export class Game {
     setTimeout(() => {
       this.biomeToast.style.opacity = '0';
       this.biomeToast.style.transform = 'translateX(-50%) translateY(-10px)';
-    }, 5500);
+    }, 10500); // 10.5s duration for comfortable reading while driving
   }
 
   bindCallbacks() {
@@ -315,72 +315,78 @@ export class Game {
 
   loop(currentTime) {
     if (!this.isRunning) return;
-    const delta = Math.min((currentTime - this.lastTime) / 1000, 0.1);
-    this.lastTime = currentTime;
 
-    // 1. Process Input
-    this.touchInput.update();
-
-    // 2. Active target (Vehicle or Foot)
-    const activeTarget = this.isFootMode ? this.playerCharacter : this.vehicle;
-    const activePos = activeTarget.position;
-
-    // 3. Query Road Info at active Z
-    const roadInfo = this.roadGenerator.getRoadInfoAt(activePos.z);
-    const roadImpact = this.weatherDirector.getRoadImpact();
-
-    // 4. Update Entities
-    if (this.isFootMode) {
-      this.playerCharacter.update(delta, this.touchInput, roadInfo);
-      this.vehicle.update(delta, { throttle: 0, brake: 1.0, steer: 0 }, roadInfo, this.renderer, roadImpact);
-    } else {
-      this.vehicle.update(delta, this.touchInput, roadInfo, this.renderer, roadImpact);
-    }
-
-    // Update exhaust particles
-    this.renderer.updateExhaust(delta);
-
-    // Update Malfunctions
-    this.malfunctionManager.update(delta, this.touchInput, this.renderer);
-
-    // 5. Update Hazards & Collisions
-    this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer);
-
-    // 6. Update World Systems & Landscapes
-    this.biomeManager.update(activePos.z);
-    this.roadGenerator.update(activePos.z);
-    this.scenerySpawner.update(activePos.z);
-    this.poiManager.update(activePos);
-    this.landscapeManager.update(activePos.z, delta, this.biomeManager.currentBiome);
-    this.weatherDirector.update(delta, activePos.z, this.roadGenerator);
-    this.upgradeSystem.update(activePos.z);
-    this.storyDirector.update(delta);
-
-    // 7. Update Survival State
-    this.survivalState.update(delta, activePos.z, this.biomeManager.currentBiome, !this.isFootMode);
-
-    // 8. Update Camera & Dynamic Celestial Day/Night Lighting
-    const forwardVel = this.isFootMode ? this.playerCharacter.walkSpeed * 0.5 : this.vehicle.forwardSpeed;
-    const targetHeading = this.isFootMode ? (this.playerCharacter.rotationY || 0) : (this.vehicle.rotation ? this.vehicle.rotation.y : 0);
-    const roadHeading = (roadInfo && roadInfo.roadAngle !== undefined) ? roadInfo.roadAngle : 0;
-    this.cameraController.update(delta, activePos, forwardVel, targetHeading, roadHeading);
-
-    this.renderer.updateDayNightLighting(
-      this.survivalState.timeOfDay,
-      this.weatherDirector.currentWeather,
-      this.biomeManager.currentBiome,
-      this.vehicle.isLightsOn,
-      delta
-    );
-    this.renderer.updateLightFollow(activePos);
-
-    // 9. Update Cockpit Dashboard HUD
-    this.dashboardHUD.update(this.biomeManager.currentBiome, this.poiManager.activeNearbyPOI, this.weatherDirector);
-
-    // 10. Render 3D Scene
-    this.renderer.render();
-
+    // Resilient continuous RAF scheduling: request next frame immediately
     requestAnimationFrame((t) => this.loop(t));
+
+    try {
+      const delta = Math.min((currentTime - this.lastTime) / 1000, 0.1);
+      this.lastTime = currentTime;
+
+      // 1. Process Input
+      this.touchInput.update();
+
+      // 2. Active target (Vehicle or Foot)
+      const activeTarget = this.isFootMode ? this.playerCharacter : this.vehicle;
+      const activePos = activeTarget.position;
+
+      // 3. Query Road Info at active Z
+      const roadInfo = this.roadGenerator.getRoadInfoAt(activePos.z);
+      const roadImpact = this.weatherDirector.getRoadImpact();
+
+      // 4. Update Entities
+      if (this.isFootMode) {
+        this.playerCharacter.update(delta, this.touchInput, roadInfo);
+        this.vehicle.update(delta, { throttle: 0, brake: 1.0, steer: 0 }, roadInfo, this.renderer, roadImpact);
+      } else {
+        this.vehicle.update(delta, this.touchInput, roadInfo, this.renderer, roadImpact);
+      }
+
+      // Update exhaust particles
+      this.renderer.updateExhaust(delta);
+
+      // Update Malfunctions
+      this.malfunctionManager.update(delta, this.touchInput, this.renderer);
+
+      // 5. Update Hazards & Collisions
+      this.hazards.update(activePos.z, this.vehicle, this.playerCharacter, delta, this.malfunctionManager, this.renderer);
+
+      // 6. Update World Systems & Landscapes
+      this.biomeManager.update(activePos.z);
+      this.roadGenerator.update(activePos.z);
+      this.scenerySpawner.update(activePos.z);
+      this.poiManager.update(activePos);
+      this.landscapeManager.update(activePos.z, delta, this.biomeManager.currentBiome);
+      this.weatherDirector.update(delta, activePos.z, this.roadGenerator);
+      this.upgradeSystem.update(activePos.z);
+      this.storyDirector.update(delta);
+
+      // 7. Update Survival State
+      this.survivalState.update(delta, activePos.z, this.biomeManager.currentBiome, !this.isFootMode);
+
+      // 8. Update Camera & Dynamic Celestial Day/Night Lighting
+      const forwardVel = this.isFootMode ? this.playerCharacter.walkSpeed * 0.5 : this.vehicle.forwardSpeed;
+      const targetHeading = this.isFootMode ? (this.playerCharacter.rotationY || 0) : (this.vehicle.rotation ? this.vehicle.rotation.y : 0);
+      const roadHeading = (roadInfo && roadInfo.roadAngle !== undefined) ? roadInfo.roadAngle : 0;
+      this.cameraController.update(delta, activePos, forwardVel, targetHeading, roadHeading);
+
+      this.renderer.updateDayNightLighting(
+        this.survivalState.timeOfDay,
+        this.weatherDirector.currentWeather,
+        this.biomeManager.currentBiome,
+        this.vehicle.isLightsOn,
+        delta
+      );
+      this.renderer.updateLightFollow(activePos);
+
+      // 9. Update Cockpit Dashboard HUD
+      this.dashboardHUD.update(this.biomeManager.currentBiome, this.poiManager.activeNearbyPOI, this.weatherDirector);
+
+      // 10. Render 3D Scene
+      this.renderer.render();
+    } catch (loopErr) {
+      console.error('[THE LONG MERIDIAN - 3D LOOP EXCEPTION]', loopErr);
+    }
   }
 }
 

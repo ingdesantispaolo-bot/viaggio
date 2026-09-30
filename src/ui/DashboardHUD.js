@@ -292,7 +292,7 @@ export class DashboardHUD {
             <span class="cb-rec-text">CB RX LIVE • 27.185 MHz</span>
           </div>
           <span class="cb-channel-badge">CH 19</span>
-          <button class="cb-dismiss-btn" id="btn-dismiss-cb">✕ CHIUDI</button>
+          <button class="cb-dismiss-btn" id="btn-dismiss-cb" title="Chiudi trasmissione (oppure premi [C] o [Esc])">✕ CHIUDI [C]</button>
         </div>
         <div class="cb-overlay-body">
           <div class="cb-avatar-box" id="cb-avatar">🐻</div>
@@ -303,6 +303,13 @@ export class DashboardHUD {
             </div>
             <p class="cb-message-text" id="cb-message">Messaggio in arrivo...</p>
           </div>
+        </div>
+        <div class="cb-progress-bar-container">
+          <div class="cb-progress-bar-fill" id="cb-progress-fill" style="width: 100%;"></div>
+        </div>
+        <div class="cb-hint-bar">
+          <span>📻 Hai tempo per leggere. Premi <strong style="color:#f1f5f9;">[C]</strong> o <span class="cb-dismiss-link" id="cb-dismiss-link">✕ CHIUDI</span> quando hai finito</span>
+          <span>📖 Rileggi sempre nel <strong>Diario (J)</strong></span>
         </div>
       </div>
 
@@ -406,15 +413,6 @@ export class DashboardHUD {
     if (storyBanner) {
       storyBanner.addEventListener('click', () => {
         if (this.onOpenStoryDiary) this.onOpenStoryDiary();
-      });
-    }
-
-    const btnDismissCb = this.element.querySelector('#btn-dismiss-cb');
-    if (btnDismissCb) {
-      btnDismissCb.addEventListener('click', () => {
-        const overlay = this.element.querySelector('#cb-radio-overlay');
-        if (overlay) overlay.style.display = 'none';
-        if (this.storyDirector) this.storyDirector.dismissRadioMessage();
       });
     }
 
@@ -569,6 +567,30 @@ export class DashboardHUD {
         }
       });
     }
+
+    // 14. CB Radio Dispatch Dismiss Controls & Hotkeys
+    const btnDismissCb = this.element.querySelector('#btn-dismiss-cb');
+    const linkDismissCb = this.element.querySelector('#cb-dismiss-link');
+    const dismissRadio = () => {
+      if (this.storyDirector) {
+        this.storyDirector.dismissRadioMessage();
+      } else {
+        const overlay = this.element.querySelector('#cb-radio-overlay');
+        if (overlay) overlay.style.display = 'none';
+      }
+    };
+    if (btnDismissCb) btnDismissCb.addEventListener('click', dismissRadio);
+    if (linkDismissCb) linkDismissCb.addEventListener('click', dismissRadio);
+
+    // Keyboard listener for 'KeyC', 'KeyX', or 'Escape' to dismiss radio message
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyC' || e.code === 'KeyX' || e.code === 'Escape') {
+        const overlay = this.element.querySelector('#cb-radio-overlay');
+        if (overlay && overlay.style.display !== 'none') {
+          dismissRadio();
+        }
+      }
+    });
   }
 
   updateSwitchesVisuals() {
@@ -1602,6 +1624,17 @@ export class DashboardHUD {
           if (cbSignal) cbSignal.style.width = '75%';
         }
       }
+
+      // Update CB radio dispatch timer progress bar
+      const progFill = this.element.querySelector('#cb-progress-fill');
+      if (progFill && this.storyDirector) {
+        if (this.storyDirector.activeRadioDispatch && this.storyDirector.maxDispatchDuration > 0) {
+          const total = this.storyDirector.maxDispatchDuration || 24.0;
+          const remain = Math.max(0, this.storyDirector.radioDispatchTimer || 0);
+          const pct = Math.min(100, Math.max(0, (remain / total) * 100));
+          progFill.style.width = `${pct.toFixed(1)}%`;
+        }
+      }
     }
   }
 
@@ -1630,6 +1663,9 @@ export class DashboardHUD {
 
     const msg = this.element.querySelector('#cb-message');
     if (msg) msg.textContent = `"${tx.text}"`;
+
+    const progFill = this.element.querySelector('#cb-progress-fill');
+    if (progFill) progFill.style.width = '100%';
   }
 
   handleObjectiveCompleted(obj) {
@@ -1643,14 +1679,14 @@ export class DashboardHUD {
     toast.style.opacity = '1';
 
     setTimeout(() => {
-      toast.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      toast.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
       toast.style.opacity = '0';
       toast.style.transform = 'translate(-50%, -20px)';
       setTimeout(() => {
         toast.style.display = 'none';
         toast.style.transform = 'translateX(-50%)';
-      }, 500);
-    }, 4500);
+      }, 600);
+    }, 9500); // 9.5s duration to comfortably read expedition milestones
   }
 
   executeEmergencyRepair() {
@@ -1678,6 +1714,6 @@ export class DashboardHUD {
       toast.style.opacity = '0';
       toast.style.transform = 'translate(-50%, -15px)';
       setTimeout(() => toast.remove(), 400);
-    }, 3200);
+    }, 6500); // 6.5s duration for ample time to read HUD alerts
   }
 }
