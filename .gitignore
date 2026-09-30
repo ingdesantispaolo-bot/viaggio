@@ -12,3 +12,9 @@ npm-debug.log*
 # Scratch/temp logs
 *.log
 scratch/
+
+# Large binary Godot executables (downloaded locally, >100MB exceeds GitHub limit)
+godot_project/Godot_v4*.exe
+godot_project/godot_v4*.zip
+godot_project/.godot/
+godot_project/_sc_

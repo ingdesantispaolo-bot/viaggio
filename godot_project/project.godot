@@ -10,6 +10,8 @@ config/name="Il Grande Meridiano"
 config/description="Overland Expedition - Art of Rally / Tiny Glade Inspired Diorama Driving Simulation"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
+application/config/use_custom_user_dir=true
+application/config/custom_user_dir_name="IlGrandeMeridiano"
 
 [display]
 
