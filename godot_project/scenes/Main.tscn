@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_main_script"]
 [ext_resource type="Environment" path="res://resources/world_environment.tres" id="2_env"]
@@ -8,6 +8,15 @@
 [ext_resource type="Script" path="res://scripts/CameraController.gd" id="6_cam_script"]
 [ext_resource type="PackedScene" path="res://scenes/DashboardUI.tscn" id="7_ui_scene"]
 [ext_resource type="Script" path="res://scripts/BiomeDirector.gd" id="8_biome_script"]
+[ext_resource type="Shader" path="res://shaders/diorama_tilt_shift.gdshader" id="9_tilt_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tiltshift"]
+shader = ExtResource("9_tilt_shader")
+shader_parameter/focus_plane_y = 0.54
+shader_parameter/focus_band_width = 0.16
+shader_parameter/max_blur_radius = 4.8
+shader_parameter/vignette_strength = 0.28
+shader_parameter/vignette_color = Color(0.04, 0.06, 0.08, 1)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main_script")
@@ -46,4 +55,19 @@ script = ExtResource("6_cam_script")
 target_node = NodePath("../Vehicle")
 road_generator = NodePath("../RoadGenerator")
 
-[node name="DashboardUI" parent="." instance=ExtResource("7_ui_scene")]
+[node name="PostProcessLayer" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="TiltShiftRect" type="ColorRect" parent="PostProcessLayer"]
+material = SubResource("ShaderMaterial_tiltshift")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="DashboardUI" parent="UILayer" instance=ExtResource("7_ui_scene")]

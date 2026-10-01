@@ -15,7 +15,7 @@ const BiomeDirector = preload("res://scripts/BiomeDirector.gd")
 @onready var road_gen: RoadGenerator = $RoadGenerator
 @onready var hazard_mgr: HazardManager = $HazardManager
 @onready var camera: CameraController = $CameraController
-@onready var dashboard_ui: DashboardUI = $DashboardUI
+@onready var dashboard_ui: DashboardUI = ($UILayer/DashboardUI if has_node("UILayer/DashboardUI") else $DashboardUI) as DashboardUI
 @onready var sun_light: DirectionalLight3D = $SunLight
 @onready var world_env: WorldEnvironment = $WorldEnvironment
 @onready var biome_dir: BiomeDirector = $BiomeDirector
@@ -58,7 +58,11 @@ func _process(_delta: float):
     if biome_dir:
         biome_dir.update_biome(player_z, _delta)
         
-    # 4. Directional sun follows vehicle along highway
+    # 4. Aerodynamic vehicle wake & position for foliage wind shader
+    RenderingServer.global_shader_parameter_set("player_car_pos", vehicle.global_position)
+    RenderingServer.global_shader_parameter_set("player_car_speed", vehicle.current_speed_kmh)
+        
+    # 5. Directional sun follows vehicle along highway
     if sun_light:
         sun_light.global_position = Vector3(vehicle.global_position.x + 22.0, 45.0, player_z + 15.0)
 

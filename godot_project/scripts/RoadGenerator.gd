@@ -17,10 +17,11 @@ var last_chunk_angle: float = 0.0
 
 var grass_material: StandardMaterial3D
 var post_material: StandardMaterial3D
-var pine_material: StandardMaterial3D
+var pine_material: ShaderMaterial
 var rock_material: StandardMaterial3D
 var guardrail_material: StandardMaterial3D
-var bush_material: StandardMaterial3D
+var bush_material: ShaderMaterial
+var crop_material: ShaderMaterial
 
 func _ready():
     # If no custom shader material assigned, load stylized asphalt shader
@@ -38,9 +39,30 @@ func _ready():
     post_material.albedo_color = Color(0.92, 0.92, 0.92)
     post_material.roughness = 0.5
     
-    pine_material = StandardMaterial3D.new()
-    pine_material.albedo_color = Color(0.16, 0.28, 0.18)
-    pine_material.roughness = 0.85
+    # Load synchronized wind & vehicle wake shader for vegetation
+    var foliage_shader = load("res://shaders/stylized_foliage.gdshader")
+    
+    pine_material = ShaderMaterial.new()
+    pine_material.shader = foliage_shader
+    pine_material.set_shader_parameter("base_foliage_color", Color(0.12, 0.24, 0.15))
+    pine_material.set_shader_parameter("tip_foliage_color", Color(0.26, 0.46, 0.20))
+    pine_material.set_shader_parameter("wind_amplitude", 0.15)
+    pine_material.set_shader_parameter("wake_sensitivity", 1.1)
+    
+    bush_material = ShaderMaterial.new()
+    bush_material.shader = foliage_shader
+    bush_material.set_shader_parameter("base_foliage_color", Color(0.18, 0.32, 0.18))
+    bush_material.set_shader_parameter("tip_foliage_color", Color(0.35, 0.52, 0.22))
+    bush_material.set_shader_parameter("wind_amplitude", 0.18)
+    bush_material.set_shader_parameter("wake_sensitivity", 1.4)
+    
+    # Dorfromantik golden crops & wildflower patches
+    crop_material = ShaderMaterial.new()
+    crop_material.shader = foliage_shader
+    crop_material.set_shader_parameter("base_foliage_color", Color(0.68, 0.50, 0.18))
+    crop_material.set_shader_parameter("tip_foliage_color", Color(0.94, 0.78, 0.30))
+    crop_material.set_shader_parameter("wind_amplitude", 0.28)
+    crop_material.set_shader_parameter("wake_sensitivity", 1.9)
     
     rock_material = StandardMaterial3D.new()
     rock_material.albedo_color = Color(0.38, 0.36, 0.35)
@@ -50,10 +72,6 @@ func _ready():
     guardrail_material.albedo_color = Color(0.72, 0.74, 0.76)
     guardrail_material.metallic = 0.85
     guardrail_material.roughness = 0.32
-    
-    bush_material = StandardMaterial3D.new()
-    bush_material.albedo_color = Color(0.22, 0.34, 0.20)
-    bush_material.roughness = 0.95
     
     # Generate initial visible stretch of 6 chunks ahead
     for i in range(6):
@@ -272,6 +290,24 @@ func spawn_roadside_props(root: Node3D, points: Array):
             bush.mesh = b_sph
             bush.position = Vector3(rock.position.x + randf_range(-1.2, 1.2), p.y + 0.3, p.z + randf_range(-1.0, 1.0))
             root.add_child(bush)
+            
+        # 5. Dorfromantik roadside reactive crop patches & wildflowers
+        if i % 2 == 0 and p.z > 20.0:
+            for side in [-1.0, 1.0]:
+                var crop_node = Node3D.new()
+                var c_mesh = MeshInstance3D.new()
+                var cyl = CylinderMesh.new()
+                var cr_h = randf_range(0.95, 1.45)
+                cyl.top_radius = 0.58; cyl.bottom_radius = 0.14; cyl.height = cr_h
+                cyl.material = crop_material
+                c_mesh.mesh = cyl
+                c_mesh.position.y = cr_h * 0.5
+                crop_node.add_child(c_mesh)
+                
+                # Close to the roadside verge so car wake visibly displaces them
+                var c_dist = side * (hw + randf_range(1.1, 3.4))
+                crop_node.position = Vector3(p.x + c_dist, p.y - 0.05, p.z + randf_range(-1.2, 1.2))
+                root.add_child(crop_node)
 
 func add_quad(st: SurfaceTool, col_faces: PackedVector3Array, a: Vector3, b: Vector3, c: Vector3, d: Vector3, u1: float, u2: float, v1: float, v2: float):
     # Triangle 1 (a, b, c)

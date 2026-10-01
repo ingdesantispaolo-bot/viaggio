@@ -13,6 +13,9 @@ signal biome_changed(biome_name)
 var current_biome_index: int = -1
 var current_biome_name: String = ""
 
+var current_wetness: float = 0.15
+var current_wind: float = 1.0
+
 # Biome definitions along the Z progression
 var biomes = [
     {
@@ -25,11 +28,13 @@ var biomes = [
         "sun_angle_x": -38.0,
         "sun_angle_y": 28.0,
         "sky_top": Color(0.22, 0.44, 0.74),
-        "sky_horizon": Color(0.78, 0.70, 0.60)
+        "sky_horizon": Color(0.78, 0.70, 0.60),
+        "wetness": 0.12,
+        "wind": 1.0
     },
     {
         "start_z": 1400.0,
-        "name": "GOLA DEL MERIDIANO - NEBBIA VOLUMETRICA",
+        "name": "GOLA DEL MERIDIANO - PIOGGIA & NEBBIA",
         "fog_density": 0.024,
         "fog_color": Color(0.70, 0.82, 0.90),
         "sun_color": Color(0.98, 0.92, 0.82),
@@ -37,7 +42,9 @@ var biomes = [
         "sun_angle_x": -26.0,
         "sun_angle_y": 42.0,
         "sky_top": Color(0.35, 0.50, 0.68),
-        "sky_horizon": Color(0.68, 0.74, 0.78)
+        "sky_horizon": Color(0.68, 0.74, 0.78),
+        "wetness": 0.88,
+        "wind": 1.6
     },
     {
         "start_z": 3000.0,
@@ -49,7 +56,9 @@ var biomes = [
         "sun_angle_x": -22.0,
         "sun_angle_y": 55.0,
         "sky_top": Color(0.24, 0.42, 0.65),
-        "sky_horizon": Color(0.82, 0.68, 0.52)
+        "sky_horizon": Color(0.82, 0.68, 0.52),
+        "wetness": 0.42,
+        "wind": 1.2
     },
     {
         "start_z": 4800.0,
@@ -61,7 +70,9 @@ var biomes = [
         "sun_angle_x": -14.0,
         "sun_angle_y": 72.0,
         "sky_top": Color(0.32, 0.28, 0.55),
-        "sky_horizon": Color(0.95, 0.58, 0.35)
+        "sky_horizon": Color(0.95, 0.58, 0.35),
+        "wetness": 0.22,
+        "wind": 0.85
     }
 ]
 
@@ -100,3 +111,10 @@ func update_biome(player_z: float, delta: float):
         var target_rot_y = deg_to_rad(b.sun_angle_y)
         sun_light.rotation.x = lerp_angle(sun_light.rotation.x, target_rot_x, delta * 0.25)
         sun_light.rotation.y = lerp_angle(sun_light.rotation.y, target_rot_y, delta * 0.25)
+        
+    # 3. Dynamic road wetness, puddle accumulation, and wind fields
+    current_wetness = lerp(current_wetness, float(b.wetness), delta * 0.25)
+    current_wind = lerp(current_wind, float(b.wind), delta * 0.35)
+    
+    RenderingServer.global_shader_parameter_set("global_wetness", current_wetness)
+    RenderingServer.global_shader_parameter_set("global_wind_strength", current_wind)
