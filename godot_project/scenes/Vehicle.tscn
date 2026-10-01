@@ -1,20 +1,32 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/VehicleController.gd" id="1_script"]
 [ext_resource type="Script" path="res://scripts/VehicleAudio.gd" id="2_audio_script"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_chassis"]
-size = Vector3(1.68, 0.95, 3.4)
+size = Vector3(1.72, 0.95, 3.8)
 
-[sub_resource type="StandardMaterial3D" id="Mat_Body"]
+[sub_resource type="StandardMaterial3D" id="Mat_PandaBody"]
 albedo_color = Color(0.18, 0.30, 0.22, 1)
 roughness = 0.35
 metallic = 0.45
 clearcoat_enabled = true
 clearcoat = 0.55
 
+[sub_resource type="StandardMaterial3D" id="Mat_DeltaBody"]
+albedo_color = Color(0.80, 0.08, 0.08, 1)
+roughness = 0.20
+metallic = 0.65
+clearcoat_enabled = true
+clearcoat = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_GwagenBody"]
+albedo_color = Color(0.24, 0.28, 0.22, 1)
+roughness = 0.75
+metallic = 0.20
+
 [sub_resource type="StandardMaterial3D" id="Mat_Plastic"]
-albedo_color = Color(0.12, 0.12, 0.13, 1)
+albedo_color = Color(0.11, 0.11, 0.12, 1)
 roughness = 0.88
 
 [sub_resource type="StandardMaterial3D" id="Mat_Glass"]
@@ -24,9 +36,19 @@ metallic = 0.85
 transparency = 1
 
 [sub_resource type="StandardMaterial3D" id="Mat_Steel"]
-albedo_color = Color(0.68, 0.70, 0.72, 1)
-roughness = 0.30
-metallic = 0.90
+albedo_color = Color(0.70, 0.72, 0.74, 1)
+roughness = 0.28
+metallic = 0.92
+
+[sub_resource type="StandardMaterial3D" id="Mat_Chrome"]
+albedo_color = Color(0.92, 0.94, 0.96, 1)
+roughness = 0.15
+metallic = 0.98
+
+[sub_resource type="StandardMaterial3D" id="Mat_SpeedlineWhite"]
+albedo_color = Color(0.90, 0.92, 0.94, 1)
+roughness = 0.25
+metallic = 0.80
 
 [sub_resource type="StandardMaterial3D" id="Mat_Tire"]
 albedo_color = Color(0.08, 0.08, 0.09, 1)
@@ -42,19 +64,54 @@ emission_energy_multiplier = 2.5
 albedo_color = Color(1.0, 0.82, 0.15, 1)
 emission_enabled = true
 emission = Color(1.0, 0.82, 0.15, 1)
-emission_energy_multiplier = 2.0
+emission_energy_multiplier = 2.2
 
 [sub_resource type="StandardMaterial3D" id="Mat_Jerrycan"]
 albedo_color = Color(0.78, 0.18, 0.15, 1)
 roughness = 0.45
 
-[sub_resource type="BoxMesh" id="Mesh_Body"]
-material = SubResource("Mat_Body")
-size = Vector3(1.65, 0.72, 3.3)
+; Meshes
+[sub_resource type="BoxMesh" id="Mesh_PandaBody"]
+material = SubResource("Mat_PandaBody")
+size = Vector3(1.62, 0.68, 3.25)
 
-[sub_resource type="BoxMesh" id="Mesh_Cabin"]
+[sub_resource type="BoxMesh" id="Mesh_PandaCabin"]
 material = SubResource("Mat_Glass")
-size = Vector3(1.45, 0.68, 1.95)
+size = Vector3(1.42, 0.66, 1.90)
+
+[sub_resource type="BoxMesh" id="Mesh_DeltaBody"]
+material = SubResource("Mat_DeltaBody")
+size = Vector3(1.76, 0.60, 3.85)
+
+[sub_resource type="BoxMesh" id="Mesh_DeltaCabin"]
+material = SubResource("Mat_Glass")
+size = Vector3(1.46, 0.58, 2.05)
+
+[sub_resource type="BoxMesh" id="Mesh_DeltaFlare"]
+material = SubResource("Mat_DeltaBody")
+size = Vector3(0.14, 0.44, 0.90)
+
+[sub_resource type="BoxMesh" id="Mesh_DeltaBulge"]
+material = SubResource("Mat_DeltaBody")
+size = Vector3(0.85, 0.08, 1.10)
+
+[sub_resource type="BoxMesh" id="Mesh_DeltaWing"]
+material = SubResource("Mat_Plastic")
+size = Vector3(1.48, 0.08, 0.32)
+
+[sub_resource type="BoxMesh" id="Mesh_GwagenBody"]
+material = SubResource("Mat_GwagenBody")
+size = Vector3(1.72, 0.82, 4.10)
+
+[sub_resource type="BoxMesh" id="Mesh_GwagenCabin"]
+material = SubResource("Mat_Glass")
+size = Vector3(1.52, 0.78, 2.45)
+
+[sub_resource type="CylinderMesh" id="Mesh_GwagenSnorkel"]
+material = SubResource("Mat_Plastic")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 1.35
 
 [sub_resource type="CylinderMesh" id="Mesh_Wheel"]
 material = SubResource("Mat_Tire")
@@ -67,29 +124,17 @@ radial_segments = 16
 material = SubResource("Mat_Amber")
 size = Vector3(0.12, 0.08, 0.06)
 
-[sub_resource type="BoxMesh" id="Mesh_Grille"]
+[sub_resource type="BoxMesh" id="Mesh_PlasticBar"]
 material = SubResource("Mat_Plastic")
-size = Vector3(1.25, 0.30, 0.08)
+size = Vector3(1.70, 0.20, 0.20)
 
-[sub_resource type="BoxMesh" id="Mesh_Bumper"]
-material = SubResource("Mat_Plastic")
-size = Vector3(1.70, 0.22, 0.22)
-
-[sub_resource type="BoxMesh" id="Mesh_Bullbar"]
+[sub_resource type="BoxMesh" id="Mesh_SteelBar"]
 material = SubResource("Mat_Steel")
 size = Vector3(1.15, 0.26, 0.08)
 
 [sub_resource type="BoxMesh" id="Mesh_SideStrip"]
 material = SubResource("Mat_Plastic")
 size = Vector3(0.04, 0.16, 1.70)
-
-[sub_resource type="BoxMesh" id="Mesh_RackRail"]
-material = SubResource("Mat_Steel")
-size = Vector3(0.05, 0.10, 1.85)
-
-[sub_resource type="BoxMesh" id="Mesh_RackCross"]
-material = SubResource("Mat_Steel")
-size = Vector3(1.35, 0.04, 0.04)
 
 [sub_resource type="BoxMesh" id="Mesh_Jerrycan"]
 material = SubResource("Mat_Jerrycan")
@@ -109,74 +154,138 @@ script = ExtResource("1_script")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
 shape = SubResource("BoxShape3D_chassis")
 
-[node name="BodyMesh" type="MeshInstance3D" parent="."]
+; ==============================================================================
+; MODEL 1: FIAT PANDA 4x4 STEYR-PUCH (1983)
+; ==============================================================================
+[node name="ModelPanda" type="Node3D" parent="."]
+
+[node name="BodyMesh" type="MeshInstance3D" parent="ModelPanda"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58, 0)
-mesh = SubResource("Mesh_Body")
+mesh = SubResource("Mesh_PandaBody")
 
-[node name="CabinMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.18, 0.15)
-mesh = SubResource("Mesh_Cabin")
+[node name="CabinMesh" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0.15)
+mesh = SubResource("Mesh_PandaCabin")
 
-[node name="GrilleMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60, -1.66)
-mesh = SubResource("Mesh_Grille")
+[node name="BumperFront" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, -1.68)
+mesh = SubResource("Mesh_PlasticBar")
 
-[node name="BumperFront" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.40, -1.72)
-mesh = SubResource("Mesh_Bumper")
+[node name="BullbarFront" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, -1.78)
+mesh = SubResource("Mesh_SteelBar")
 
-[node name="BullbarFront" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.54, -1.82)
-mesh = SubResource("Mesh_Bullbar")
+[node name="CarelloFogL" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.28, 0.52, -1.82)
+mesh = SubResource("Mesh_RallySpot")
 
-[node name="BumperRear" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.40, 1.72)
-mesh = SubResource("Mesh_Bumper")
+[node name="CarelloFogR" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.28, 0.52, -1.82)
+mesh = SubResource("Mesh_RallySpot")
 
-[node name="SideStripL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.84, 0.52, 0.10)
+[node name="BumperRear" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, 1.68)
+mesh = SubResource("Mesh_PlasticBar")
+
+[node name="SideStripL" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.82, 0.50, 0.10)
 mesh = SubResource("Mesh_SideStrip")
 
-[node name="SideStripR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84, 0.52, 0.10)
+[node name="SideStripR" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.82, 0.50, 0.10)
 mesh = SubResource("Mesh_SideStrip")
 
-[node name="RoofRackL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.68, 1.58, 0.15)
-mesh = SubResource("Mesh_RackRail")
-
-[node name="RoofRackR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68, 1.58, 0.15)
-mesh = SubResource("Mesh_RackRail")
-
-[node name="RoofRackFront" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.58, -0.74)
-mesh = SubResource("Mesh_RackCross")
-
-[node name="RoofRackRear" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.58, 1.04)
-mesh = SubResource("Mesh_RackCross")
-
-[node name="RoofSpareTire" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.22, 1.64, 0.35)
+[node name="RoofRackSpareTire" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.20, 1.60, 0.32)
 mesh = SubResource("Mesh_Wheel")
 
-[node name="RoofJerrycan1" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.72, 0.15)
+[node name="RoofJerrycan" type="MeshInstance3D" parent="ModelPanda"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 1.66, 0.25)
 mesh = SubResource("Mesh_Jerrycan")
 
-[node name="RoofJerrycan2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.72, 0.55)
-mesh = SubResource("Mesh_Jerrycan")
+; ==============================================================================
+; MODEL 2: LANCIA DELTA HF INTEGRALE EVOLUZIONE (1991)
+; ==============================================================================
+[node name="ModelDelta" type="Node3D" parent="."]
+visible = false
 
-[node name="RallySpotL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.32, 1.64, -0.78)
+[node name="BodyMesh" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 0)
+mesh = SubResource("Mesh_DeltaBody")
+
+[node name="CabinMesh" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0.08)
+mesh = SubResource("Mesh_DeltaCabin")
+
+[node name="HoodBulge" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 0.996195, 0.0871557, 0, -0.0871557, 0.996195, 0, 0.85, -1.0)
+mesh = SubResource("Mesh_DeltaBulge")
+
+; WRC Box-Flares (Bombature Evoluzione)
+[node name="FlareFL" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.92, 0.44, -1.15)
+mesh = SubResource("Mesh_DeltaFlare")
+
+[node name="FlareFR" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.92, 0.44, -1.15)
+mesh = SubResource("Mesh_DeltaFlare")
+
+[node name="FlareRL" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.92, 0.44, 1.15)
+mesh = SubResource("Mesh_DeltaFlare")
+
+[node name="FlareRR" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.92, 0.44, 1.15)
+mesh = SubResource("Mesh_DeltaFlare")
+
+[node name="RoofWing" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 1.38, 1.15)
+mesh = SubResource("Mesh_DeltaWing")
+
+[node name="TwinExhaustL" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.42, 0.25, 1.95)
 mesh = SubResource("Mesh_RallySpot")
 
-[node name="RallySpotR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.32, 1.64, -0.78)
+[node name="TwinExhaustR" type="MeshInstance3D" parent="ModelDelta"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.26, 0.25, 1.95)
 mesh = SubResource("Mesh_RallySpot")
 
+; ==============================================================================
+; MODEL 3: MERCEDES-BENZ G-KLASSE W460 (1979)
+; ==============================================================================
+[node name="ModelGwagen" type="Node3D" parent="."]
+visible = false
+
+[node name="BodyMesh" type="MeshInstance3D" parent="ModelGwagen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
+mesh = SubResource("Mesh_GwagenBody")
+
+[node name="CabinMesh" type="MeshInstance3D" parent="ModelGwagen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 0.12)
+mesh = SubResource("Mesh_GwagenCabin")
+
+; Fender-Top Iconic Turn Signals
+[node name="BlinkerFenderL" type="MeshInstance3D" parent="ModelGwagen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76, 1.10, -1.82)
+mesh = SubResource("Mesh_Hazard")
+
+[node name="BlinkerFenderR" type="MeshInstance3D" parent="ModelGwagen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76, 1.10, -1.82)
+mesh = SubResource("Mesh_Hazard")
+
+; Expedition Snorkel on Right A-Pillar
+[node name="SnorkelPipe" type="MeshInstance3D" parent="ModelGwagen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88, 1.25, -0.92)
+mesh = SubResource("Mesh_GwagenSnorkel")
+
+; Rear Vertical Spare Wheel with Hard Cover
+[node name="RearSpareWheel" type="MeshInstance3D" parent="ModelGwagen"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.82, 2.12)
+mesh = SubResource("Mesh_Wheel")
+
+; ==============================================================================
+; RUNNING GEAR: WHEELS & SUSPENSIONS
+; ==============================================================================
 [node name="WheelFL" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0.32, -1.15)
 use_as_steering = true
@@ -211,48 +320,54 @@ use_as_traction = true
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("Mesh_Wheel")
 
+; ==============================================================================
+; LIGHTING & SAFETY BLINKERS
+; ==============================================================================
 [node name="HeadlightL" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, -0.62, 0.65, -1.68)
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, -0.62, 0.65, -1.72)
 light_color = Color(1, 0.95, 0.85, 1)
-light_energy = 4.0
-spot_range = 42.0
+light_energy = 4.2
+spot_range = 45.0
 spot_angle = 32.0
 
 [node name="HeadlightR" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0.62, 0.65, -1.68)
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0.62, 0.65, -1.72)
 light_color = Color(1, 0.95, 0.85, 1)
-light_energy = 4.0
-spot_range = 42.0
+light_energy = 4.2
+spot_range = 45.0
 spot_angle = 32.0
 
 [node name="TaillightL" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.68, 0.72, 1.68)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.68, 0.68, 1.82)
 light_color = Color(1, 0.1, 0.1, 1)
 light_energy = 1.0
 omni_range = 3.5
 
 [node name="TaillightR" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68, 0.72, 1.68)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68, 0.68, 1.82)
 light_color = Color(1, 0.1, 0.1, 1)
 light_energy = 1.0
 omni_range = 3.5
 
 [node name="HazardFL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76, 0.65, -1.65)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0.62, -1.70)
 mesh = SubResource("Mesh_Hazard")
 
 [node name="HazardFR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76, 0.65, -1.65)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0.62, -1.70)
 mesh = SubResource("Mesh_Hazard")
 
 [node name="HazardRL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76, 0.72, 1.65)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0.68, 1.75)
 mesh = SubResource("Mesh_Hazard")
 
 [node name="HazardRR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76, 0.72, 1.65)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0.68, 1.75)
 mesh = SubResource("Mesh_Hazard")
 
+; ==============================================================================
+; PROCEDURAL AUDIO ENGINE
+; ==============================================================================
 [node name="VehicleAudio" type="Node" parent="." node_paths=PackedStringArray("vehicle")]
 script = ExtResource("2_audio_script")
 vehicle = NodePath("..")

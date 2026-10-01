@@ -24,6 +24,7 @@ func _ready():
     # Connect vehicle live telemetry to dashboard UI
     if vehicle and dashboard_ui:
         vehicle.telemetry_updated.connect(dashboard_ui.update_telemetry)
+        dashboard_ui.change_vehicle_requested.connect(vehicle.switch_vehicle)
         
     # Connect biome director to world environment and dashboard
     if biome_dir:

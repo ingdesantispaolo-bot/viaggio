@@ -18,160 +18,549 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -180.0
+offset_top = -185.0
 grow_horizontal = 2
 grow_vertical = 0
+
+; Top Header Bar
+[node name="LabelVehicleName" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 35.0
+offset_top = 8.0
+offset_right = 380.0
+offset_bottom = 32.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.85, 0.90, 0.95, 1)
+text = "FIAT PANDA 4x4 STEYR-PUCH (1983)"
 
 [node name="LabelRegion" type="Label" parent="Panel"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -300.0
+offset_left = -220.0
 offset_top = 8.0
-offset_right = 300.0
+offset_right = 220.0
 offset_bottom = 32.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.95, 0.85, 0.65, 1)
 text = "PASSO DELLE ALPI - QUOTA 1840M"
 horizontal_alignment = 1
 
-[node name="SpeedBox" type="VBoxContainer" parent="Panel"]
+[node name="BtnChangeCar" type="Button" parent="Panel"]
 layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 60.0
-offset_top = -65.0
-offset_right = 240.0
-offset_bottom = 65.0
-grow_vertical = 2
-
-[node name="LabelTitle" type="Label" parent="Panel/SpeedBox"]
-layout_mode = 2
-text = "TACHIMETRO"
-
-[node name="LabelSpeed" type="Label" parent="Panel/SpeedBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 46
-text = "  0"
-
-[node name="LabelUnit" type="Label" parent="Panel/SpeedBox"]
-layout_mode = 2
-text = "KM / H"
-
-[node name="RpmBox" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 270.0
-offset_top = -65.0
-offset_right = 430.0
-offset_bottom = 65.0
-grow_vertical = 2
-
-[node name="LabelTitle" type="Label" parent="Panel/RpmBox"]
-layout_mode = 2
-text = "CONTAGIRI"
-
-[node name="LabelRPM" type="Label" parent="Panel/RpmBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 46
-text = "0.9"
-
-[node name="LabelUnit" type="Label" parent="Panel/RpmBox"]
-layout_mode = 2
-text = "RPM x1000"
-
-[node name="GearBox" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -160.0
-offset_top = -60.0
-offset_right = 160.0
-offset_bottom = 60.0
-grow_horizontal = 2
-grow_vertical = 2
-alignment = 1
-
-[node name="LabelTitle" type="Label" parent="Panel/GearBox"]
-layout_mode = 2
-text = "VEGLIA BORLETTI - TRASMISSIONE"
-horizontal_alignment = 1
-
-[node name="LabelGear" type="Label" parent="Panel/GearBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "D1"
-horizontal_alignment = 1
-
-[node name="Label4WD" type="Label" parent="Panel/GearBox"]
-layout_mode = 2
-text = "4WD STEYR INSERITA [50:50]"
-horizontal_alignment = 1
-
-[node name="TelemetryBox" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 6
+anchors_preset = 1
 anchor_left = 1.0
-anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -460.0
-offset_top = -60.0
-offset_right = -180.0
-offset_bottom = 60.0
+offset_left = -310.0
+offset_top = 7.0
+offset_right = -135.0
+offset_bottom = 32.0
 grow_horizontal = 0
-grow_vertical = 2
-
-[node name="LabelFuel" type="Label" parent="Panel/TelemetryBox"]
-layout_mode = 2
-text = "SERBATOIO CARBURANTE"
-
-[node name="ProgressFuel" type="ProgressBar" parent="Panel/TelemetryBox"]
-layout_mode = 2
-max_value = 35.0
-value = 28.5
-
-[node name="LabelTemp" type="Label" parent="Panel/TelemetryBox"]
-layout_mode = 2
-text = "82°C (LIQUIDO REFRIGERANTE)"
-
-[node name="ClinoBox" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -160.0
-offset_top = -50.0
-offset_right = -20.0
-offset_bottom = 50.0
-grow_horizontal = 0
-grow_vertical = 2
-
-[node name="LabelClinoTitle" type="Label" parent="Panel/ClinoBox"]
-layout_mode = 2
-text = "CLINOMETRO"
-
-[node name="LabelClino" type="Label" parent="Panel/ClinoBox"]
-layout_mode = 2
-text = "PITCH: 00° | ROLL: 00°"
+theme_override_font_sizes/font_size = 12
+text = "[C] PANDA 4x4 STEYR"
 
 [node name="BtnFullscreen" type="Button" parent="Panel"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -110.0
-offset_top = 10.0
+offset_left = -125.0
+offset_top = 7.0
 offset_right = -15.0
-offset_bottom = 35.0
+offset_bottom = 32.0
 grow_horizontal = 0
-text = "FULLSCREEN [F11]"
+theme_override_font_sizes/font_size = 12
+text = "SCHERMO [F11]"
+
+; ==============================================================================
+; CLUSTER 1: VEGLIA BORLETTI PANDA (1983)
+; ==============================================================================
+[node name="PandaCluster" type="Control" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SpeedBox" type="VBoxContainer" parent="Panel/PandaCluster"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 45.0
+offset_top = -55.0
+offset_right = 205.0
+offset_bottom = 55.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/PandaCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.6, 0.85, 0.65, 1)
+text = "VEGLIA BORLETTI • KM/H"
+
+[node name="LabelSpeed" type="Label" parent="Panel/PandaCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+theme_override_colors/font_color = Color(0.98, 0.98, 0.95, 1)
+text = "  0"
+
+[node name="LabelScale" type="Label" parent="Panel/PandaCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.6, 0.7, 0.65, 1)
+text = "FONDO SCALA 160 KM/H"
+
+[node name="RpmBox" type="VBoxContainer" parent="Panel/PandaCluster"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 230.0
+offset_top = -55.0
+offset_right = 370.0
+offset_bottom = 55.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/PandaCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.6, 0.85, 0.65, 1)
+text = "GIRI MOTORE A112"
+
+[node name="LabelRPM" type="Label" parent="Panel/PandaCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+theme_override_colors/font_color = Color(0.98, 0.98, 0.95, 1)
+text = "0.9"
+
+[node name="LabelUnit" type="Label" parent="Panel/PandaCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.6, 0.7, 0.65, 1)
+text = "RPM x1000 • REDLINE 6000"
+
+[node name="GearBox" type="VBoxContainer" parent="Panel/PandaCluster"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -55.0
+offset_right = 170.0
+offset_bottom = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="LabelTitle" type="Label" parent="Panel/PandaCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.8, 0.75, 1)
+text = "STEYR-PUCH GRAZ • TRASMISSIONE"
+horizontal_alignment = 1
+
+[node name="LabelGear" type="Label" parent="Panel/PandaCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.95, 0.70, 0.15, 1)
+text = "D1 (CRAWLER)"
+horizontal_alignment = 1
+
+[node name="Label4WD" type="Label" parent="Panel/PandaCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.2, 0.95, 0.3, 1)
+text = "4WD STEYR-PUCH [50:50]"
+horizontal_alignment = 1
+
+[node name="TelemetryBox" type="VBoxContainer" parent="Panel/PandaCluster"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -55.0
+offset_right = -190.0
+offset_bottom = 55.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LabelFuel" type="Label" parent="Panel/PandaCluster/TelemetryBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "SERBATOIO (35 LITRI BENZINA)"
+
+[node name="ProgressFuel" type="ProgressBar" parent="Panel/PandaCluster/TelemetryBox"]
+layout_mode = 2
+max_value = 35.0
+value = 28.5
+
+[node name="LabelTemp" type="Label" parent="Panel/PandaCluster/TelemetryBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "82°C (ACQUA)"
+
+[node name="ClinoBox" type="VBoxContainer" parent="Panel/PandaCluster"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -50.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LabelClinoTitle" type="Label" parent="Panel/PandaCluster/ClinoBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.2, 0.95, 0.3, 1)
+text = "CLINOMETRO 4x4"
+
+[node name="LabelClino" type="Label" parent="Panel/PandaCluster/ClinoBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "PITCH: 00° | ROLL: 00°"
+
+; ==============================================================================
+; CLUSTER 2: VEGLIA COMPETIZIONE CORSE - LANCIA DELTA INTEGRALE (1991)
+; ==============================================================================
+[node name="DeltaCluster" type="Control" parent="Panel"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SpeedBox" type="VBoxContainer" parent="Panel/DeltaCluster"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 40.0
+offset_top = -55.0
+offset_right = 195.0
+offset_bottom = 55.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/DeltaCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = "VEGLIA CORSE • KM/H"
+
+[node name="LabelSpeed" type="Label" parent="Panel/DeltaCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = "  0"
+
+[node name="LabelScale" type="Label" parent="Panel/DeltaCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.3, 0.2, 1)
+text = "FONDO SCALA 260 KM/H"
+
+[node name="RpmBox" type="VBoxContainer" parent="Panel/DeltaCluster"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 215.0
+offset_top = -55.0
+offset_right = 365.0
+offset_bottom = 55.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/DeltaCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = "CONTAGIRI 16V TURBO"
+
+[node name="LabelRPM" type="Label" parent="Panel/DeltaCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = " 950"
+
+[node name="LabelUnit" type="Label" parent="Panel/DeltaCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.3, 0.2, 1)
+text = "RPM • REDLINE 6800"
+
+[node name="TurboBox" type="VBoxContainer" parent="Panel/DeltaCluster"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -175.0
+offset_top = -55.0
+offset_right = -35.0
+offset_bottom = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelTurboTitle" type="Label" parent="Panel/DeltaCluster/TurboBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.95, 0.35, 0.25, 1)
+text = "TURBO GARRETT T3"
+
+[node name="LabelTurboVal" type="Label" parent="Panel/DeltaCluster/TurboBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.98, 0.85, 0.2, 1)
+text = "+0.00 BAR"
+
+[node name="ProgressTurbo" type="ProgressBar" parent="Panel/DeltaCluster/TurboBox"]
+layout_mode = 2
+max_value = 1.6
+value = 0.0
+
+[node name="GearBox" type="VBoxContainer" parent="Panel/DeltaCluster"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -15.0
+offset_top = -55.0
+offset_right = 165.0
+offset_bottom = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="LabelTitle" type="Label" parent="Panel/DeltaCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.8, 0.85, 0.9, 1)
+text = "LANCIA CORSE WRC"
+horizontal_alignment = 1
+
+[node name="LabelGear" type="Label" parent="Panel/DeltaCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = "D1"
+horizontal_alignment = 1
+
+[node name="LabelAWD" type="Label" parent="Panel/DeltaCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = "TORSEN AWD PERMANENTE [47:53]"
+horizontal_alignment = 1
+
+[node name="TelemetryBox" type="VBoxContainer" parent="Panel/DeltaCluster"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -330.0
+offset_top = -55.0
+offset_right = -20.0
+offset_bottom = 55.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LabelFuel" type="Label" parent="Panel/DeltaCluster/TelemetryBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = "SERBATOIO (57 LITRI)"
+
+[node name="ProgressFuel" type="ProgressBar" parent="Panel/DeltaCluster/TelemetryBox"]
+layout_mode = 2
+max_value = 57.0
+value = 48.0
+
+[node name="LabelTemp" type="Label" parent="Panel/DeltaCluster/TelemetryBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.95, 0.75, 0.15, 1)
+text = "88°C (ACQUA) | 4.8 BAR (OLIO)"
+
+; ==============================================================================
+; CLUSTER 3: VDO STUTTGART - MERCEDES-BENZ G-KLASSE W460 (1979)
+; ==============================================================================
+[node name="GwagenCluster" type="Control" parent="Panel"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SpeedBox" type="VBoxContainer" parent="Panel/GwagenCluster"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 45.0
+offset_top = -55.0
+offset_right = 205.0
+offset_bottom = 55.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/GwagenCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+text = "VDO STUTTGART • KM/H"
+
+[node name="LabelSpeed" type="Label" parent="Panel/GwagenCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+text = "  0"
+
+[node name="LabelScale" type="Label" parent="Panel/GwagenCluster/SpeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.65, 0.70, 0.75, 1)
+text = "DIN SKALA 200 KM/H"
+
+[node name="RpmBox" type="VBoxContainer" parent="Panel/GwagenCluster"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 230.0
+offset_top = -55.0
+offset_right = 370.0
+offset_bottom = 55.0
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="Panel/GwagenCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+text = "M110 6-ZYLINDER DOHC"
+
+[node name="LabelRPM" type="Label" parent="Panel/GwagenCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+text = "0.8"
+
+[node name="LabelUnit" type="Label" parent="Panel/GwagenCluster/RpmBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.65, 0.70, 0.75, 1)
+text = "RPM x1000 • REDLINE 6000"
+
+[node name="GearBox" type="VBoxContainer" parent="Panel/GwagenCluster"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -55.0
+offset_right = 210.0
+offset_bottom = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="LabelTitle" type="Label" parent="Panel/GwagenCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.75, 0.80, 0.85, 1)
+text = "MERCEDES-BENZ ALLRADANTRIEB"
+horizontal_alignment = 1
+
+[node name="LabelGear" type="Label" parent="Panel/GwagenCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+text = "D1"
+horizontal_alignment = 1
+
+[node name="LabelDiff" type="Label" parent="Panel/GwagenCluster/GearBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.2, 0.95, 0.3, 1)
+text = "[DIFF-LOCK ANT: 100%] [DIFF CENT: 100%] [DIFF POST: 100%]"
+horizontal_alignment = 1
+
+[node name="TelemetryBox" type="VBoxContainer" parent="Panel/GwagenCluster"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -55.0
+offset_right = -190.0
+offset_bottom = 55.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LabelFuel" type="Label" parent="Panel/GwagenCluster/TelemetryBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "KRAFTSTOFFTANK (68 LITER)"
+
+[node name="ProgressFuel" type="ProgressBar" parent="Panel/GwagenCluster/TelemetryBox"]
+layout_mode = 2
+max_value = 68.0
+value = 57.0
+
+[node name="LabelTemp" type="Label" parent="Panel/GwagenCluster/TelemetryBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "82°C (VDO COOLANT)"
+
+[node name="ClinoBox" type="VBoxContainer" parent="Panel/GwagenCluster"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -50.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="LabelClinoTitle" type="Label" parent="Panel/GwagenCluster/ClinoBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.4, 0.75, 0.95, 1)
+text = "VDO GELÄNDEWINKEL"
+
+[node name="LabelClino" type="Label" parent="Panel/GwagenCluster/ClinoBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "BECCHEGGIO: 00° | ROLLIO: 00°"
