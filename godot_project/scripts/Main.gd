@@ -4,6 +4,12 @@ extends Node3D
 # Coordinates vehicle physics, procedural road generation, hazard scenarios,
 # diorama camera tracking, sunlight orientation, and dashboard telemetry.
 
+const VehicleController = preload("res://scripts/VehicleController.gd")
+const RoadGenerator = preload("res://scripts/RoadGenerator.gd")
+const HazardManager = preload("res://scripts/HazardManager.gd")
+const CameraController = preload("res://scripts/CameraController.gd")
+const DashboardUI = preload("res://scripts/DashboardUI.gd")
+
 @onready var vehicle: VehicleController = $Vehicle
 @onready var road_gen: RoadGenerator = $RoadGenerator
 @onready var hazard_mgr: HazardManager = $HazardManager
