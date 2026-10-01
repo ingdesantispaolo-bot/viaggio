@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_main_script"]
 [ext_resource type="Environment" path="res://resources/world_environment.tres" id="2_env"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/Vehicle.tscn" id="5_vehicle_scene"]
 [ext_resource type="Script" path="res://scripts/CameraController.gd" id="6_cam_script"]
 [ext_resource type="PackedScene" path="res://scenes/DashboardUI.tscn" id="7_ui_scene"]
+[ext_resource type="Script" path="res://scripts/BiomeDirector.gd" id="8_biome_script"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main_script")
@@ -24,6 +25,9 @@ directional_shadow_mode = 2
 directional_shadow_split_1 = 0.12
 directional_shadow_split_2 = 0.28
 directional_shadow_split_3 = 0.65
+
+[node name="BiomeDirector" type="Node" parent="."]
+script = ExtResource("8_biome_script")
 
 [node name="RoadGenerator" type="Node3D" parent="."]
 script = ExtResource("3_road_script")

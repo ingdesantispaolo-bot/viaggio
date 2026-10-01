@@ -16,6 +16,11 @@ var last_chunk_x: float = 0.0
 var last_chunk_angle: float = 0.0
 
 var grass_material: StandardMaterial3D
+var post_material: StandardMaterial3D
+var pine_material: StandardMaterial3D
+var rock_material: StandardMaterial3D
+var guardrail_material: StandardMaterial3D
+var bush_material: StandardMaterial3D
 
 func _ready():
     # If no custom shader material assigned, load stylized asphalt shader
@@ -25,9 +30,30 @@ func _ready():
         road_material.shader = shader
         
     grass_material = StandardMaterial3D.new()
-    grass_material.albedo_color = Color(0.28, 0.42, 0.25, 1.0)
-    grass_material.roughness = 0.88
+    grass_material.albedo_color = Color(0.26, 0.40, 0.23, 1.0)
+    grass_material.roughness = 0.90
     grass_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+    
+    post_material = StandardMaterial3D.new()
+    post_material.albedo_color = Color(0.92, 0.92, 0.92)
+    post_material.roughness = 0.5
+    
+    pine_material = StandardMaterial3D.new()
+    pine_material.albedo_color = Color(0.16, 0.28, 0.18)
+    pine_material.roughness = 0.85
+    
+    rock_material = StandardMaterial3D.new()
+    rock_material.albedo_color = Color(0.38, 0.36, 0.35)
+    rock_material.roughness = 0.92
+    
+    guardrail_material = StandardMaterial3D.new()
+    guardrail_material.albedo_color = Color(0.72, 0.74, 0.76)
+    guardrail_material.metallic = 0.85
+    guardrail_material.roughness = 0.32
+    
+    bush_material = StandardMaterial3D.new()
+    bush_material.albedo_color = Color(0.22, 0.34, 0.20)
+    bush_material.roughness = 0.95
     
     # Generate initial visible stretch of 6 chunks ahead
     for i in range(6):
@@ -173,38 +199,79 @@ func build_chunk_node(points: Array) -> Node3D:
     return root
 
 func spawn_roadside_props(root: Node3D, points: Array):
-    var post_mat = StandardMaterial3D.new()
-    post_mat.albedo_color = Color(0.92, 0.92, 0.92)
+    var num_points = points.size()
     
-    var pine_mat = StandardMaterial3D.new()
-    pine_mat.albedo_color = Color(0.18, 0.32, 0.20)
-    
-    for i in range(0, points.size() - 1, 4):
+    for i in range(0, num_points - 1, 3):
         var p = points[i]
+        var p_next = points[min(i + 1, num_points - 1)]
         var hw = p.width * 0.5
+        var hw_next = p_next.width * 0.5
         
-        # Delineator posts on left and right shoulder
+        # 1. Delineator posts on shoulders every 3 steps (~15m)
         for side in [-1.0, 1.0]:
             var post = MeshInstance3D.new()
             var cyl = CylinderMesh.new()
-            cyl.top_radius = 0.06; cyl.bottom_radius = 0.06; cyl.height = 0.9
-            cyl.material = post_mat
+            cyl.top_radius = 0.05; cyl.bottom_radius = 0.06; cyl.height = 0.88
+            cyl.material = post_material
             post.mesh = cyl
-            post.position = Vector3(p.x + side * (hw + 0.4), p.y + 0.45, p.z)
+            post.position = Vector3(p.x + side * (hw + 0.38), p.y + 0.44, p.z)
             root.add_child(post)
             
-            # Stylized pine tree in outer meadow
-            if i % 8 == 0:
+        # 2. Guardrails along mountain curves or scenic sections
+        var is_curving = abs(p_next.x - p.x) > 0.08
+        if is_curving or (i % 12 >= 6 and p.z > 60.0):
+            var g_side = 1.0 if (p_next.x - p.x) >= 0.0 else -1.0
+            var rail = MeshInstance3D.new()
+            var box = BoxMesh.new()
+            var seg_len = p_next.z - p.z
+            box.size = Vector3(0.08, 0.32, seg_len * 1.05)
+            box.material = guardrail_material
+            rail.mesh = box
+            var mid_x = lerp(p.x + g_side * (hw + 0.25), p_next.x + g_side * (hw_next + 0.25), 0.5)
+            var mid_y = lerp(p.y, p_next.y, 0.5) + 0.50
+            var mid_z = (p.z + p_next.z) * 0.5
+            rail.position = Vector3(mid_x, mid_y, mid_z)
+            rail.rotation.y = atan2(p_next.x - p.x, p_next.z - p.z)
+            root.add_child(rail)
+            
+        # 3. Stylized conifer pines in outer meadows (varying sizes)
+        if i % 6 == 0:
+            for side in [-1.0, 1.0]:
                 var pine = Node3D.new()
                 var p_mesh = MeshInstance3D.new()
                 var cone = CylinderMesh.new()
-                cone.top_radius = 0.1; cone.bottom_radius = 1.6; cone.height = 4.2
-                cone.material = pine_mat
+                var h = randf_range(3.8, 6.4)
+                var r = h * 0.36
+                cone.top_radius = 0.08; cone.bottom_radius = r; cone.height = h
+                cone.material = pine_material
                 p_mesh.mesh = cone
-                p_mesh.position.y = 2.1
+                p_mesh.position.y = h * 0.5
                 pine.add_child(p_mesh)
-                pine.position = Vector3(p.x + side * (hw + 9.0 + randf_range(-2.0, 4.0)), p.y - 0.2, p.z)
+                
+                var dist_x = side * (hw + randf_range(8.0, 24.0))
+                pine.position = Vector3(p.x + dist_x, p.y - 0.3, p.z + randf_range(-3.0, 3.0))
                 root.add_child(pine)
+                
+        # 4. Alpine granite boulders and bushes
+        if i % 8 == 2 and p.z > 40.0:
+            var r_side = -1.0 if randf() < 0.5 else 1.0
+            var rock = MeshInstance3D.new()
+            var s = SphereMesh.new()
+            var rock_r = randf_range(0.9, 1.8)
+            s.radius = rock_r; s.height = rock_r * 1.5
+            s.material = rock_material
+            rock.mesh = s
+            rock.position = Vector3(p.x + r_side * (hw + randf_range(6.0, 18.0)), p.y + rock_r * 0.4, p.z)
+            root.add_child(rock)
+            
+            # Small alpine bush near rock
+            var bush = MeshInstance3D.new()
+            var b_sph = SphereMesh.new()
+            b_sph.radius = 0.65; b_sph.height = 0.8
+            b_sph.material = bush_material
+            bush.mesh = b_sph
+            bush.position = Vector3(rock.position.x + randf_range(-1.2, 1.2), p.y + 0.3, p.z + randf_range(-1.0, 1.0))
+            root.add_child(bush)
 
 func add_quad(st: SurfaceTool, col_faces: PackedVector3Array, a: Vector3, b: Vector3, c: Vector3, d: Vector3, u1: float, u2: float, v1: float, v2: float):
     # Triangle 1 (a, b, c)

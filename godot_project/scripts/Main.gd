@@ -9,6 +9,7 @@ const RoadGenerator = preload("res://scripts/RoadGenerator.gd")
 const HazardManager = preload("res://scripts/HazardManager.gd")
 const CameraController = preload("res://scripts/CameraController.gd")
 const DashboardUI = preload("res://scripts/DashboardUI.gd")
+const BiomeDirector = preload("res://scripts/BiomeDirector.gd")
 
 @onready var vehicle: VehicleController = $Vehicle
 @onready var road_gen: RoadGenerator = $RoadGenerator
@@ -16,11 +17,20 @@ const DashboardUI = preload("res://scripts/DashboardUI.gd")
 @onready var camera: CameraController = $CameraController
 @onready var dashboard_ui: DashboardUI = $DashboardUI
 @onready var sun_light: DirectionalLight3D = $SunLight
+@onready var world_env: WorldEnvironment = $WorldEnvironment
+@onready var biome_dir: BiomeDirector = $BiomeDirector
 
 func _ready():
     # Connect vehicle live telemetry to dashboard UI
     if vehicle and dashboard_ui:
         vehicle.telemetry_updated.connect(dashboard_ui.update_telemetry)
+        
+    # Connect biome director to world environment and dashboard
+    if biome_dir:
+        biome_dir.world_environment = world_env
+        biome_dir.sun_light = sun_light
+        if dashboard_ui:
+            biome_dir.biome_changed.connect(dashboard_ui.update_region)
         
     # Assign references to camera and hazards
     if camera and vehicle:
@@ -44,7 +54,11 @@ func _process(_delta: float):
     if hazard_mgr:
         hazard_mgr.update_hazards(player_z)
         
-    # 3. Directional sun follows vehicle along highway
+    # 3. Dynamic atmospheric biome & volumetric fog
+    if biome_dir:
+        biome_dir.update_biome(player_z, _delta)
+        
+    # 4. Directional sun follows vehicle along highway
     if sun_light:
         sun_light.global_position = Vector3(vehicle.global_position.x + 22.0, 45.0, player_z + 15.0)
 

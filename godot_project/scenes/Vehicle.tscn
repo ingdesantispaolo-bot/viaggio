@@ -1,32 +1,52 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://scripts/VehicleController.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/VehicleAudio.gd" id="2_audio_script"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_chassis"]
 size = Vector3(1.68, 0.95, 3.4)
 
 [sub_resource type="StandardMaterial3D" id="Mat_Body"]
-albedo_color = Color(0.24, 0.36, 0.28, 1)
-roughness = 0.32
-metallic = 0.55
+albedo_color = Color(0.18, 0.30, 0.22, 1)
+roughness = 0.35
+metallic = 0.45
 clearcoat_enabled = true
-clearcoat = 0.65
+clearcoat = 0.55
+
+[sub_resource type="StandardMaterial3D" id="Mat_Plastic"]
+albedo_color = Color(0.12, 0.12, 0.13, 1)
+roughness = 0.88
 
 [sub_resource type="StandardMaterial3D" id="Mat_Glass"]
-albedo_color = Color(0.08, 0.11, 0.15, 0.85)
+albedo_color = Color(0.08, 0.12, 0.16, 0.85)
 roughness = 0.08
 metallic = 0.85
 transparency = 1
 
+[sub_resource type="StandardMaterial3D" id="Mat_Steel"]
+albedo_color = Color(0.68, 0.70, 0.72, 1)
+roughness = 0.30
+metallic = 0.90
+
 [sub_resource type="StandardMaterial3D" id="Mat_Tire"]
-albedo_color = Color(0.09, 0.09, 0.10, 1)
+albedo_color = Color(0.08, 0.08, 0.09, 1)
 roughness = 0.95
 
 [sub_resource type="StandardMaterial3D" id="Mat_Amber"]
-albedo_color = Color(1.0, 0.6, 0.0, 1)
+albedo_color = Color(1.0, 0.60, 0.0, 1)
 emission_enabled = true
-emission = Color(1.0, 0.6, 0.0, 1)
+emission = Color(1.0, 0.60, 0.0, 1)
 emission_energy_multiplier = 2.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_FogYellow"]
+albedo_color = Color(1.0, 0.82, 0.15, 1)
+emission_enabled = true
+emission = Color(1.0, 0.82, 0.15, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_Jerrycan"]
+albedo_color = Color(0.78, 0.18, 0.15, 1)
+roughness = 0.45
 
 [sub_resource type="BoxMesh" id="Mesh_Body"]
 material = SubResource("Mat_Body")
@@ -41,11 +61,46 @@ material = SubResource("Mat_Tire")
 top_radius = 0.32
 bottom_radius = 0.32
 height = 0.22
-radial_segments = 12
+radial_segments = 16
 
 [sub_resource type="BoxMesh" id="Mesh_Hazard"]
 material = SubResource("Mat_Amber")
 size = Vector3(0.12, 0.08, 0.06)
+
+[sub_resource type="BoxMesh" id="Mesh_Grille"]
+material = SubResource("Mat_Plastic")
+size = Vector3(1.25, 0.30, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_Bumper"]
+material = SubResource("Mat_Plastic")
+size = Vector3(1.70, 0.22, 0.22)
+
+[sub_resource type="BoxMesh" id="Mesh_Bullbar"]
+material = SubResource("Mat_Steel")
+size = Vector3(1.15, 0.26, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_SideStrip"]
+material = SubResource("Mat_Plastic")
+size = Vector3(0.04, 0.16, 1.70)
+
+[sub_resource type="BoxMesh" id="Mesh_RackRail"]
+material = SubResource("Mat_Steel")
+size = Vector3(0.05, 0.10, 1.85)
+
+[sub_resource type="BoxMesh" id="Mesh_RackCross"]
+material = SubResource("Mat_Steel")
+size = Vector3(1.35, 0.04, 0.04)
+
+[sub_resource type="BoxMesh" id="Mesh_Jerrycan"]
+material = SubResource("Mat_Jerrycan")
+size = Vector3(0.22, 0.36, 0.30)
+
+[sub_resource type="CylinderMesh" id="Mesh_RallySpot"]
+material = SubResource("Mat_FogYellow")
+top_radius = 0.09
+bottom_radius = 0.09
+height = 0.08
+radial_segments = 12
 
 [node name="Vehicle" type="VehicleBody3D"]
 script = ExtResource("1_script")
@@ -61,6 +116,66 @@ mesh = SubResource("Mesh_Body")
 [node name="CabinMesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.18, 0.15)
 mesh = SubResource("Mesh_Cabin")
+
+[node name="GrilleMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60, -1.66)
+mesh = SubResource("Mesh_Grille")
+
+[node name="BumperFront" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.40, -1.72)
+mesh = SubResource("Mesh_Bumper")
+
+[node name="BullbarFront" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.54, -1.82)
+mesh = SubResource("Mesh_Bullbar")
+
+[node name="BumperRear" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.40, 1.72)
+mesh = SubResource("Mesh_Bumper")
+
+[node name="SideStripL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.84, 0.52, 0.10)
+mesh = SubResource("Mesh_SideStrip")
+
+[node name="SideStripR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84, 0.52, 0.10)
+mesh = SubResource("Mesh_SideStrip")
+
+[node name="RoofRackL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.68, 1.58, 0.15)
+mesh = SubResource("Mesh_RackRail")
+
+[node name="RoofRackR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68, 1.58, 0.15)
+mesh = SubResource("Mesh_RackRail")
+
+[node name="RoofRackFront" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.58, -0.74)
+mesh = SubResource("Mesh_RackCross")
+
+[node name="RoofRackRear" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.58, 1.04)
+mesh = SubResource("Mesh_RackCross")
+
+[node name="RoofSpareTire" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.22, 1.64, 0.35)
+mesh = SubResource("Mesh_Wheel")
+
+[node name="RoofJerrycan1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.72, 0.15)
+mesh = SubResource("Mesh_Jerrycan")
+
+[node name="RoofJerrycan2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.40, 1.72, 0.55)
+mesh = SubResource("Mesh_Jerrycan")
+
+[node name="RallySpotL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.32, 1.64, -0.78)
+mesh = SubResource("Mesh_RallySpot")
+
+[node name="RallySpotR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.32, 1.64, -0.78)
+mesh = SubResource("Mesh_RallySpot")
 
 [node name="WheelFL" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0.32, -1.15)
@@ -137,3 +252,7 @@ mesh = SubResource("Mesh_Hazard")
 [node name="HazardRR" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76, 0.72, 1.65)
 mesh = SubResource("Mesh_Hazard")
+
+[node name="VehicleAudio" type="Node" parent="." node_paths=PackedStringArray("vehicle")]
+script = ExtResource("2_audio_script")
+vehicle = NodePath("..")

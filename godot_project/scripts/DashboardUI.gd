@@ -12,12 +12,17 @@ class_name DashboardUI
 @onready var progress_fuel: ProgressBar = $Panel/TelemetryBox/ProgressFuel
 @onready var label_temp: Label = $Panel/TelemetryBox/LabelTemp
 @onready var label_clinometer: Label = $Panel/ClinoBox/LabelClino
+@onready var label_region: Label = $Panel/LabelRegion
 
 func _ready():
     # Handle F11 fullscreen toggle button if clicked
     var btn_fs = $Panel/BtnFullscreen
     if btn_fs:
         btn_fs.pressed.connect(_on_fullscreen_pressed)
+
+func update_region(region_name: String):
+    if label_region:
+        label_region.text = region_name
 
 func update_telemetry(speed_kmh: float, rpm_norm: float, gear_str: String, fuel_l: float, temp_c: float, pitch_deg: float, roll_deg: float, is_4wd: bool):
     if label_speed:
