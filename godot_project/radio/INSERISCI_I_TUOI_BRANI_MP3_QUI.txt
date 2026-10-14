@@ -1,0 +1,13 @@
+=== IL GRANDE MERIDIANO - CARTELLA BRANI MP3 PER AUTORADIO '93 ===
+
+Inserisci qui dentro i tuoi brani musicali con estensione .mp3!
+
+Funzionalità:
+1. I file MP3 posizionati qui (o in user://radio/) vengono scansionati e caricati dinamicamente.
+2. In gioco premi [R] per cambiare brano o stazione radio direttamente al volante.
+3. Premi [O] o clicca su '[O] MIXER' in alto per aprire il pannello di controllo volumi:
+   - Volume Motore (scarico, aspirazione, punterie)
+   - Volume Ambientale (vento, asfalto, campane del borgo, sospensioni)
+   - Volume Autoradio (musica MP3)
+   - Volume Generale (Master)
+4. Nel pannello Mixer puoi cliccare su 'Ricarica Brani' per caricare nuovi brani senza dover riavviare il gioco.
