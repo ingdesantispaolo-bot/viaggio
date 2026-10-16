@@ -1951,18 +1951,33 @@ func select_diner_character(c_id: String):
 		diner_action_buttons_vbox.add_child(b_don)
 	elif r.has("bet_lire"):
 		# Racing Rivals (Gino, Kurt, Hans, Duca)
-		var b_drag = Button.new()
-		b_drag.text = "🏁 SFIDA AL RETTIFILO DEL LAGO (Scommessa: L. %s)" % street_rod_manager.format_lire(r.get("bet_lire", 500000))
-		b_drag.add_theme_font_size_override("font_size", 9)
 		var riv_id = c_id
-		b_drag.pressed.connect(func(): start_drag_against_rival(riv_id, false))
+		var check_bet = street_rod_manager.can_challenge_rival(riv_id, false) if street_rod_manager and street_rod_manager.has_method("can_challenge_rival") else {"can_race": true}
+		var b_drag = Button.new()
+		b_drag.add_theme_font_size_override("font_size", 9)
+		if check_bet.can_race:
+			b_drag.text = "🏁 SFIDA AL RETTIFILO DEL LAGO (Scommessa: L. %s)" % street_rod_manager.format_lire(r.get("bet_lire", 500000))
+			b_drag.pressed.connect(func(): start_drag_against_rival(riv_id, false))
+		else:
+			b_drag.text = "🔒 RETTIFILO: L. %s [BLOCCATA: %s]" % [
+				street_rod_manager.format_lire(r.get("bet_lire", 500000)),
+				check_bet.reason.split("!")[0] if "!" in check_bet.reason else check_bet.reason
+			]
+			b_drag.disabled = true
+			b_drag.tooltip_text = check_bet.reason
 		diner_action_buttons_vbox.add_child(b_drag)
 		
+		var check_pink = street_rod_manager.can_challenge_rival(riv_id, true) if street_rod_manager and street_rod_manager.has_method("can_challenge_rival") else {"can_race": true}
 		var b_pink = Button.new()
-		b_pink.text = "📜 SFIDA A LIBRETTO (PINK SLIP: IN PALIO %s!)" % r.get("car_name", "L'AUTO")
 		b_pink.add_theme_font_size_override("font_size", 9)
-		b_pink.add_theme_color_override("font_color", Color(1.0, 0.40, 0.35))
-		b_pink.pressed.connect(func(): start_drag_against_rival(riv_id, true))
+		if check_pink.can_race:
+			b_pink.text = "📜 SFIDA A LIBRETTO (PINK SLIP: IN PALIO %s!)" % r.get("car_name", "L'AUTO")
+			b_pink.add_theme_color_override("font_color", Color(1.0, 0.40, 0.35))
+			b_pink.pressed.connect(func(): start_drag_against_rival(riv_id, true))
+		else:
+			b_pink.text = "🔒 SFIDA A LIBRETTO [BLOCCATA: %s]" % (check_pink.reason.split("!")[0] if "!" in check_pink.reason else check_pink.reason)
+			b_pink.disabled = true
+			b_pink.tooltip_text = check_pink.reason
 		diner_action_buttons_vbox.add_child(b_pink)
 
 func get_affinity_title(aff: int) -> String:
@@ -2037,6 +2052,13 @@ func build_drag_view() -> Control:
 	return root
 
 func start_drag_against_rival(rival_id: String, is_pink_slip: bool):
+	if street_rod_manager and street_rod_manager.has_method("can_challenge_rival"):
+		var check = street_rod_manager.can_challenge_rival(rival_id, is_pink_slip)
+		if not check.can_race:
+			street_rod_manager.post_notification("SFIDA NON CONSENTITA", check.reason, "⚠️", "error")
+			if diner_dialogue_label:
+				diner_dialogue_label.text = "⚠️ REGOLE DI GARA NON SODDISFATTE: %s" % check.reason
+			return
 	drag_rival_id = rival_id
 	drag_is_pink_slip = is_pink_slip
 	# Chiude immediatamente la finestra per lasciare visuale libera e limpida sulla strada
@@ -2044,6 +2066,13 @@ func start_drag_against_rival(rival_id: String, is_pink_slip: bool):
 	emit_signal("race_start_requested", rival_id, is_pink_slip)
 
 func start_drag_countdown():
+	if street_rod_manager and street_rod_manager.has_method("can_challenge_rival"):
+		var check = street_rod_manager.can_challenge_rival(drag_rival_id, drag_is_pink_slip)
+		if not check.can_race:
+			street_rod_manager.post_notification("SFIDA NON CONSENTITA", check.reason, "⚠️", "error")
+			if drag_log_label:
+				drag_log_label.text = "⚠️ REGOLE DI GARA NON SODDISFATTE:\n%s" % check.reason
+			return
 	# Chiude immediatamente la finestra ed entra nella gara 3D reale
 	close_screen()
 	emit_signal("race_start_requested", drag_rival_id, drag_is_pink_slip)
@@ -2110,6 +2139,8 @@ func on_drag_launch_trigger():
 # ==============================================================================
 # TAB 5: CARTA TOPOGRAFICA IGM '93 & SPEDIZIONE DEL MERIDIANO
 # ==============================================================================
+const TopographicMapControl = preload("res://scripts/TopographicMapControl.gd")
+
 var contracts_vbox: VBoxContainer
 var map_waypoint_buttons_vbox: VBoxContainer
 var map_detail_name: Label
@@ -2122,6 +2153,7 @@ var map_detail_lore: Label
 var map_player_marker_label: Label
 var chapter_status_label: Label
 var selected_map_idx: int = 0
+var topographic_map: TopographicMapControl
 
 func build_missions_view() -> Control:
 	var root = HBoxContainer.new()
@@ -2130,10 +2162,10 @@ func build_missions_view() -> Control:
 	# Left: Topographic Map Waypoints & Elevation Profile
 	var left_p = PanelContainer.new()
 	left_p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_p.size_flags_stretch_ratio = 0.95
+	left_p.size_flags_stretch_ratio = 1.05
 	var sb_l = StyleBoxFlat.new()
-	sb_l.bg_color = Color(0.06, 0.08, 0.10)
-	sb_l.border_color = Color(0.25, 0.40, 0.55)
+	sb_l.bg_color = Color(0.04, 0.06, 0.07)
+	sb_l.border_color = Color(0.18, 0.42, 0.32)
 	sb_l.set_border_width_all(1)
 	sb_l.set_corner_radius_all(4)
 	left_p.add_theme_stylebox_override("panel", sb_l)
@@ -2144,7 +2176,7 @@ func build_missions_view() -> Control:
 	left_p.add_child(left_vb)
 	
 	var map_head = Label.new()
-	map_head.text = "🗺️ CARTA TOPOGRAFICA DEL MERIDIANO (IGM / TOURING '93)"
+	map_head.text = "🗺️ CARTA TOPOGRAFICA DEL MERIDIANO (IGM / TOURING '83)"
 	map_head.add_theme_font_size_override("font_size", 10)
 	map_head.add_theme_color_override("font_color", Color(1.0, 0.85, 0.20))
 	left_vb.add_child(map_head)
@@ -2155,23 +2187,15 @@ func build_missions_view() -> Control:
 	map_player_marker_label.add_theme_color_override("font_color", Color(0.35, 1.0, 0.55))
 	left_vb.add_child(map_player_marker_label)
 	
-	# Elevation Profile ASCII / Diagram Header
-	var prof_p = PanelContainer.new()
-	var sb_prof = StyleBoxFlat.new()
-	sb_prof.bg_color = Color(0.02, 0.04, 0.06)
-	sb_prof.border_color = Color(0.20, 0.30, 0.40)
-	sb_prof.set_border_width_all(1)
-	prof_p.add_theme_stylebox_override("panel", sb_prof)
-	left_vb.add_child(prof_p)
-	
-	var prof_label = Label.new()
-	prof_label.text = "▲ 2650m ----------------------------- Base Polare [km 5.6]\n|  1650m ------------------ Tornanti dei Larici [km 3.8]\n|  1150m -------- Gola dell'Orrido [km 2.4]\n▼   420m -- Borgo San Cristoforo [km 0.9]"
-	prof_label.add_theme_font_size_override("font_size", 8)
-	prof_label.add_theme_color_override("font_color", Color(0.70, 0.85, 0.95))
-	prof_p.add_child(prof_label)
+	# Visual Topographic Map (Vector CRT 1980s IGM)
+	topographic_map = TopographicMapControl.new()
+	topographic_map.custom_minimum_size = Vector2(380, 240)
+	topographic_map.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	topographic_map.waypoint_clicked.connect(func(idx): select_map_waypoint(idx))
+	left_vb.add_child(topographic_map)
 	
 	var scroll_wp = ScrollContainer.new()
-	scroll_wp.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_wp.custom_minimum_size = Vector2(0, 110)
 	left_vb.add_child(scroll_wp)
 	
 	map_waypoint_buttons_vbox = VBoxContainer.new()
@@ -2340,6 +2364,8 @@ func refresh_missions_view():
 
 func select_map_waypoint(idx: int):
 	selected_map_idx = idx
+	if topographic_map:
+		topographic_map.set_selected_waypoint(idx)
 	if not street_rod_manager: return
 	var locs = street_rod_manager.get_map_locations()
 	if idx < 0 or idx >= locs.size(): return

@@ -317,54 +317,75 @@ static func build_panda_4x4(parent: Node3D, body_mat: Material):
 	root.name = "PandaRig"
 	parent.add_child(root)
 	
-	# --- 1. LOWER BODY & GIUGIARO TWO-BOX CHASSIS ---
-	var lower_body = create_box(Vector3(1.44, 0.38, 3.36), body_mat, Vector3(0.0, 0.44, 0.0))
-	root.add_child(lower_body)
+	# --- 1. LOWER BODY & GIUGIARO TWO-BOX CHASSIS WITH REAL WHEEL WELLS ---
+	# Authentic real Panda 4x4 proportions: Length 3.38m, Width 1.46m, Height 1.48m (with rack 1.56m)
+	# Center cabin tub between front and rear axles (leaves open wheel wells!)
+	var center_tub = create_beveled_box(Vector3(1.42, 0.48, 1.58), body_mat, Vector3(0.0, 0.52, 0.0))
+	root.add_child(center_tub)
 	
-	# Sloping Wedge Hood (Rakes forward from cowl Y=0.70 to nose Y=0.58)
-	var hood = create_box(Vector3(1.38, 0.18, 1.15), body_mat, Vector3(0.0, 0.64, -1.05))
-	hood.rotation.x = deg_to_rad(-4.5)
+	# Underbody skid pan and floor
+	var floor_pan = create_box(Vector3(1.24, 0.10, 3.12), mat_plastic_black, Vector3(0.0, 0.25, 0.0))
+	root.add_child(floor_pan)
+
+	# Curved front & rear wheel arch flares with inner liners
+	for side in [-1.0, 1.0]:
+		var is_left = (side < 0.0)
+		var arch_f = create_curved_wheel_arch(Vector3(side * 0.71, 0.32, -1.08), 0.31, 0.07, 0.05, is_left, mat_plastic_black, 16)
+		var arch_r = create_curved_wheel_arch(Vector3(side * 0.71, 0.32, 1.08), 0.31, 0.07, 0.05, is_left, mat_plastic_black, 16)
+		root.add_child(arch_f); root.add_child(arch_r)
+		
+		# Inner splash guards
+		var liner_f = create_box(Vector3(0.06, 0.40, 0.62), mat_plastic_black, Vector3(side * 0.58, 0.52, -1.08))
+		var liner_r = create_box(Vector3(0.06, 0.40, 0.62), mat_plastic_black, Vector3(side * 0.58, 0.52, 1.08))
+		root.add_child(liner_f); root.add_child(liner_r)
+		
+		# Front winged fender outer flanks
+		var f_wing = create_beveled_box(Vector3(0.12, 0.28, 1.12), body_mat, Vector3(side * 0.67, 0.64, -1.10))
+		root.add_child(f_wing)
+
+	# Sloping Wedge Hood (Rakes forward from cowl Y=0.78 to nose Y=0.64)
+	var hood = create_sculpted_hood(Vector3(0.0, 0.64, -0.50), 1.36, 1.28, 1.15, 0.14, 0.0, 0.035, body_mat, 12, 12)
 	root.add_child(hood)
 	
 	# Central bonnet indentation crease (Giugiaro feature)
-	var hood_crease = create_box(Vector3(0.38, 0.03, 1.05), mat_plastic_black, Vector3(0.0, 0.72, -1.05))
+	var hood_crease = create_box(Vector3(0.36, 0.02, 1.08), mat_plastic_black, Vector3(0.0, 0.77, -1.05))
 	hood_crease.rotation.x = deg_to_rad(-4.5)
 	root.add_child(hood_crease)
 	
 	# Rear Quarter & Tailgate Panels
-	var rear_deck = create_box(Vector3(1.40, 0.42, 0.48), body_mat, Vector3(0.0, 0.68, 1.40))
+	var rear_deck = create_beveled_box(Vector3(1.38, 0.52, 0.50), body_mat, Vector3(0.0, 0.76, 1.38))
 	root.add_child(rear_deck)
 	
 	# --- 2. FRONT NOSE & ASYMMETRIC FIAT 5-BAR GRILLE ---
-	var nose_panel = create_box(Vector3(1.36, 0.24, 0.08), mat_plastic_black, Vector3(0.0, 0.55, -1.68))
+	var nose_panel = create_box(Vector3(1.36, 0.28, 0.08), mat_plastic_black, Vector3(0.0, 0.64, -1.68))
 	root.add_child(nose_panel)
 	
 	# Asymmetric 5-bar chrome Fiat Logo (1980s signature /// / /)
 	for bar_i in range(5):
-		var bar = create_box(Vector3(0.022, 0.14, 0.03), mat_chrome, Vector3(-0.16 + float(bar_i) * 0.055, 0.55, -1.72))
+		var bar = create_box(Vector3(0.022, 0.16, 0.03), mat_chrome, Vector3(-0.16 + float(bar_i) * 0.055, 0.64, -1.72))
 		bar.rotation.z = deg_to_rad(-22.0)
 		root.add_child(bar)
 		
 	# Square Carello Halogen Headlights
-	var hl_l = create_box(Vector3(0.24, 0.17, 0.04), mat_headlight, Vector3(-0.48, 0.55, -1.70))
-	var hl_r = create_box(Vector3(0.24, 0.17, 0.04), mat_headlight, Vector3(0.48, 0.55, -1.70))
+	var hl_l = create_box(Vector3(0.24, 0.19, 0.04), mat_headlight, Vector3(-0.48, 0.64, -1.70))
+	var hl_r = create_box(Vector3(0.24, 0.19, 0.04), mat_headlight, Vector3(0.48, 0.64, -1.70))
 	root.add_child(hl_l); root.add_child(hl_r)
 	
 	# Corner Wrap-around Amber Turn Indicators
-	var bl_l = create_box(Vector3(0.10, 0.17, 0.08), mat_blinker_orange, Vector3(-0.64, 0.55, -1.67))
-	var bl_r = create_box(Vector3(0.10, 0.17, 0.08), mat_blinker_orange, Vector3(0.64, 0.55, -1.67))
+	var bl_l = create_box(Vector3(0.10, 0.19, 0.08), mat_blinker_orange, Vector3(-0.64, 0.64, -1.67))
+	var bl_r = create_box(Vector3(0.10, 0.19, 0.08), mat_blinker_orange, Vector3(0.64, 0.64, -1.67))
 	root.add_child(bl_l); root.add_child(bl_r)
 	
 	# --- 3. BUMPERS & STEYR-PUCH BULLBAR ---
-	var front_bumper = create_box(Vector3(1.48, 0.16, 0.24), mat_plastic_black, Vector3(0.0, 0.32, -1.72))
+	var front_bumper = create_box(Vector3(1.48, 0.18, 0.24), mat_plastic_black, Vector3(0.0, 0.38, -1.72))
 	root.add_child(front_bumper)
 	
-	var rear_bumper = create_box(Vector3(1.48, 0.16, 0.22), mat_plastic_black, Vector3(0.0, 0.32, 1.70))
+	var rear_bumper = create_box(Vector3(1.48, 0.18, 0.22), mat_plastic_black, Vector3(0.0, 0.38, 1.70))
 	root.add_child(rear_bumper)
 	
 	# Steyr-Puch Tubular Steel Bullbar with skid plate
-	var bb_frame = create_box(Vector3(1.05, 0.32, 0.06), mat_steel, Vector3(0.0, 0.44, -1.82))
-	var skid_plate = create_box(Vector3(0.70, 0.06, 0.42), mat_steel, Vector3(0.0, 0.18, -1.62))
+	var bb_frame = create_box(Vector3(1.06, 0.34, 0.06), mat_steel, Vector3(0.0, 0.52, -1.82))
+	var skid_plate = create_box(Vector3(0.70, 0.06, 0.44), mat_steel, Vector3(0.0, 0.22, -1.62))
 	skid_plate.rotation.x = deg_to_rad(20.0)
 	root.add_child(bb_frame); root.add_child(skid_plate)
 	
@@ -375,119 +396,120 @@ static func build_panda_4x4(parent: Node3D, body_mat: Material):
 		cyl.top_radius = 0.09; cyl.bottom_radius = 0.09; cyl.height = 0.06; cyl.radial_segments = 14
 		cyl.material = mat_fog_yellow
 		fog.mesh = cyl
-		fog.position = Vector3(fog_x, 0.48, -1.86)
+		fog.position = Vector3(fog_x, 0.56, -1.86)
 		fog.rotation.x = PI * 0.5
 		root.add_child(fog)
 		
 	# Front Vintage Italian License Plate: TO 48312M
-	var f_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.26, -1.84), false)
+	var f_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.28, -1.84), false)
 	root.add_child(f_plate)
-	var r_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.48, 1.72), true)
+	var r_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.52, 1.72), true)
 	root.add_child(r_plate)
 	
 	# --- 4. GIUGIARO RIBBED CORRUGATED SIDE CLADDING ---
 	for side in [-1.0, 1.0]:
-		var clad = create_box(Vector3(0.04, 0.26, 1.72), mat_plastic_grey, Vector3(side * 0.73, 0.42, 0.05))
+		var clad = create_box(Vector3(0.04, 0.30, 1.72), mat_plastic_grey, Vector3(side * 0.73, 0.48, 0.05))
 		root.add_child(clad)
 		for rib_i in range(3):
-			var rib = create_box(Vector3(0.02, 0.03, 1.68), mat_plastic_black, Vector3(side * 0.75, 0.34 + float(rib_i) * 0.07, 0.05))
+			var rib = create_box(Vector3(0.02, 0.032, 1.68), mat_plastic_black, Vector3(side * 0.75, 0.38 + float(rib_i) * 0.08, 0.05))
 			root.add_child(rib)
-		var badge = create_box(Vector3(0.02, 0.06, 0.16), mat_steel, Vector3(side * 0.75, 0.50, 0.55))
+		var badge = create_box(Vector3(0.02, 0.06, 0.16), mat_steel, Vector3(side * 0.75, 0.58, 0.55))
 		root.add_child(badge)
-		var arch_f = create_box(Vector3(0.06, 0.12, 0.72), mat_plastic_black, Vector3(side * 0.73, 0.48, -1.08))
-		var arch_r = create_box(Vector3(0.06, 0.12, 0.72), mat_plastic_black, Vector3(side * 0.73, 0.48, 1.08))
+		var arch_f = create_box(Vector3(0.06, 0.14, 0.74), mat_plastic_black, Vector3(side * 0.73, 0.56, -1.08))
+		var arch_r = create_box(Vector3(0.06, 0.14, 0.74), mat_plastic_black, Vector3(side * 0.73, 0.56, 1.08))
 		root.add_child(arch_f); root.add_child(arch_r)
-		var mirror = create_box(Vector3(0.14, 0.10, 0.06), mat_plastic_black, Vector3(side * 0.74, 0.82, -0.48))
+		var mirror = create_box(Vector3(0.14, 0.12, 0.06), mat_plastic_black, Vector3(side * 0.74, 0.96, -0.48))
 		root.add_child(mirror)
 		# Recessed door handle
-		var handle = create_box(Vector3(0.02, 0.04, 0.12), mat_plastic_black, Vector3(side * 0.73, 0.68, -0.15))
+		var handle = create_box(Vector3(0.02, 0.04, 0.12), mat_plastic_black, Vector3(side * 0.73, 0.78, -0.15))
 		root.add_child(handle)
 		
 	# --- 5. CABIN GREENHOUSE, PILLARS & TRANSPARENT GLASS ---
-	var windshield = create_box(Vector3(1.22, 0.04, 0.72), mat_glass, Vector3(0.0, 0.90, -0.28))
-	windshield.rotation.x = deg_to_rad(-42.0)
+	# Authentic tall Giugiaro greenhouse: beltline at Y=0.76m, roof at Y=1.44m (height 0.68m)
+	var windshield = create_box(Vector3(1.24, 0.04, 0.78), mat_glass, Vector3(0.0, 1.08, -0.28))
+	windshield.rotation.x = deg_to_rad(-40.0)
 	root.add_child(windshield)
 	
 	# Single Large Pantograph Windshield Wiper (Giugiaro Signature! - Parked flat along cowl)
-	var wiper = create_box(Vector3(0.020, 0.42, 0.015), mat_plastic_black, Vector3(0.06, 0.73, -0.36))
-	wiper.rotation.x = deg_to_rad(-42.0)
+	var wiper = create_box(Vector3(0.020, 0.46, 0.015), mat_plastic_black, Vector3(0.06, 0.82, -0.36))
+	wiper.rotation.x = deg_to_rad(-40.0)
 	wiper.rotation.z = deg_to_rad(-82.0)
 	root.add_child(wiper)
 	
-	var side_glass_l = create_box(Vector3(0.03, 0.44, 1.48), mat_glass, Vector3(-0.62, 0.94, 0.44))
-	var side_glass_r = create_box(Vector3(0.03, 0.44, 1.48), mat_glass, Vector3(0.62, 0.94, 0.44))
+	var side_glass_l = create_box(Vector3(0.03, 0.52, 1.52), mat_glass, Vector3(-0.63, 1.10, 0.44))
+	var side_glass_r = create_box(Vector3(0.03, 0.52, 1.52), mat_glass, Vector3(0.63, 1.10, 0.44))
 	root.add_child(side_glass_l); root.add_child(side_glass_r)
 	
-	var bp_l = create_box(Vector3(0.05, 0.46, 0.10), mat_plastic_black, Vector3(-0.62, 0.94, 0.38))
-	var bp_r = create_box(Vector3(0.05, 0.46, 0.10), mat_plastic_black, Vector3(0.62, 0.94, 0.38))
+	var bp_l = create_box(Vector3(0.05, 0.54, 0.10), mat_plastic_black, Vector3(-0.63, 1.10, 0.38))
+	var bp_r = create_box(Vector3(0.05, 0.54, 0.10), mat_plastic_black, Vector3(0.63, 1.10, 0.38))
 	root.add_child(bp_l); root.add_child(bp_r)
 	
-	var rear_glass = create_box(Vector3(1.18, 0.42, 0.03), mat_glass, Vector3(0.0, 0.95, 1.44))
+	var rear_glass = create_box(Vector3(1.20, 0.48, 0.03), mat_glass, Vector3(0.0, 1.12, 1.44))
 	root.add_child(rear_glass)
 	
-	var roof_panel = create_box(Vector3(1.26, 0.05, 1.82), body_mat, Vector3(0.0, 1.18, 0.44))
+	var roof_panel = create_box(Vector3(1.28, 0.06, 1.84), body_mat, Vector3(0.0, 1.38, 0.44))
 	root.add_child(roof_panel)
 	
 	# --- 6. AUTHENTIC 3D COCKPIT INTERIOR ---
 	# Giugiaro Padded "Marsupio" Dashboard Shelf (canvas pouch spanning entire cabin)
-	var marsupio = create_box(Vector3(1.18, 0.14, 0.36), mat_interior_fabric, Vector3(0.0, 0.72, -0.32))
+	var marsupio = create_box(Vector3(1.20, 0.16, 0.36), mat_interior_fabric, Vector3(0.0, 0.78, -0.32))
 	root.add_child(marsupio)
 	
 	# Veglia Borletti "Cubo" Instrument Binnacle
-	var cubo = create_box(Vector3(0.36, 0.18, 0.22), mat_plastic_black, Vector3(-0.35, 0.84, -0.35))
-	var speedo_face = create_box(Vector3(0.32, 0.14, 0.02), mat_interior_dark, Vector3(-0.35, 0.84, -0.24))
+	var cubo = create_box(Vector3(0.36, 0.18, 0.22), mat_plastic_black, Vector3(-0.35, 0.92, -0.35))
+	var speedo_face = create_box(Vector3(0.32, 0.14, 0.02), mat_interior_dark, Vector3(-0.35, 0.92, -0.24))
 	root.add_child(cubo); root.add_child(speedo_face)
 	
 	# Circular Speedometer Bezel, dial & fluorescent needle
-	var p_sp_bezel = create_round_lamp(0.058, mat_chrome, Vector3(-0.42, 0.84, -0.235))
-	var p_sp_dial = create_round_lamp(0.050, mat_plastic_black, Vector3(-0.42, 0.84, -0.231))
-	var p_sp_needle = create_box(Vector3(0.008, 0.042, 0.005), mat_gauge_amber, Vector3(-0.42, 0.86, -0.228))
+	var p_sp_bezel = create_round_lamp(0.058, mat_chrome, Vector3(-0.42, 0.92, -0.235))
+	var p_sp_dial = create_round_lamp(0.050, mat_plastic_black, Vector3(-0.42, 0.92, -0.231))
+	var p_sp_needle = create_box(Vector3(0.008, 0.042, 0.005), mat_gauge_amber, Vector3(-0.42, 0.94, -0.228))
 	p_sp_needle.rotation.z = deg_to_rad(-22.0)
-	var p_sp_pin = create_round_lamp(0.009, mat_steel, Vector3(-0.42, 0.84, -0.226))
+	var p_sp_pin = create_round_lamp(0.009, mat_steel, Vector3(-0.42, 0.92, -0.226))
 	root.add_child(p_sp_bezel); root.add_child(p_sp_dial); root.add_child(p_sp_needle); root.add_child(p_sp_pin)
 	
 	# Horizontal Fuel & Water meters in right section of Cubo
-	var p_fuel_bar = create_box(Vector3(0.11, 0.022, 0.008), mat_steel, Vector3(-0.27, 0.86, -0.235))
-	var p_fuel_n = create_box(Vector3(0.008, 0.018, 0.006), mat_gauge_amber, Vector3(-0.25, 0.86, -0.230))
-	var p_temp_bar = create_box(Vector3(0.11, 0.022, 0.008), mat_steel, Vector3(-0.27, 0.825, -0.235))
-	var p_temp_n = create_box(Vector3(0.008, 0.018, 0.006), mat_gauge_amber, Vector3(-0.27, 0.825, -0.230))
+	var p_fuel_bar = create_box(Vector3(0.11, 0.022, 0.008), mat_steel, Vector3(-0.27, 0.94, -0.235))
+	var p_fuel_n = create_box(Vector3(0.008, 0.018, 0.006), mat_gauge_amber, Vector3(-0.25, 0.94, -0.230))
+	var p_temp_bar = create_box(Vector3(0.11, 0.022, 0.008), mat_steel, Vector3(-0.27, 0.905, -0.235))
+	var p_temp_n = create_box(Vector3(0.008, 0.018, 0.006), mat_gauge_amber, Vector3(-0.27, 0.905, -0.230))
 	root.add_child(p_fuel_bar); root.add_child(p_fuel_n); root.add_child(p_temp_bar); root.add_child(p_temp_n)
 	
 	# Indicator Warning Lamps (GEN, OLIO, LUCI, 4WD)
-	var p_lamp_gen = create_box(Vector3(0.02, 0.014, 0.008), mat_tail_red, Vector3(-0.31, 0.795, -0.232))
-	var p_lamp_oil = create_box(Vector3(0.02, 0.014, 0.008), mat_tail_red, Vector3(-0.27, 0.795, -0.232))
-	var p_lamp_luc = create_box(Vector3(0.02, 0.014, 0.008), mat_gauge_green, Vector3(-0.23, 0.795, -0.232))
+	var p_lamp_gen = create_box(Vector3(0.02, 0.014, 0.008), mat_tail_red, Vector3(-0.31, 0.875, -0.232))
+	var p_lamp_oil = create_box(Vector3(0.02, 0.014, 0.008), mat_tail_red, Vector3(-0.27, 0.875, -0.232))
+	var p_lamp_luc = create_box(Vector3(0.02, 0.014, 0.008), mat_gauge_green, Vector3(-0.23, 0.875, -0.232))
 	root.add_child(p_lamp_gen); root.add_child(p_lamp_oil); root.add_child(p_lamp_luc)
 	
 	# Steyr-Puch Dual Spherical Clinometer on center of dash
-	var clino_pod = create_box(Vector3(0.24, 0.10, 0.12), mat_plastic_black, Vector3(0.05, 0.82, -0.32))
-	var clino_face_l = create_box(Vector3(0.09, 0.07, 0.01), mat_plastic_black, Vector3(-0.02, 0.82, -0.255))
-	var clino_face_r = create_box(Vector3(0.09, 0.07, 0.01), mat_plastic_black, Vector3(0.12, 0.82, -0.255))
-	var clino_cross_l = create_box(Vector3(0.06, 0.008, 0.006), mat_gauge_green, Vector3(-0.02, 0.82, -0.250))
-	var clino_cross_r = create_box(Vector3(0.06, 0.008, 0.006), mat_gauge_green, Vector3(0.12, 0.82, -0.250))
+	var clino_pod = create_box(Vector3(0.24, 0.10, 0.12), mat_plastic_black, Vector3(0.05, 0.90, -0.32))
+	var clino_face_l = create_box(Vector3(0.09, 0.07, 0.01), mat_plastic_black, Vector3(-0.02, 0.90, -0.255))
+	var clino_face_r = create_box(Vector3(0.09, 0.07, 0.01), mat_plastic_black, Vector3(0.12, 0.90, -0.255))
+	var clino_cross_l = create_box(Vector3(0.06, 0.008, 0.006), mat_gauge_green, Vector3(-0.02, 0.90, -0.250))
+	var clino_cross_r = create_box(Vector3(0.06, 0.008, 0.006), mat_gauge_green, Vector3(0.12, 0.90, -0.250))
 	root.add_child(clino_pod); root.add_child(clino_face_l); root.add_child(clino_face_r)
 	root.add_child(clino_cross_l); root.add_child(clino_cross_r)
 	
 	# Devioluci Stalks on steering column
-	var p_stalk_l = create_box(Vector3(0.08, 0.012, 0.012), mat_plastic_black, Vector3(-0.43, 0.81, -0.19))
+	var p_stalk_l = create_box(Vector3(0.08, 0.012, 0.012), mat_plastic_black, Vector3(-0.43, 0.89, -0.19))
 	p_stalk_l.rotation.z = deg_to_rad(-16.0)
-	var p_stalk_r = create_box(Vector3(0.08, 0.012, 0.012), mat_plastic_black, Vector3(-0.27, 0.81, -0.19))
+	var p_stalk_r = create_box(Vector3(0.08, 0.012, 0.012), mat_plastic_black, Vector3(-0.27, 0.89, -0.19))
 	p_stalk_r.rotation.z = deg_to_rad(16.0)
 	root.add_child(p_stalk_l); root.add_child(p_stalk_r)
 	
 	# Interior Rearview Mirror and Sun Visors
-	var p_mir_stem = create_box(Vector3(0.018, 0.06, 0.018), mat_plastic_black, Vector3(0.0, 1.10, -0.32))
-	var p_mir_case = create_box(Vector3(0.16, 0.05, 0.022), mat_plastic_black, Vector3(0.0, 1.06, -0.30))
-	var p_mir_glass = create_box(Vector3(0.145, 0.04, 0.008), mat_mirror_glass, Vector3(0.0, 1.06, -0.29))
+	var p_mir_stem = create_box(Vector3(0.018, 0.06, 0.018), mat_plastic_black, Vector3(0.0, 1.34, -0.32))
+	var p_mir_case = create_box(Vector3(0.16, 0.05, 0.022), mat_plastic_black, Vector3(0.0, 1.30, -0.30))
+	var p_mir_glass = create_box(Vector3(0.145, 0.04, 0.008), mat_mirror_glass, Vector3(0.0, 1.30, -0.29))
 	root.add_child(p_mir_stem); root.add_child(p_mir_case); root.add_child(p_mir_glass)
 	for vx in [-0.36, 0.36]:
-		var visor = create_box(Vector3(0.32, 0.075, 0.015), mat_interior_fabric, Vector3(vx, 1.12, -0.26))
+		var visor = create_box(Vector3(0.32, 0.075, 0.015), mat_interior_fabric, Vector3(vx, 1.35, -0.26))
 		visor.rotation.x = deg_to_rad(22.0)
 		root.add_child(visor)
 	
 	# Dynamic Rotating 2-Spoke Giugiaro Steering Wheel (Clean pivot hierarchy)
 	var steer_pivot = Node3D.new()
-	steer_pivot.position = Vector3(-0.35, 0.82, -0.16)
+	steer_pivot.position = Vector3(-0.35, 0.90, -0.16)
 	steer_pivot.rotation.x = deg_to_rad(-24.0)
 	root.add_child(steer_pivot)
 	
@@ -510,14 +532,14 @@ static func build_panda_4x4(parent: Node3D, body_mat: Material):
 	# Front Canvas Deckchair Seats with Headrests
 	for seat_x in [-0.34, 0.34]:
 		var seat_base = create_box(Vector3(0.42, 0.14, 0.44), mat_interior_fabric, Vector3(seat_x, 0.50, 0.12))
-		var seat_back = create_box(Vector3(0.40, 0.44, 0.10), mat_interior_fabric, Vector3(seat_x, 0.75, 0.32))
+		var seat_back = create_box(Vector3(0.40, 0.50, 0.10), mat_interior_fabric, Vector3(seat_x, 0.79, 0.32))
 		seat_back.rotation.x = deg_to_rad(12.0)
-		var headrest = create_box(Vector3(0.24, 0.12, 0.08), mat_plastic_black, Vector3(seat_x, 1.02, 0.38))
+		var headrest = create_box(Vector3(0.24, 0.12, 0.08), mat_plastic_black, Vector3(seat_x, 1.10, 0.38))
 		root.add_child(seat_base); root.add_child(seat_back); root.add_child(headrest)
 		
 	# Rear Seat Bench
 	var rear_seat = create_box(Vector3(1.10, 0.14, 0.42), mat_interior_fabric, Vector3(0.0, 0.54, 0.95))
-	var rear_back = create_box(Vector3(1.10, 0.42, 0.10), mat_interior_fabric, Vector3(0.0, 0.78, 1.16))
+	var rear_back = create_box(Vector3(1.10, 0.48, 0.10), mat_interior_fabric, Vector3(0.0, 0.82, 1.16))
 	root.add_child(rear_seat); root.add_child(rear_back)
 	
 	# Center Floor: Gear Lever & Steyr 4WD Lever with yellow knob
@@ -528,30 +550,30 @@ static func build_panda_4x4(parent: Node3D, body_mat: Material):
 	# --- 7. REAR TAIL LIGHTS & MUD FLAPS ---
 	for side in [-1.0, 1.0]:
 		var tl_group = Node3D.new()
-		tl_group.position = Vector3(side * 0.58, 0.68, 1.66)
+		tl_group.position = Vector3(side * 0.58, 0.78, 1.66)
 		var amber_t = create_box(Vector3(0.12, 0.10, 0.03), mat_blinker_orange, Vector3(0.0, 0.10, 0.0))
 		var red_m = create_box(Vector3(0.12, 0.10, 0.03), mat_tail_red, Vector3(0.0, 0.0, 0.0))
 		var white_b = create_box(Vector3(0.12, 0.08, 0.03), mat_reverse_white, Vector3(0.0, -0.09, 0.0))
 		tl_group.add_child(amber_t); tl_group.add_child(red_m); tl_group.add_child(white_b)
 		root.add_child(tl_group)
 		
-		var flap = create_box(Vector3(0.18, 0.18, 0.02), mat_plastic_black, Vector3(side * 0.62, 0.22, 1.34))
-		var flap_txt = create_box(Vector3(0.12, 0.04, 0.01), mat_steel, Vector3(side * 0.62, 0.22, 1.35))
+		var flap = create_box(Vector3(0.18, 0.18, 0.02), mat_plastic_black, Vector3(side * 0.62, 0.24, 1.34))
+		var flap_txt = create_box(Vector3(0.12, 0.04, 0.01), mat_steel, Vector3(side * 0.62, 0.24, 1.35))
 		root.add_child(flap); root.add_child(flap_txt)
 		
 	# --- 8. EXPEDITION ROOF BASKET & EQUIPMENT ---
-	var rack_frame = create_box(Vector3(1.18, 0.05, 1.48), mat_steel, Vector3(0.0, 1.25, 0.44))
+	var rack_frame = create_box(Vector3(1.18, 0.06, 1.52), mat_steel, Vector3(0.0, 1.45, 0.44))
 	root.add_child(rack_frame)
 	var roof_tire = MeshInstance3D.new()
 	var rt_cyl = CylinderMesh.new()
 	rt_cyl.top_radius = 0.27; rt_cyl.bottom_radius = 0.27; rt_cyl.height = 0.16; rt_cyl.radial_segments = 16
 	rt_cyl.material = mat_plastic_black
 	roof_tire.mesh = rt_cyl
-	roof_tire.position = Vector3(-0.24, 1.34, 0.46)
+	roof_tire.position = Vector3(-0.24, 1.55, 0.46)
 	root.add_child(roof_tire)
 	
-	var jerrycan = create_box(Vector3(0.18, 0.28, 0.24), mat_jerrycan, Vector3(0.28, 1.38, 0.32))
-	var chest = create_box(Vector3(0.32, 0.18, 0.42), mat_steel, Vector3(0.24, 1.33, 0.72))
+	var jerrycan = create_box(Vector3(0.18, 0.28, 0.24), mat_jerrycan, Vector3(0.28, 1.58, 0.32))
+	var chest = create_box(Vector3(0.32, 0.18, 0.42), mat_steel, Vector3(0.24, 1.53, 0.72))
 	root.add_child(jerrycan); root.add_child(chest)
 	
 	return root
@@ -568,139 +590,151 @@ static func build_delta_integrale(parent: Node3D, body_mat: Material):
 	root.name = "DeltaRig"
 	parent.add_child(root)
 	
-	# --- 1. WIDE-BODY RALLY CHASSIS & POWER-BULGE HOOD ---
-	var lower_body = create_box(Vector3(1.64, 0.38, 3.86), body_mat, Vector3(0.0, 0.42, 0.0))
-	root.add_child(lower_body)
+	# --- 1. WIDE-BODY RALLY CHASSIS & OPEN WHEEL WELLS ---
+	# Authentic real Delta Integrale Evo proportions: Length 3.90m, Width 1.77m, Height 1.365m (with wing 1.44m)
+	# Center cabin tub between front and rear blister arches (leaves open wheel wells!)
+	var center_tub = create_beveled_box(Vector3(1.54, 0.46, 1.70), body_mat, Vector3(0.0, 0.50, 0.0))
+	root.add_child(center_tub)
+	
+	# Floor pan and underbody rally protection
+	var floor_pan = create_box(Vector3(1.36, 0.10, 3.42), mat_plastic_black, Vector3(0.0, 0.24, 0.0))
+	root.add_child(floor_pan)
+	
+	# Front and rear bulkheads & inner wheel liners
+	for side in [-1.0, 1.0]:
+		var liner_f = create_box(Vector3(0.06, 0.38, 0.65), mat_plastic_black, Vector3(side * 0.66, 0.50, -1.24))
+		var liner_r = create_box(Vector3(0.06, 0.38, 0.65), mat_plastic_black, Vector3(side * 0.66, 0.50, 1.24))
+		root.add_child(liner_f); root.add_child(liner_r)
 	
 	# Sculpted Rally Hood with Power-Bulge & Cooling Extraction Louvres
-	var hood = create_sculpted_hood(Vector3(0.0, 0.52, -0.55), 1.48, 1.38, 1.25, 0.12, -0.06, 0.055, body_mat, 10, 10)
+	var hood = create_sculpted_hood(Vector3(0.0, 0.62, -0.55), 1.50, 1.40, 1.25, 0.12, -0.06, 0.055, body_mat, 10, 10)
 	root.add_child(hood)
 	
-	var power_dome = create_box(Vector3(0.86, 0.06, 0.95), body_mat, Vector3(0.0, 0.67, -1.15))
+	var power_dome = create_box(Vector3(0.88, 0.06, 0.95), body_mat, Vector3(0.0, 0.77, -1.15))
 	power_dome.rotation.x = deg_to_rad(-3.5)
 	root.add_child(power_dome)
 	
 	for l_side in [-0.28, 0.28]:
-		var vent = create_box(Vector3(0.18, 0.02, 0.32), mat_plastic_black, Vector3(l_side, 0.72, -1.05))
+		var vent = create_box(Vector3(0.18, 0.02, 0.32), mat_plastic_black, Vector3(l_side, 0.82, -1.05))
 		root.add_child(vent)
 		
 	# --- 2. FRONT RALLY AIR DAM & QUAD PARABOLIC HEADLIGHTS ---
-	var front_bumper = create_curved_bumper(Vector3(0.0, 0.30, -1.94), 1.72, 0.28, 0.24, 0.10, body_mat, false, 18)
+	var front_bumper = create_curved_bumper(Vector3(0.0, 0.36, -1.94), 1.74, 0.28, 0.24, 0.10, body_mat, false, 18)
 	root.add_child(front_bumper)
 	
-	var splitter = create_box(Vector3(1.74, 0.04, 0.36), mat_plastic_black, Vector3(0.0, 0.16, -1.94))
-	var intercooler_intake = create_box(Vector3(0.84, 0.14, 0.08), mat_plastic_black, Vector3(0.0, 0.26, -2.06))
+	var splitter = create_box(Vector3(1.76, 0.04, 0.36), mat_plastic_black, Vector3(0.0, 0.22, -1.94))
+	var intercooler_intake = create_box(Vector3(0.86, 0.16, 0.08), mat_plastic_black, Vector3(0.0, 0.32, -2.06))
 	root.add_child(splitter); root.add_child(intercooler_intake)
 	
-	var grille_frame = create_box(Vector3(0.48, 0.20, 0.06), mat_chrome, Vector3(0.0, 0.54, -1.96))
-	var hf_badge = create_box(Vector3(0.08, 0.08, 0.02), mat_lancia_hf, Vector3(0.12, 0.54, -1.99))
+	var grille_frame = create_box(Vector3(0.50, 0.22, 0.06), mat_chrome, Vector3(0.0, 0.62, -1.96))
+	var hf_badge = create_box(Vector3(0.08, 0.08, 0.02), mat_lancia_hf, Vector3(0.12, 0.62, -1.99))
 	root.add_child(grille_frame); root.add_child(hf_badge)
 	
 	for side in [-1.0, 1.0]:
-		var outer_lamp = create_parabolic_headlamp(Vector3(side * 0.62, 0.54, -1.96), 0.08, 0.06, mat_chrome, mat_headlight)
-		var inner_lamp = create_parabolic_headlamp(Vector3(side * 0.42, 0.54, -1.96), 0.075, 0.06, mat_chrome, mat_fog_yellow)
-		var blinker = create_box(Vector3(0.12, 0.08, 0.08), mat_blinker_orange, Vector3(side * 0.78, 0.44, -1.92))
+		var outer_lamp = create_parabolic_headlamp(Vector3(side * 0.62, 0.62, -1.96), 0.085, 0.06, mat_chrome, mat_headlight)
+		var inner_lamp = create_parabolic_headlamp(Vector3(side * 0.42, 0.62, -1.96), 0.080, 0.06, mat_chrome, mat_fog_yellow)
+		var blinker = create_box(Vector3(0.12, 0.08, 0.08), mat_blinker_orange, Vector3(side * 0.78, 0.52, -1.92))
 		root.add_child(outer_lamp); root.add_child(inner_lamp); root.add_child(blinker)
 		
 	# Italian White Rally Plate: TO 1991HF
-	var f_plate = create_license_plate_italian_modern(Vector3(0.0, 0.22, -2.10))
-	var r_plate = create_license_plate_italian_modern(Vector3(0.0, 0.40, 1.98))
+	var f_plate = create_license_plate_italian_modern(Vector3(0.0, 0.28, -2.10))
+	var r_plate = create_license_plate_italian_modern(Vector3(0.0, 0.48, 1.98))
 	root.add_child(f_plate); root.add_child(r_plate)
 	
 	# Twin Stainless Steel Rally Exhaust
-	var exh_delta = create_curved_exhaust_pipe(Vector3(-0.52, 0.26, 1.95), 0.065, 0.24, mat_exhaust, true)
+	var exh_delta = create_curved_exhaust_pipe(Vector3(-0.52, 0.28, 1.95), 0.065, 0.24, mat_exhaust, true)
 	root.add_child(exh_delta)
 	
 	# --- 3. ICONIC BLISTER BOX-FLARES ("BOMBATURE EVOLUZIONE") ---
-	var arch_fl = create_flared_rally_box_arch(Vector3(-0.84, 0.38, -1.24), 0.35, 0.08, 0.12, true, body_mat, 18)
-	var arch_fr = create_flared_rally_box_arch(Vector3(0.84, 0.38, -1.24), 0.35, 0.08, 0.12, false, body_mat, 18)
-	var arch_rl = create_flared_rally_box_arch(Vector3(-0.84, 0.38, 1.24), 0.35, 0.08, 0.12, true, body_mat, 18)
-	var arch_rr = create_flared_rally_box_arch(Vector3(0.84, 0.38, 1.24), 0.35, 0.08, 0.12, false, body_mat, 18)
+	var arch_fl = create_flared_rally_box_arch(Vector3(-0.85, 0.42, -1.24), 0.35, 0.08, 0.12, true, body_mat, 18)
+	var arch_fr = create_flared_rally_box_arch(Vector3(0.85, 0.42, -1.24), 0.35, 0.08, 0.12, false, body_mat, 18)
+	var arch_rl = create_flared_rally_box_arch(Vector3(-0.85, 0.42, 1.24), 0.35, 0.08, 0.12, true, body_mat, 18)
+	var arch_rr = create_flared_rally_box_arch(Vector3(0.85, 0.42, 1.24), 0.35, 0.08, 0.12, false, body_mat, 18)
 	root.add_child(arch_fl); root.add_child(arch_fr); root.add_child(arch_rl); root.add_child(arch_rr)
 	
 	for side in [-1.0, 1.0]:
-		var skirt = create_box(Vector3(0.08, 0.12, 1.45), mat_plastic_black, Vector3(side * 0.83, 0.24, 0.0))
+		var skirt = create_box(Vector3(0.08, 0.14, 1.45), mat_plastic_black, Vector3(side * 0.84, 0.28, 0.0))
 		root.add_child(skirt)
 		
-		var mirror = create_box(Vector3(0.14, 0.08, 0.06), mat_plastic_black, Vector3(side * 0.80, 0.78, -0.58))
+		var mirror = create_box(Vector3(0.14, 0.08, 0.06), mat_plastic_black, Vector3(side * 0.82, 0.86, -0.58))
 		root.add_child(mirror)
 		
 		# Red Brembo 4-Piston Calipers behind wheels
-		var caliper_f = create_box(Vector3(0.06, 0.12, 0.10), mat_brembo_red, Vector3(side * 0.78, 0.32, -1.20))
-		var caliper_r = create_box(Vector3(0.06, 0.10, 0.08), mat_brembo_red, Vector3(side * 0.78, 0.32, 1.28))
+		var caliper_f = create_box(Vector3(0.06, 0.12, 0.10), mat_brembo_red, Vector3(side * 0.78, 0.36, -1.20))
+		var caliper_r = create_box(Vector3(0.06, 0.10, 0.08), mat_brembo_red, Vector3(side * 0.78, 0.36, 1.28))
 		root.add_child(caliper_f); root.add_child(caliper_r)
 		
 	# --- 4. GREENHOUSE, WINDOWS & ADJUSTABLE RALLY ROOF WING ---
-	var windshield = create_box(Vector3(1.36, 0.04, 0.78), mat_glass, Vector3(0.0, 0.86, -0.38))
+	var windshield = create_box(Vector3(1.36, 0.04, 0.78), mat_glass, Vector3(0.0, 0.98, -0.38))
 	windshield.rotation.x = deg_to_rad(-48.0)
 	root.add_child(windshield)
 	
 	# Twin Aerodynamic Rally Wipers (Parked flat along cowl)
 	for wx in [-0.30, 0.20]:
-		var w = create_box(Vector3(0.015, 0.40, 0.015), mat_plastic_black, Vector3(wx, 0.72, -0.46))
+		var w = create_box(Vector3(0.015, 0.42, 0.015), mat_plastic_black, Vector3(wx, 0.82, -0.46))
 		w.rotation.x = deg_to_rad(-48.0)
 		w.rotation.z = deg_to_rad(-82.0)
 		root.add_child(w)
 		
-	var side_glass_l = create_box(Vector3(0.03, 0.38, 1.70), mat_glass, Vector3(-0.70, 0.88, 0.40))
-	var side_glass_r = create_box(Vector3(0.03, 0.38, 1.70), mat_glass, Vector3(0.70, 0.88, 0.40))
+	var side_glass_l = create_box(Vector3(0.03, 0.46, 1.70), mat_glass, Vector3(-0.72, 1.02, 0.40))
+	var side_glass_r = create_box(Vector3(0.03, 0.46, 1.70), mat_glass, Vector3(0.72, 1.02, 0.40))
 	root.add_child(side_glass_l); root.add_child(side_glass_r)
 	
-	var rear_glass = create_box(Vector3(1.30, 0.44, 0.03), mat_glass, Vector3(0.0, 0.90, 1.62))
+	var rear_glass = create_box(Vector3(1.32, 0.48, 0.03), mat_glass, Vector3(0.0, 1.04, 1.62))
 	rear_glass.rotation.x = deg_to_rad(28.0)
 	root.add_child(rear_glass)
 	
-	var roof_panel = create_box(Vector3(1.42, 0.05, 1.85), body_mat, Vector3(0.0, 1.10, 0.42))
+	var roof_panel = create_box(Vector3(1.44, 0.06, 1.86), body_mat, Vector3(0.0, 1.28, 0.42))
 	root.add_child(roof_panel)
 	
 	# High-Mounted Adjustable Rally Wing with Twin Alloy Brackets
-	var wing_blade = create_box(Vector3(1.55, 0.06, 0.32), mat_plastic_black, Vector3(0.0, 1.28, 1.60))
+	var wing_blade = create_box(Vector3(1.58, 0.06, 0.32), mat_plastic_black, Vector3(0.0, 1.44, 1.60))
 	wing_blade.rotation.x = deg_to_rad(18.0)
-	var wing_b1 = create_box(Vector3(0.04, 0.18, 0.12), mat_steel, Vector3(-0.52, 1.20, 1.58))
-	var wing_b2 = create_box(Vector3(0.04, 0.18, 0.12), mat_steel, Vector3(0.52, 1.20, 1.58))
+	var wing_b1 = create_box(Vector3(0.04, 0.20, 0.12), mat_steel, Vector3(-0.52, 1.35, 1.58))
+	var wing_b2 = create_box(Vector3(0.04, 0.20, 0.12), mat_steel, Vector3(0.52, 1.35, 1.58))
 	root.add_child(wing_blade); root.add_child(wing_b1); root.add_child(wing_b2)
 	
 	# --- 5. 3D RALLY COCKPIT INTERIOR ---
-	var dash = create_box(Vector3(1.30, 0.20, 0.40), mat_interior_dark, Vector3(0.0, 0.68, -0.42))
-	var cluster_pod = create_box(Vector3(0.44, 0.16, 0.24), mat_interior_dark, Vector3(-0.38, 0.80, -0.44))
-	var turbo_gauge_pod = create_box(Vector3(0.16, 0.12, 0.16), mat_interior_dark, Vector3(0.0, 0.78, -0.40))
+	var dash = create_box(Vector3(1.32, 0.20, 0.40), mat_interior_dark, Vector3(0.0, 0.78, -0.42))
+	var cluster_pod = create_box(Vector3(0.44, 0.16, 0.24), mat_interior_dark, Vector3(-0.38, 0.90, -0.44))
+	var turbo_gauge_pod = create_box(Vector3(0.16, 0.12, 0.16), mat_interior_dark, Vector3(0.0, 0.88, -0.40))
 	root.add_child(dash); root.add_child(cluster_pod); root.add_child(turbo_gauge_pod)
 	
 	# Veglia Corse Yellow Dials: Speedometer (260 km/h) & Tachometer (8000 rpm)
-	var d_sp_dial = create_round_lamp(0.058, mat_fog_yellow, Vector3(-0.46, 0.80, -0.315))
-	var d_sp_needle = create_box(Vector3(0.008, 0.042, 0.006), mat_plastic_black, Vector3(-0.46, 0.82, -0.310))
+	var d_sp_dial = create_round_lamp(0.058, mat_fog_yellow, Vector3(-0.46, 0.90, -0.315))
+	var d_sp_needle = create_box(Vector3(0.008, 0.042, 0.006), mat_plastic_black, Vector3(-0.46, 0.92, -0.310))
 	d_sp_needle.rotation.z = deg_to_rad(-24.0)
-	var d_tac_dial = create_round_lamp(0.058, mat_fog_yellow, Vector3(-0.30, 0.80, -0.315))
-	var d_tac_needle = create_box(Vector3(0.008, 0.042, 0.006), mat_plastic_black, Vector3(-0.30, 0.82, -0.310))
+	var d_tac_dial = create_round_lamp(0.058, mat_fog_yellow, Vector3(-0.30, 0.90, -0.315))
+	var d_tac_needle = create_box(Vector3(0.008, 0.042, 0.006), mat_plastic_black, Vector3(-0.30, 0.92, -0.310))
 	d_tac_needle.rotation.z = deg_to_rad(-30.0)
 	root.add_child(d_sp_dial); root.add_child(d_sp_needle); root.add_child(d_tac_dial); root.add_child(d_tac_needle)
 	
 	# Garrett T3 Center Turbo Boost Gauge (Yellow dial with red needle)
-	var d_tb_dial = create_round_lamp(0.048, mat_fog_yellow, Vector3(0.0, 0.78, -0.315))
-	var d_tb_needle = create_box(Vector3(0.008, 0.035, 0.006), mat_tail_red, Vector3(0.0, 0.80, -0.310))
+	var d_tb_dial = create_round_lamp(0.048, mat_fog_yellow, Vector3(0.0, 0.88, -0.315))
+	var d_tb_needle = create_box(Vector3(0.008, 0.035, 0.006), mat_tail_red, Vector3(0.0, 0.90, -0.310))
 	root.add_child(d_tb_dial); root.add_child(d_tb_needle)
 	
 	# Check Control Matrix on center console
-	var d_chk = create_box(Vector3(0.18, 0.09, 0.02), mat_plastic_black, Vector3(0.0, 0.65, -0.35))
-	var d_chk_car = create_box(Vector3(0.06, 0.07, 0.005), mat_gauge_amber, Vector3(0.0, 0.65, -0.338))
+	var d_chk = create_box(Vector3(0.18, 0.09, 0.02), mat_plastic_black, Vector3(0.0, 0.75, -0.35))
+	var d_chk_car = create_box(Vector3(0.06, 0.07, 0.005), mat_gauge_amber, Vector3(0.0, 0.75, -0.338))
 	root.add_child(d_chk); root.add_child(d_chk_car)
 	
 	# Column Stalks, Rearview Mirror & Sun Visors
-	var d_stalk_l = create_box(Vector3(0.09, 0.012, 0.012), mat_plastic_black, Vector3(-0.46, 0.77, -0.25))
-	var d_stalk_r = create_box(Vector3(0.09, 0.012, 0.012), mat_plastic_black, Vector3(-0.30, 0.77, -0.25))
+	var d_stalk_l = create_box(Vector3(0.09, 0.012, 0.012), mat_plastic_black, Vector3(-0.46, 0.87, -0.25))
+	var d_stalk_r = create_box(Vector3(0.09, 0.012, 0.012), mat_plastic_black, Vector3(-0.30, 0.87, -0.25))
 	root.add_child(d_stalk_l); root.add_child(d_stalk_r)
-	var d_mir_stem = create_box(Vector3(0.018, 0.06, 0.018), mat_plastic_black, Vector3(0.0, 1.05, -0.38))
-	var d_mir_case = create_box(Vector3(0.18, 0.05, 0.02), mat_plastic_black, Vector3(0.0, 1.01, -0.36))
-	var d_mir_glass = create_box(Vector3(0.165, 0.04, 0.008), mat_mirror_glass, Vector3(0.0, 1.01, -0.35))
+	var d_mir_stem = create_box(Vector3(0.018, 0.06, 0.018), mat_plastic_black, Vector3(0.0, 1.22, -0.38))
+	var d_mir_case = create_box(Vector3(0.18, 0.05, 0.02), mat_plastic_black, Vector3(0.0, 1.18, -0.36))
+	var d_mir_glass = create_box(Vector3(0.165, 0.04, 0.008), mat_mirror_glass, Vector3(0.0, 1.18, -0.35))
 	root.add_child(d_mir_stem); root.add_child(d_mir_case); root.add_child(d_mir_glass)
 	for vx in [-0.38, 0.38]:
-		var visor = create_box(Vector3(0.34, 0.08, 0.015), mat_interior_dark, Vector3(vx, 1.06, -0.32))
+		var visor = create_box(Vector3(0.34, 0.08, 0.015), mat_interior_dark, Vector3(vx, 1.24, -0.32))
 		visor.rotation.x = deg_to_rad(22.0)
 		root.add_child(visor)
 	
 	# Momo Corse 3-Spoke Sports Steering Wheel with yellow 12 o'clock center stripe
 	var steer_pivot = Node3D.new()
-	steer_pivot.position = Vector3(-0.38, 0.78, -0.22)
+	steer_pivot.position = Vector3(-0.38, 0.88, -0.22)
 	steer_pivot.rotation.x = deg_to_rad(-20.0)
 	root.add_child(steer_pivot)
 	
@@ -728,25 +762,25 @@ static func build_delta_integrale(parent: Node3D, body_mat: Material):
 	
 	# Recaro High-Bolster Rally Bucket Seats
 	for seat_x in [-0.38, 0.38]:
-		var base = create_box(Vector3(0.44, 0.14, 0.46), mat_interior_dark, Vector3(seat_x, 0.46, 0.10))
-		var back = create_box(Vector3(0.42, 0.52, 0.10), mat_interior_dark, Vector3(seat_x, 0.74, 0.34))
+		var base = create_box(Vector3(0.44, 0.14, 0.46), mat_interior_dark, Vector3(seat_x, 0.48, 0.10))
+		var back = create_box(Vector3(0.42, 0.54, 0.10), mat_interior_dark, Vector3(seat_x, 0.78, 0.34))
 		back.rotation.x = deg_to_rad(12.0)
-		var bolster_l = create_box(Vector3(0.08, 0.46, 0.22), mat_interior_dark, Vector3(seat_x - 0.20, 0.72, 0.30))
-		var bolster_r = create_box(Vector3(0.08, 0.46, 0.22), mat_interior_dark, Vector3(seat_x + 0.20, 0.72, 0.30))
+		var bolster_l = create_box(Vector3(0.08, 0.48, 0.22), mat_interior_dark, Vector3(seat_x - 0.20, 0.76, 0.30))
+		var bolster_r = create_box(Vector3(0.08, 0.48, 0.22), mat_interior_dark, Vector3(seat_x + 0.20, 0.76, 0.30))
 		root.add_child(base); root.add_child(back); root.add_child(bolster_l); root.add_child(bolster_r)
 		
 	# Tall Sequential Rally Shifter & Fly-off Handbrake
-	var shifter = create_box(Vector3(0.03, 0.24, 0.03), mat_chrome, Vector3(-0.06, 0.62, -0.08))
-	var hbrake = create_box(Vector3(0.03, 0.28, 0.03), mat_plastic_black, Vector3(0.04, 0.64, 0.02))
+	var shifter = create_box(Vector3(0.03, 0.24, 0.03), mat_chrome, Vector3(-0.06, 0.70, -0.08))
+	var hbrake = create_box(Vector3(0.03, 0.28, 0.03), mat_plastic_black, Vector3(0.04, 0.72, 0.02))
 	root.add_child(shifter); root.add_child(hbrake)
 	
 	# --- 6. REAR END & TWIN POLISHED STAINLESS EXHAUST ---
-	var rear_bumper = create_box(Vector3(1.72, 0.24, 0.26), body_mat, Vector3(0.0, 0.34, 1.88))
+	var rear_bumper = create_box(Vector3(1.74, 0.26, 0.26), body_mat, Vector3(0.0, 0.40, 1.88))
 	root.add_child(rear_bumper)
 	
 	for side in [-1.0, 1.0]:
-		var tl = create_box(Vector3(0.24, 0.12, 0.04), mat_tail_red, Vector3(side * 0.62, 0.52, 1.94))
-		var tl_blink = create_box(Vector3(0.10, 0.12, 0.04), mat_blinker_orange, Vector3(side * 0.76, 0.52, 1.94))
+		var tl = create_box(Vector3(0.24, 0.12, 0.04), mat_tail_red, Vector3(side * 0.62, 0.60, 1.94))
+		var tl_blink = create_box(Vector3(0.10, 0.12, 0.04), mat_blinker_orange, Vector3(side * 0.76, 0.60, 1.94))
 		root.add_child(tl); root.add_child(tl_blink)
 		
 	for ex_x in [-0.42, -0.30]:
@@ -755,7 +789,7 @@ static func build_delta_integrale(parent: Node3D, body_mat: Material):
 		p_cyl.top_radius = 0.048; p_cyl.bottom_radius = 0.048; p_cyl.height = 0.20; p_cyl.radial_segments = 14
 		p_cyl.material = mat_exhaust
 		pipe.mesh = p_cyl
-		pipe.position = Vector3(ex_x, 0.22, 1.98)
+		pipe.position = Vector3(ex_x, 0.26, 1.98)
 		pipe.rotation.x = PI * 0.5
 		root.add_child(pipe)
 		
@@ -773,9 +807,24 @@ static func build_gwagen_w460(parent: Node3D, body_mat: Material):
 	root.name = "GwagenRig"
 	parent.add_child(root)
 	
-	# --- 1. UTILITARIAN BOX CHASSIS & UPRIGHT PROFILE ---
-	var lower_body = create_box(Vector3(1.68, 0.56, 4.10), body_mat, Vector3(0.0, 0.55, 0.0))
-	root.add_child(lower_body)
+	# --- 1. UTILITARIAN BOX CHASSIS & OPEN WHEEL WELLS ---
+	# Center cabin tub between front and rear axles (leaves open wheel wells!)
+	var center_tub = create_beveled_box(Vector3(1.58, 0.56, 1.85), body_mat, Vector3(0.0, 0.55, 0.0))
+	root.add_child(center_tub)
+	
+	# Heavy ladder frame chassis rails & floor pan
+	var ladder_chassis = create_box(Vector3(1.40, 0.12, 3.80), mat_plastic_black, Vector3(0.0, 0.28, 0.0))
+	root.add_child(ladder_chassis)
+	
+	# Inner wheel liners & mud shields
+	for side in [-1.0, 1.0]:
+		var liner_f = create_box(Vector3(0.08, 0.42, 0.70), mat_plastic_black, Vector3(side * 0.70, 0.52, -1.35))
+		var liner_r = create_box(Vector3(0.08, 0.42, 0.70), mat_plastic_black, Vector3(side * 0.70, 0.52, 1.35))
+		root.add_child(liner_f); root.add_child(liner_r)
+		
+		# Front fender wing flanks
+		var f_wing = create_beveled_box(Vector3(0.12, 0.36, 1.25), body_mat, Vector3(side * 0.76, 0.65, -1.32))
+		root.add_child(f_wing)
 	
 	var hood = create_box(Vector3(1.58, 0.14, 1.35), body_mat, Vector3(0.0, 0.85, -1.25))
 	root.add_child(hood)
@@ -962,186 +1011,218 @@ static func build_fiat_127(parent: Node3D, body_mat: Material):
 	root.name = "Fiat127Rig"
 	parent.add_child(root)
 	
-	# --- 1. LOWER BODY & PIO MANZÙ TWO-BOX COMPACT SILHOUETTE ---
-	var lower_body = create_box(Vector3(1.42, 0.36, 3.42), body_mat, Vector3(0.0, 0.42, 0.0))
-	root.add_child(lower_body)
+	# --- 1. LOWER BODY & PIO MANZÙ TWO-BOX COMPACT SILHOUETTE WITH OPEN WHEEL WELLS ---
+	# Authentic real Fiat 127 proportions: Length 3.59m, Width 1.53m, Height 1.37m
+	# Center cabin tub between front and rear axles (leaves open wheel wells!)
+	var center_tub = create_beveled_box(Vector3(1.40, 0.46, 1.58), body_mat, Vector3(0.0, 0.48, 0.0))
+	root.add_child(center_tub)
+	
+	# Floor pan and underbody protection
+	var floor_pan = create_box(Vector3(1.24, 0.10, 3.18), mat_plastic_black, Vector3(0.0, 0.24, 0.0))
+	root.add_child(floor_pan)
+
+	# Curved front & rear wheel arch flares with inner liners
+	for side in [-1.0, 1.0]:
+		var is_left = (side < 0.0)
+		var arch_f = create_curved_wheel_arch(Vector3(side * 0.68, 0.30, -1.11), 0.30, 0.06, 0.04, is_left, body_mat, 16)
+		var arch_r = create_curved_wheel_arch(Vector3(side * 0.68, 0.30, 1.11), 0.30, 0.06, 0.04, is_left, body_mat, 16)
+		root.add_child(arch_f); root.add_child(arch_r)
+		
+		var liner_f = create_box(Vector3(0.06, 0.38, 0.60), mat_plastic_black, Vector3(side * 0.58, 0.48, -1.11))
+		var liner_r = create_box(Vector3(0.06, 0.38, 0.60), mat_plastic_black, Vector3(side * 0.58, 0.48, 1.11))
+		root.add_child(liner_f); root.add_child(liner_r)
+		
+		var f_wing = create_beveled_box(Vector3(0.12, 0.28, 1.12), body_mat, Vector3(side * 0.66, 0.60, -1.12))
+		root.add_child(f_wing)
 	
 	# Sloping Sculpted Hood (Pio Manzù characteristic forward rake & crown camber)
-	var hood = create_sculpted_hood(Vector3(0.0, 0.52, -0.48), 1.36, 1.28, 1.18, 0.10, -0.05, 0.045, body_mat, 10, 10)
+	var hood = create_sculpted_hood(Vector3(0.0, 0.60, -0.48), 1.36, 1.28, 1.18, 0.12, -0.05, 0.045, body_mat, 10, 10)
 	hood.name = "Hood"
 	root.add_child(hood)
 	
 	# Asymmetric hood air intake scoop (Firma distintiva Fiat 127 sul lato guida)
-	var scoop = create_box(Vector3(0.24, 0.03, 0.28), mat_plastic_black, Vector3(-0.32, 0.69, -0.92))
+	var scoop = create_box(Vector3(0.24, 0.03, 0.28), mat_plastic_black, Vector3(-0.32, 0.77, -0.92))
 	scoop.name = "HoodScoop"
 	scoop.rotation.x = deg_to_rad(-4.0)
 	root.add_child(scoop)
 	
 	# Fastback Rear Quarter & Tailgate Deck
-	var rear_deck = create_box(Vector3(1.38, 0.38, 0.46), body_mat, Vector3(0.0, 0.64, 1.42))
+	var rear_deck = create_box(Vector3(1.38, 0.46, 0.48), body_mat, Vector3(0.0, 0.72, 1.42))
 	rear_deck.name = "RearDeck"
 	root.add_child(rear_deck)
 	
 	# --- 2. FRONT NOSE, HONEYCOMB GRILLE & 4-RHOMBUS FIAT EMBLEM ---
-	var nose_panel = create_box(Vector3(1.34, 0.22, 0.06), mat_plastic_black, Vector3(0.0, 0.52, -1.68))
+	var nose_panel = create_box(Vector3(1.34, 0.26, 0.06), mat_plastic_black, Vector3(0.0, 0.60, -1.68))
 	nose_panel.name = "NosePanel"
 	root.add_child(nose_panel)
 	
 	# Vintage Fiat 4-Rhombus / Chrome Horizontal Line
-	var chrome_strip = create_box(Vector3(0.85, 0.015, 0.02), mat_chrome, Vector3(0.0, 0.52, -1.71))
+	var chrome_strip = create_box(Vector3(0.85, 0.015, 0.02), mat_chrome, Vector3(0.0, 0.60, -1.71))
 	root.add_child(chrome_strip)
 	for b_i in range(4):
-		var bar = create_box(Vector3(0.022, 0.07, 0.02), mat_fiat_blue, Vector3(-0.09 + float(b_i) * 0.06, 0.52, -1.72))
+		var bar = create_box(Vector3(0.024, 0.065, 0.025), mat_fiat_blue, Vector3(-0.075 + float(b_i) * 0.05, 0.60, -1.73))
 		bar.rotation.z = deg_to_rad(-18.0)
-		root.add_child(bar)
+		var let = create_box(Vector3(0.014, 0.035, 0.01), mat_chrome, Vector3(-0.075 + float(b_i) * 0.05, 0.60, -1.745))
+		root.add_child(bar); root.add_child(let)
 		
-	# Rectangular Carello Halogen Headlights with chrome bezels
+	# Rectangular Carello Sealed-Beam Headlights with Fluted Glass Shader & Chrome Bezels
+	var shader_hl = load("res://shaders/vintage_fluted_headlight.gdshader")
+	var mat_fluted = ShaderMaterial.new()
+	if shader_hl:
+		mat_fluted.shader = shader_hl
+		mat_fluted.set_shader_parameter("bulb_emission", Color(1.0, 0.95, 0.84, 1.0))
+		mat_fluted.set_shader_parameter("emission_energy", 2.2)
+		mat_fluted.set_shader_parameter("flute_frequency", 36.0)
+		mat_fluted.set_shader_parameter("prism_depth", 0.45)
+		
 	for side in [-1.0, 1.0]:
-		var hl_bezel = create_box(Vector3(0.24, 0.16, 0.03), mat_chrome, Vector3(side * 0.46, 0.52, -1.69))
-		var hl_glass = create_box(Vector3(0.21, 0.13, 0.04), mat_headlight, Vector3(side * 0.46, 0.52, -1.71))
+		var hl_bezel = create_box(Vector3(0.24, 0.16, 0.04), mat_chrome, Vector3(side * 0.46, 0.60, -1.69))
+		var hl_bowl = create_round_lamp(0.075, mat_chrome, Vector3(side * 0.46, 0.60, -1.70))
+		var hl_glass = create_box(Vector3(0.21, 0.13, 0.02), mat_fluted if shader_hl else mat_headlight, Vector3(side * 0.46, 0.60, -1.72))
 		hl_glass.name = "Headlight_L" if side < 0 else "Headlight_R"
-		root.add_child(hl_bezel); root.add_child(hl_glass)
+		root.add_child(hl_bezel); root.add_child(hl_bowl); root.add_child(hl_glass)
 		
 	# --- 3. CLASSIC WIDE CHROME BUMPERS WITH RUBBER ROSTRI & AMBER BLINKERS ---
-	var front_bumper = create_curved_bumper(Vector3(0.0, 0.32, -1.72), 1.44, 0.22, 0.08, 0.06, mat_chrome, false, 18)
+	var front_bumper = create_curved_bumper(Vector3(0.0, 0.36, -1.72), 1.44, 0.22, 0.08, 0.06, mat_chrome, false, 18)
 	front_bumper.name = "FrontBumper"
 	root.add_child(front_bumper)
 	for r_side in [-1.0, 1.0]:
-		var rostro = create_box(Vector3(0.06, 0.16, 0.10), mat_plastic_black, Vector3(r_side * 0.36, 0.32, -1.73))
-		var blinker = create_box(Vector3(0.12, 0.06, 0.04), mat_blinker_orange, Vector3(r_side * 0.58, 0.32, -1.72))
+		var rostro = create_box(Vector3(0.05, 0.16, 0.08), mat_plastic_black, Vector3(r_side * 0.36, 0.36, -1.75))
+		var blinker = create_box(Vector3(0.12, 0.06, 0.04), mat_blinker_orange, Vector3(r_side * 0.58, 0.36, -1.72))
 		root.add_child(rostro); root.add_child(blinker)
 		
-	var rear_bumper = create_curved_bumper(Vector3(0.0, 0.32, 1.70), 1.44, 0.22, 0.08, 0.06, mat_chrome, true, 18)
+	var rear_bumper = create_curved_bumper(Vector3(0.0, 0.36, 1.70), 1.44, 0.22, 0.08, 0.06, mat_chrome, true, 18)
 	rear_bumper.name = "RearBumper"
 	root.add_child(rear_bumper)
 	for r_side in [-1.0, 1.0]:
-		var r_rostro = create_box(Vector3(0.06, 0.16, 0.10), mat_plastic_black, Vector3(r_side * 0.36, 0.32, 1.71))
+		var r_rostro = create_box(Vector3(0.05, 0.16, 0.08), mat_plastic_black, Vector3(r_side * 0.36, 0.36, 1.73))
 		root.add_child(r_rostro)
 		
 	# Vintage Italian Black-and-Orange License Plates: MI 74127A
-	var f_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.22, -1.78), false)
-	var r_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.44, 1.73), true)
+	var f_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.24, -1.78), false)
+	var r_plate = create_license_plate_italian_vintage(Vector3(0.0, 0.48, 1.73), true)
 	root.add_child(f_plate); root.add_child(r_plate)
 	
 	# Period Rolled Chrome Exhaust Tip
-	var exh_127 = create_curved_exhaust_pipe(Vector3(0.48, 0.24, 1.74), 0.048, 0.22, mat_exhaust)
+	var exh_127 = create_curved_exhaust_pipe(Vector3(0.48, 0.26, 1.74), 0.048, 0.22, mat_exhaust)
 	root.add_child(exh_127)
 	
 	# --- 4. SIDES, CHROMED PUSH-BUTTON DOOR HANDLES & CURVED WHEEL ARCHES ---
 	for side in [-1.0, 1.0]:
-		var waist = create_box(Vector3(0.02, 0.02, 2.75), mat_plastic_black, Vector3(side * 0.72, 0.54, 0.0))
+		var waist = create_box(Vector3(0.02, 0.02, 2.75), mat_plastic_black, Vector3(side * 0.72, 0.62, 0.0))
 		root.add_child(waist)
-		var handle = create_box(Vector3(0.02, 0.03, 0.10), mat_chrome, Vector3(side * 0.72, 0.64, -0.12))
+		var handle = create_box(Vector3(0.02, 0.03, 0.10), mat_chrome, Vector3(side * 0.72, 0.74, -0.12))
 		root.add_child(handle)
 		
 	# Smooth 180° Curved Wheel Arch Flanges (Front & Rear)
-	var arch_fl = create_curved_wheel_arch(Vector3(-0.71, 0.38, -1.11), 0.32, 0.05, 0.035, true, body_mat, 18)
-	var arch_fr = create_curved_wheel_arch(Vector3(0.71, 0.38, -1.11), 0.32, 0.05, 0.035, false, body_mat, 18)
-	var arch_rl = create_curved_wheel_arch(Vector3(-0.71, 0.38, 1.11), 0.32, 0.05, 0.035, true, body_mat, 18)
-	var arch_rr = create_curved_wheel_arch(Vector3(0.71, 0.38, 1.11), 0.32, 0.05, 0.035, false, body_mat, 18)
+	var arch_fl = create_curved_wheel_arch(Vector3(-0.71, 0.42, -1.11), 0.32, 0.05, 0.035, true, body_mat, 18)
+	var arch_fr = create_curved_wheel_arch(Vector3(0.71, 0.42, -1.11), 0.32, 0.05, 0.035, false, body_mat, 18)
+	var arch_rl = create_curved_wheel_arch(Vector3(-0.71, 0.42, 1.11), 0.32, 0.05, 0.035, true, body_mat, 18)
+	var arch_rr = create_curved_wheel_arch(Vector3(0.71, 0.42, 1.11), 0.32, 0.05, 0.035, false, body_mat, 18)
 	root.add_child(arch_fl); root.add_child(arch_fr); root.add_child(arch_rl); root.add_child(arch_rr)
 		
 	# Vintage Round Chrome Driver Mirror (montato basso sulla portiera)
-	var mir_arm = create_box(Vector3(0.05, 0.015, 0.015), mat_chrome, Vector3(-0.74, 0.66, -0.48))
-	var mir_head = create_round_lamp(0.038, mat_chrome, Vector3(-0.77, 0.66, -0.48))
+	var mir_arm = create_box(Vector3(0.05, 0.015, 0.015), mat_chrome, Vector3(-0.74, 0.76, -0.48))
+	var mir_head = create_round_lamp(0.038, mat_chrome, Vector3(-0.77, 0.76, -0.48))
 	root.add_child(mir_arm); root.add_child(mir_head)
 	
-	# --- 5. CABIN GREENHOUSE, SLOPING LUNOTTO & THIN PILLARS ---
-	var windshield = create_box(Vector3(1.22, 0.03, 0.70), mat_glass, Vector3(0.0, 0.88, -0.28))
+	# --- 5. CABIN GREENHOUSE, SLOPING LUNOTTO, PILLARS & RAIN GUTTERS ---
+	var windshield = create_box(Vector3(1.22, 0.03, 0.74), mat_glass, Vector3(0.0, 1.02, -0.28))
 	windshield.rotation.x = deg_to_rad(-42.0)
 	root.add_child(windshield)
 	
 	for wx in [-0.28, 0.20]:
-		var wp = create_box(Vector3(0.012, 0.38, 0.012), mat_chrome, Vector3(wx, 0.71, -0.42))
+		var wp = create_box(Vector3(0.012, 0.40, 0.012), mat_chrome, Vector3(wx, 0.82, -0.42))
 		wp.rotation.x = deg_to_rad(-42.0)
 		wp.rotation.z = deg_to_rad(-82.0)
 		root.add_child(wp)
 		
-	var side_glass_l = create_box(Vector3(0.03, 0.40, 1.40), mat_glass, Vector3(-0.62, 0.92, 0.42))
-	var side_glass_r = create_box(Vector3(0.03, 0.40, 1.40), mat_glass, Vector3(0.62, 0.92, 0.42))
+	var side_glass_l = create_box(Vector3(0.03, 0.46, 1.44), mat_glass, Vector3(-0.62, 1.04, 0.42))
+	var side_glass_r = create_box(Vector3(0.03, 0.46, 1.44), mat_glass, Vector3(0.62, 1.04, 0.42))
 	root.add_child(side_glass_l); root.add_child(side_glass_r)
 	
-	var bp_l = create_box(Vector3(0.05, 0.42, 0.08), mat_interior_dark, Vector3(-0.62, 0.92, 0.35))
-	var bp_r = create_box(Vector3(0.05, 0.42, 0.08), mat_interior_dark, Vector3(0.62, 0.92, 0.35))
-	root.add_child(bp_l); root.add_child(bp_r)
+	for side in [-1.0, 1.0]:
+		# B-Pillar
+		var bp = create_box(Vector3(0.04, 0.48, 0.08), mat_interior_dark, Vector3(side * 0.62, 1.04, 0.35))
+		root.add_child(bp)
+		# Front Vent Wing Divider (Deflettore)
+		var defl = create_box(Vector3(0.015, 0.46, 0.015), mat_chrome, Vector3(side * 0.625, 1.04, -0.06))
+		root.add_child(defl)
+		# Chrome Rain Gutters (Gocciolatoi Cromati)
+		var gutter = create_box(Vector3(0.018, 0.022, 1.82), mat_chrome, Vector3(side * 0.635, 1.28, 0.42))
+		root.add_child(gutter)
+		# Slender A-Pillar Chrome Bead
+		var a_bead = create_box(Vector3(0.02, 0.68, 0.02), mat_chrome, Vector3(side * 0.625, 1.02, -0.28))
+		a_bead.rotation.x = deg_to_rad(42.0)
+		root.add_child(a_bead)
 	
-	var rear_glass = create_box(Vector3(1.18, 0.03, 0.62), mat_glass, Vector3(0.0, 0.88, 1.34))
+	var rear_glass = create_box(Vector3(1.18, 0.03, 0.66), mat_glass, Vector3(0.0, 1.00, 1.34))
 	rear_glass.rotation.x = deg_to_rad(36.0)
 	root.add_child(rear_glass)
 	
-	var roof_panel = create_box(Vector3(1.24, 0.04, 1.75), body_mat, Vector3(0.0, 1.14, 0.42))
+	var roof_panel = create_beveled_box(Vector3(1.24, 0.05, 1.78), body_mat, Vector3(0.0, 1.28, 0.42))
 	root.add_child(roof_panel)
 	
 	# --- 6. AUTHENTIC 3D COCKPIT INTERIOR (Pio Manzù 1974 Special) ---
-	# Ripiano inferiore e palpebra superiore plancia imbottita (finitura opaca antiriflesso)
-	var dash_lower = create_box(Vector3(1.18, 0.08, 0.28), mat_interior_dark, Vector3(0.0, 0.54, -0.32))
-	var dash_upper = create_box(Vector3(1.18, 0.09, 0.22), mat_interior_dark, Vector3(0.0, 0.62, -0.34))
+	var dash_lower = create_box(Vector3(1.18, 0.08, 0.28), mat_interior_dark, Vector3(0.0, 0.64, -0.32))
+	var dash_upper = create_box(Vector3(1.18, 0.09, 0.22), mat_interior_dark, Vector3(0.0, 0.72, -0.34))
 	root.add_child(dash_lower); root.add_child(dash_upper)
 	
-	# Fascia orizzontale in pregiata radica di noce "Special 1974" con profilo cromato
-	var walnut_strip = create_box(Vector3(1.16, 0.045, 0.02), mat_wood_walnut, Vector3(0.0, 0.59, -0.23))
-	var walnut_chrome = create_box(Vector3(1.16, 0.006, 0.024), mat_chrome, Vector3(0.0, 0.565, -0.228))
+	var walnut_strip = create_box(Vector3(1.16, 0.045, 0.02), mat_wood_walnut, Vector3(0.0, 0.69, -0.23))
+	var walnut_chrome = create_box(Vector3(1.16, 0.006, 0.024), mat_chrome, Vector3(0.0, 0.665, -0.228))
 	root.add_child(walnut_strip); root.add_child(walnut_chrome)
 	
-	# Bocchette di ventilazione orientabili con ghiere cromate
 	for vx in [-0.52, 0.0, 0.52]:
-		var vent_ring = create_box(Vector3(0.055, 0.055, 0.015), mat_chrome, Vector3(vx, 0.59, -0.235))
-		var vent_core = create_box(Vector3(0.042, 0.042, 0.02), mat_interior_dark, Vector3(vx, 0.59, -0.23))
+		var vent_ring = create_box(Vector3(0.055, 0.055, 0.015), mat_chrome, Vector3(vx, 0.69, -0.235))
+		var vent_core = create_box(Vector3(0.042, 0.042, 0.02), mat_interior_dark, Vector3(vx, 0.69, -0.23))
 		root.add_child(vent_ring); root.add_child(vent_core)
 		
-	# Quadro Strumenti Veglia Borletti (Palpebra sagomata e quadri incassati)
-	var binnacle_hood = create_box(Vector3(0.38, 0.10, 0.15), mat_interior_dark, Vector3(-0.30, 0.67, -0.30))
-	var binnacle_back = create_box(Vector3(0.35, 0.08, 0.02), mat_interior_dark, Vector3(-0.30, 0.66, -0.225))
+	var binnacle_hood = create_box(Vector3(0.38, 0.10, 0.15), mat_interior_dark, Vector3(-0.30, 0.77, -0.30))
+	var binnacle_back = create_box(Vector3(0.35, 0.08, 0.02), mat_interior_dark, Vector3(-0.30, 0.76, -0.225))
 	root.add_child(binnacle_hood); root.add_child(binnacle_back)
 	
-	# Tachimetro circolare Veglia Borletti con ghiera cromata e lancetta fluorescente
-	var sp_bezel = create_round_lamp(0.052, mat_chrome, Vector3(-0.36, 0.66, -0.22))
-	var sp_dial = create_round_lamp(0.046, mat_plastic_black, Vector3(-0.36, 0.66, -0.216))
-	var sp_needle = create_box(Vector3(0.005, 0.034, 0.005), mat_gauge_amber, Vector3(-0.36, 0.675, -0.210))
+	var sp_bezel = create_round_lamp(0.052, mat_chrome, Vector3(-0.36, 0.76, -0.22))
+	var sp_dial = create_round_lamp(0.046, mat_plastic_black, Vector3(-0.36, 0.76, -0.216))
+	var sp_needle = create_box(Vector3(0.005, 0.034, 0.005), mat_gauge_amber, Vector3(-0.36, 0.775, -0.210))
 	sp_needle.rotation.z = deg_to_rad(-24.0)
-	var sp_pin = create_round_lamp(0.008, mat_steel, Vector3(-0.36, 0.66, -0.208))
+	var sp_pin = create_round_lamp(0.008, mat_steel, Vector3(-0.36, 0.76, -0.208))
 	root.add_child(sp_bezel); root.add_child(sp_dial); root.add_child(sp_needle); root.add_child(sp_pin)
 	
-	# Riquadri orizzontali Livello Carburante e Temperatura Acqua
-	var fuel_frame = create_box(Vector3(0.12, 0.024, 0.008), mat_steel, Vector3(-0.24, 0.68, -0.22))
-	var fuel_n = create_box(Vector3(0.006, 0.018, 0.005), mat_gauge_amber, Vector3(-0.22, 0.68, -0.215))
-	var temp_frame = create_box(Vector3(0.12, 0.024, 0.008), mat_steel, Vector3(-0.24, 0.645, -0.22))
-	var temp_n = create_box(Vector3(0.006, 0.018, 0.005), mat_gauge_amber, Vector3(-0.24, 0.645, -0.215))
+	var fuel_frame = create_box(Vector3(0.12, 0.024, 0.008), mat_steel, Vector3(-0.24, 0.78, -0.22))
+	var fuel_n = create_box(Vector3(0.006, 0.018, 0.005), mat_gauge_amber, Vector3(-0.22, 0.78, -0.215))
+	var temp_frame = create_box(Vector3(0.12, 0.024, 0.008), mat_steel, Vector3(-0.24, 0.745, -0.22))
+	var temp_n = create_box(Vector3(0.006, 0.018, 0.005), mat_gauge_amber, Vector3(-0.24, 0.745, -0.215))
 	root.add_child(fuel_frame); root.add_child(fuel_n); root.add_child(temp_frame); root.add_child(temp_n)
 	
-	# Spie luminose (Dinamo rossa, Olio rossa, Luci verde, Frecce verde)
-	var lamp_din = create_box(Vector3(0.02, 0.012, 0.006), mat_tail_red, Vector3(-0.29, 0.625, -0.22))
-	var lamp_oil = create_box(Vector3(0.02, 0.012, 0.006), mat_tail_red, Vector3(-0.26, 0.625, -0.22))
-	var lamp_luc = create_box(Vector3(0.02, 0.012, 0.006), mat_gauge_green, Vector3(-0.23, 0.625, -0.22))
-	var lamp_frc = create_box(Vector3(0.02, 0.012, 0.006), mat_gauge_amber, Vector3(-0.20, 0.625, -0.22))
+	var lamp_din = create_box(Vector3(0.02, 0.012, 0.006), mat_tail_red, Vector3(-0.29, 0.725, -0.22))
+	var lamp_oil = create_box(Vector3(0.02, 0.012, 0.006), mat_tail_red, Vector3(-0.26, 0.725, -0.22))
+	var lamp_luc = create_box(Vector3(0.02, 0.012, 0.006), mat_gauge_green, Vector3(-0.23, 0.725, -0.22))
+	var lamp_frc = create_box(Vector3(0.02, 0.012, 0.006), mat_gauge_amber, Vector3(-0.20, 0.725, -0.22))
 	root.add_child(lamp_din); root.add_child(lamp_oil); root.add_child(lamp_luc); root.add_child(lamp_frc)
 	
-	# Consolle Centrale con Autoradio Voxson, manettino starter "ARIA" e 4 frecce
-	var radio_body = create_box(Vector3(0.20, 0.06, 0.03), mat_interior_dark, Vector3(0.0, 0.52, -0.24))
-	var radio_dial = create_box(Vector3(0.12, 0.022, 0.008), mat_gauge_amber, Vector3(0.0, 0.525, -0.222))
-	var knob_rad_l = create_box(Vector3(0.018, 0.018, 0.015), mat_chrome, Vector3(-0.07, 0.52, -0.22))
-	var knob_rad_r = create_box(Vector3(0.018, 0.018, 0.015), mat_chrome, Vector3(0.07, 0.52, -0.22))
+	var radio_body = create_box(Vector3(0.20, 0.06, 0.03), mat_interior_dark, Vector3(0.0, 0.62, -0.24))
+	var radio_dial = create_box(Vector3(0.12, 0.022, 0.008), mat_gauge_amber, Vector3(0.0, 0.625, -0.222))
+	var knob_rad_l = create_box(Vector3(0.018, 0.018, 0.015), mat_chrome, Vector3(-0.07, 0.62, -0.22))
+	var knob_rad_r = create_box(Vector3(0.018, 0.018, 0.015), mat_chrome, Vector3(0.07, 0.62, -0.22))
 	root.add_child(radio_body); root.add_child(radio_dial); root.add_child(knob_rad_l); root.add_child(knob_rad_r)
 	
-	var switch_bar = create_box(Vector3(0.22, 0.04, 0.03), mat_interior_dark, Vector3(0.0, 0.46, -0.24))
-	var choke_knob = create_box(Vector3(0.022, 0.022, 0.025), mat_plastic_black, Vector3(-0.06, 0.46, -0.22))
-	var hazard_sw = create_box(Vector3(0.025, 0.022, 0.02), mat_tail_red, Vector3(0.06, 0.46, -0.22))
+	var switch_bar = create_box(Vector3(0.22, 0.04, 0.03), mat_interior_dark, Vector3(0.0, 0.56, -0.24))
+	var choke_knob = create_box(Vector3(0.022, 0.022, 0.025), mat_plastic_black, Vector3(-0.06, 0.56, -0.22))
+	var hazard_sw = create_box(Vector3(0.025, 0.022, 0.02), mat_tail_red, Vector3(0.06, 0.56, -0.22))
 	root.add_child(switch_bar); root.add_child(choke_knob); root.add_child(hazard_sw)
 	
-	# Volante 2 Razze Pio Manzù a calice ribassato
-	var col_shaft = create_box(Vector3(0.05, 0.05, 0.16), mat_plastic_black, Vector3(-0.30, 0.62, -0.24))
+	var col_shaft = create_box(Vector3(0.05, 0.05, 0.16), mat_plastic_black, Vector3(-0.30, 0.72, -0.24))
 	col_shaft.rotation.x = deg_to_rad(-22.0)
 	root.add_child(col_shaft)
 	
-	# Steli devioluci al volante
-	var stalk_l = create_box(Vector3(0.08, 0.01, 0.01), mat_chrome, Vector3(-0.38, 0.63, -0.20))
+	var stalk_l = create_box(Vector3(0.08, 0.01, 0.01), mat_chrome, Vector3(-0.38, 0.73, -0.20))
 	stalk_l.rotation.z = deg_to_rad(-16.0)
-	var stalk_r = create_box(Vector3(0.08, 0.01, 0.01), mat_chrome, Vector3(-0.22, 0.63, -0.20))
+	var stalk_r = create_box(Vector3(0.08, 0.01, 0.01), mat_chrome, Vector3(-0.22, 0.73, -0.20))
 	stalk_r.rotation.z = deg_to_rad(16.0)
 	root.add_child(stalk_l); root.add_child(stalk_r)
 	
 	var steer_pivot = Node3D.new()
-	steer_pivot.position = Vector3(-0.30, 0.64, -0.18)
+	steer_pivot.position = Vector3(-0.30, 0.74, -0.18)
 	steer_pivot.rotation.x = deg_to_rad(-22.0)
 	root.add_child(steer_pivot)
 	
@@ -1162,30 +1243,27 @@ static func build_fiat_127(parent: Node3D, body_mat: Material):
 	var hub_crest = create_box(Vector3(0.028, 0.028, 0.01), mat_fiat_blue, Vector3(0, 0, 0.018))
 	steer_node.add_child(spoke); steer_node.add_child(horn_hub); steer_node.add_child(hub_crest)
 	
-	# Specchietto retrovisore interno centrale
-	var mirror_stem = create_box(Vector3(0.018, 0.06, 0.018), mat_chrome, Vector3(0.0, 1.05, -0.28))
-	var mirror_case = create_box(Vector3(0.18, 0.055, 0.025), mat_plastic_black, Vector3(0.0, 1.01, -0.26))
-	var mirror_refl = create_box(Vector3(0.165, 0.045, 0.01), mat_mirror_glass, Vector3(0.0, 1.01, -0.25))
+	var mirror_stem = create_box(Vector3(0.018, 0.06, 0.018), mat_chrome, Vector3(0.0, 1.20, -0.28))
+	var mirror_case = create_box(Vector3(0.18, 0.055, 0.025), mat_plastic_black, Vector3(0.0, 1.16, -0.26))
+	var mirror_refl = create_box(Vector3(0.165, 0.045, 0.01), mat_mirror_glass, Vector3(0.0, 1.16, -0.25))
 	root.add_child(mirror_stem); root.add_child(mirror_case); root.add_child(mirror_refl)
 	
-	# Alette parasole coordinate (appoggiate al cielo dell'abitacolo)
 	for vx in [-0.34, 0.34]:
-		var visor = create_box(Vector3(0.32, 0.065, 0.012), mat_interior_dark, Vector3(vx, 1.13, -0.24))
+		var visor = create_box(Vector3(0.32, 0.065, 0.012), mat_interior_dark, Vector3(vx, 1.25, -0.24))
 		visor.rotation.x = deg_to_rad(6.0)
 		root.add_child(visor)
 	
 	for seat_x in [-0.32, 0.32]:
 		var seat_base = create_box(Vector3(0.40, 0.12, 0.42), mat_interior_dark, Vector3(seat_x, 0.48, 0.10))
-		var seat_back = create_box(Vector3(0.38, 0.42, 0.08), mat_interior_dark, Vector3(seat_x, 0.72, 0.28))
+		var seat_back = create_box(Vector3(0.38, 0.48, 0.08), mat_interior_dark, Vector3(seat_x, 0.78, 0.28))
 		seat_back.rotation.x = deg_to_rad(12.0)
-		var hr = create_box(Vector3(0.22, 0.10, 0.06), mat_interior_dark, Vector3(seat_x, 0.98, 0.34))
+		var hr = create_box(Vector3(0.22, 0.10, 0.06), mat_interior_dark, Vector3(seat_x, 1.06, 0.34))
 		root.add_child(seat_base); root.add_child(seat_back); root.add_child(hr)
 		
 	var rear_seat = create_box(Vector3(1.08, 0.12, 0.40), mat_interior_dark, Vector3(0.0, 0.52, 0.95))
-	var rear_back = create_box(Vector3(1.08, 0.40, 0.08), mat_interior_dark, Vector3(0.0, 0.74, 1.15))
+	var rear_back = create_box(Vector3(1.08, 0.46, 0.08), mat_interior_dark, Vector3(0.0, 0.80, 1.15))
 	root.add_child(rear_seat); root.add_child(rear_back)
 	
-	# Leva cambio lunga al pavimento con soffietto in similpelle e pomello sferico
 	var shift_gaiter = create_box(Vector3(0.08, 0.06, 0.08), mat_interior_dark, Vector3(0.0, 0.46, -0.06))
 	var shift_rod = create_box(Vector3(0.016, 0.22, 0.016), mat_chrome, Vector3(0.0, 0.56, -0.06))
 	shift_rod.rotation.x = deg_to_rad(-8.0)
@@ -1195,7 +1273,7 @@ static func build_fiat_127(parent: Node3D, body_mat: Material):
 	# --- 7. REAR VERTICAL TAIL LAMPS & CHROME EXHAUST ---
 	for side in [-1.0, 1.0]:
 		var tl_group = Node3D.new()
-		tl_group.position = Vector3(side * 0.56, 0.62, 1.66)
+		tl_group.position = Vector3(side * 0.56, 0.68, 1.66)
 		var amber_t = create_box(Vector3(0.10, 0.08, 0.03), mat_blinker_orange, Vector3(0.0, 0.08, 0.0))
 		var red_m = create_box(Vector3(0.10, 0.10, 0.03), mat_tail_red, Vector3(0.0, -0.01, 0.0))
 		var white_b = create_box(Vector3(0.10, 0.06, 0.03), mat_reverse_white, Vector3(0.0, -0.09, 0.0))
@@ -1207,7 +1285,7 @@ static func build_fiat_127(parent: Node3D, body_mat: Material):
 	p_cyl.top_radius = 0.032; p_cyl.bottom_radius = 0.032; p_cyl.height = 0.18; p_cyl.radial_segments = 12
 	p_cyl.material = mat_chrome
 	pipe.mesh = p_cyl
-	pipe.position = Vector3(-0.46, 0.20, 1.74)
+	pipe.position = Vector3(-0.46, 0.22, 1.74)
 	pipe.rotation.x = PI * 0.48
 	root.add_child(pipe)
 	
@@ -1225,9 +1303,25 @@ static func build_golf_gti_1990(parent: Node3D, body_mat: Material):
 	root.name = "GolfGtiRig"
 	parent.add_child(root)
 	
-	# --- 1. LOWER BODY & ICONIC Mk2 HATCHBACK PROPORTIONS ---
-	var lower_body = create_box(Vector3(1.62, 0.40, 3.84), body_mat, Vector3(0.0, 0.44, 0.0))
-	root.add_child(lower_body)
+	# --- 1. LOWER BODY & ICONIC Mk2 HATCHBACK PROPORTIONS WITH OPEN WHEEL WELLS ---
+	# Center cabin tub between front and rear axles (leaves open wheel wells!)
+	var center_tub = create_beveled_box(Vector3(1.54, 0.40, 1.72), body_mat, Vector3(0.0, 0.44, 0.0))
+	root.add_child(center_tub)
+	
+	# Floor pan and underbody protection
+	var floor_pan = create_box(Vector3(1.36, 0.08, 3.50), mat_plastic_black, Vector3(0.0, 0.22, 0.0))
+	root.add_child(floor_pan)
+
+	# Curved front & rear wheel arch flares with black plastic arch trims
+	for side in [-1.0, 1.0]:
+		var is_left = (side < 0.0)
+		var arch_f = create_curved_wheel_arch(Vector3(side * 0.76, 0.26, -1.22), 0.31, 0.06, 0.04, is_left, mat_plastic_black, 16)
+		var arch_r = create_curved_wheel_arch(Vector3(side * 0.76, 0.26, 1.22), 0.31, 0.06, 0.04, is_left, mat_plastic_black, 16)
+		root.add_child(arch_f); root.add_child(arch_r)
+		
+		var liner_f = create_box(Vector3(0.06, 0.32, 0.65), mat_plastic_black, Vector3(side * 0.66, 0.44, -1.22))
+		var liner_r = create_box(Vector3(0.06, 0.32, 0.65), mat_plastic_black, Vector3(side * 0.66, 0.44, 1.22))
+		root.add_child(liner_f); root.add_child(liner_r)
 	
 	# Sculpted hood with subtle central power ridge
 	var hood = create_sculpted_hood(Vector3(0.0, 0.54, -1.18), 1.50, 1.38, 1.25, 0.10, 0.0, 0.035, body_mat, 12, 12)
@@ -1819,99 +1913,201 @@ static func build_renault_4(parent: Node3D, body_mat: Material):
 	root.name = "R4_BodyRoot"
 	parent.add_child(root)
 	
-	# --- 1. CHASSIS & LOWER BODY TUB ---
-	var lower_tub = create_box(Vector3(1.44, 0.44, 3.44), body_mat, Vector3(0.0, 0.40, 0.05))
-	root.add_child(lower_tub)
+	# French Cream Vintage Wheel Rim Material (Jantes 3 trous Ivoire)
+	var mat_r4_cream = StandardMaterial3D.new()
+	mat_r4_cream.albedo_color = Color(0.92, 0.90, 0.83) # Ivoire R4 1980
+	mat_r4_cream.roughness = 0.35
+	mat_r4_cream.clearcoat_enabled = true
+	mat_r4_cream.clearcoat = 0.75
 	
-	# Sloped bonnet / hood
-	var hood = create_box(Vector3(1.22, 0.22, 1.05), body_mat, Vector3(0.0, 0.64, -1.14))
-	hood.rotation.x = deg_to_rad(6.0)
-	root.add_child(hood)
+	# --- 1. CHASSIS PLATFORM & CENTRAL CABIN TUB WITH WHEEL CUTOUTS ---
+	# Authentic real R4 proportions: Length 3.66m, Width 1.48m, Height 1.55m
+	# Center cabin tub between front and rear axles (leaves open wheel wells!)
+	var center_tub = create_beveled_box(Vector3(1.44, 0.52, 1.65), body_mat, Vector3(0.0, 0.57, 0.0))
+	root.add_child(center_tub)
 	
-	# Rounded front wings / fenders
+	# Underbody chassis floor pan and frame rails
+	var floor_pan = create_box(Vector3(1.28, 0.10, 3.30), mat_plastic_black, Vector3(0.0, 0.25, 0.02))
+	root.add_child(floor_pan)
+	
+	# Front and rear structural inner bulkhead firewalls
+	var front_bulkhead = create_box(Vector3(1.10, 0.46, 0.12), mat_plastic_black, Vector3(0.0, 0.54, -1.60))
+	var rear_bulkhead = create_box(Vector3(1.30, 0.52, 0.12), mat_plastic_black, Vector3(0.0, 0.57, 1.60))
+	root.add_child(front_bulkhead); root.add_child(rear_bulkhead)
+	
+	# Curved front & rear wheel arches with realistic inner wheel tubs
 	for side in [-1.0, 1.0]:
-		var fender = create_box(Vector3(0.14, 0.32, 1.15), body_mat, Vector3(side * 0.66, 0.54, -1.12))
-		root.add_child(fender)
+		var is_left = (side < 0.0)
+		var arch_f = create_curved_wheel_arch(Vector3(side * 0.71, 0.32, -1.15), 0.32, 0.07, 0.04, is_left, body_mat, 16)
+		var arch_r = create_curved_wheel_arch(Vector3(side * 0.71, 0.32, 1.15), 0.32, 0.07, 0.04, is_left, body_mat, 16)
+		root.add_child(arch_f); root.add_child(arch_r)
 		
-	# --- 2. FRONT FASCIA: GTL GREY PLASTIC GRILLE & VASARELY DIAMOND ---
-	var grille_frame = create_box(Vector3(1.08, 0.28, 0.05), mat_plastic_grey, Vector3(0.0, 0.58, -1.68))
-	root.add_child(grille_frame)
+		# Inner wheel liner splash guards
+		var liner_f = create_box(Vector3(0.08, 0.42, 0.66), mat_plastic_black, Vector3(side * 0.58, 0.52, -1.15))
+		var liner_r = create_box(Vector3(0.08, 0.42, 0.66), mat_plastic_black, Vector3(side * 0.58, 0.52, 1.15))
+		root.add_child(liner_f); root.add_child(liner_r)
+		
+		# Front winged fender outer flanks (rounded French Quatrelle curve)
+		var f_wing_top = create_beveled_box(Vector3(0.12, 0.30, 1.15), body_mat, Vector3(side * 0.67, 0.68, -1.15))
+		root.add_child(f_wing_top)
+		
+		# Rear quarter outer flanks
+		var r_quarter = create_beveled_box(Vector3(0.12, 0.52, 0.98), body_mat, Vector3(side * 0.67, 0.68, 1.18))
+		root.add_child(r_quarter)
+
+	# --- 2. THE SIGNATURE SCULPTED "CAPOT PLONGEANT" (Curved Sloping Bonnet) ---
+	# Tapers smoothly from cowl (width 1.28m, height 0.84m) down to grille (width 1.08m, height 0.62m)
+	var hood_sculpted = create_sculpted_hood(Vector3(0.0, 0.62, -0.52), 1.28, 1.08, 1.16, 0.22, 0.0, 0.05, body_mat, 14, 14)
+	root.add_child(hood_sculpted)
 	
-	# Vasarely Renault Chrome Diamond (Losange)
-	var diamond_bg = create_box(Vector3(0.065, 0.085, 0.02), mat_plastic_black, Vector3(0.0, 0.58, -1.71))
-	var diamond_rim = create_box(Vector3(0.055, 0.075, 0.025), mat_chrome, Vector3(0.0, 0.58, -1.715))
-	root.add_child(diamond_bg); root.add_child(diamond_rim)
+	# Central stamped bonnet crease (nervure centrale de capot)
+	var hood_center_ridge = create_box(Vector3(0.045, 0.025, 1.12), body_mat, Vector3(0.0, 0.77, -1.10))
+	hood_center_ridge.rotation.x = deg_to_rad(10.5)
+	root.add_child(hood_center_ridge)
 	
-	# 2 Round Headlights with chrome trim
+	# Cowl air intake grille below windshield
+	var cowl_grille = create_box(Vector3(0.50, 0.02, 0.08), mat_plastic_black, Vector3(0.0, 0.85, -0.55))
+	root.add_child(cowl_grille)
+
+	# --- 3. FRONT FASCIA: GTL GREY GRILLE & VASARELY CHROME DIAMOND ---
+	# Rounded grey plastic grille frame
+	var grille_surround = create_beveled_box(Vector3(1.08, 0.28, 0.05), mat_plastic_grey, Vector3(0.0, 0.62, -1.69))
+	root.add_child(grille_surround)
+	
+	var grille_inner_mesh = create_box(Vector3(0.98, 0.22, 0.02), mat_plastic_black, Vector3(0.0, 0.62, -1.71))
+	root.add_child(grille_inner_mesh)
+	
+	# Horizontal grey plastic grille slats
+	for gi in range(3):
+		var slat = create_box(Vector3(0.96, 0.018, 0.02), mat_plastic_grey, Vector3(0.0, 0.55 + float(gi) * 0.07, -1.715))
+		root.add_child(slat)
+		
+	# Centered Vasarely Chrome Diamond (Losange Renault 1980)
+	var diamond_outer = create_box(Vector3(0.08, 0.10, 0.02), mat_chrome, Vector3(0.0, 0.62, -1.725))
+	var diamond_inner = create_box(Vector3(0.048, 0.07, 0.025), mat_plastic_black, Vector3(0.0, 0.62, -1.73))
+	root.add_child(diamond_outer); root.add_child(diamond_inner)
+	
+	# Dual Round Parabolic Headlights with chrome bezels and textured glass
 	for side in [-1.0, 1.0]:
-		var lamp_bezel = create_round_lamp(0.09, mat_chrome, Vector3(side * 0.40, 0.58, -1.70))
-		var lamp = create_round_lamp(0.075, mat_headlight, Vector3(side * 0.40, 0.58, -1.71))
-		root.add_child(lamp_bezel); root.add_child(lamp)
+		var hl_ring = create_round_lamp(0.10, mat_chrome, Vector3(side * 0.38, 0.62, -1.71))
+		var hl_glass = create_round_lamp(0.088, mat_headlight, Vector3(side * 0.38, 0.62, -1.72))
+		root.add_child(hl_ring); root.add_child(hl_glass)
 		
-		# Amber turn signals below headlights
-		var blinker = create_box(Vector3(0.08, 0.045, 0.03), mat_blinker_orange, Vector3(side * 0.40, 0.42, -1.70))
+		# Round Amber Turn Indicators below headlights
+		var blinker = create_round_lamp(0.045, mat_blinker_orange, Vector3(side * 0.38, 0.46, -1.705))
 		root.add_child(blinker)
-		
-	# Thin front chrome bumper with rubber overriders
-	var front_bumper = create_box(Vector3(1.42, 0.08, 0.08), mat_chrome, Vector3(0.0, 0.34, -1.74))
+
+	# Thin front chrome tubular bumper with vertical black rubber overriders
+	var front_bumper = create_beveled_box(Vector3(1.44, 0.08, 0.08), mat_chrome, Vector3(0.0, 0.36, -1.75))
 	root.add_child(front_bumper)
 	for side in [-1.0, 1.0]:
-		var overrider = create_box(Vector3(0.045, 0.16, 0.09), mat_plastic_black, Vector3(side * 0.46, 0.34, -1.745))
+		var overrider = create_beveled_box(Vector3(0.05, 0.18, 0.10), mat_plastic_black, Vector3(side * 0.45, 0.36, -1.755))
 		root.add_child(overrider)
 		
 	var front_plate = create_license_plate_french_vintage(Vector3(0.0, 0.24, -1.75))
 	root.add_child(front_plate)
-	
-	# --- 3. GTL SIDE RUBBING PROTECTIVE STRIPS & WHEEL ARCHES ---
+
+	# --- 4. GTL SIDE RUB STRIPS & VINTAGE PUSH HANDLES ---
 	for side in [-1.0, 1.0]:
-		var gtl_band = create_box(Vector3(0.03, 0.16, 2.10), mat_plastic_grey, Vector3(side * 0.73, 0.38, 0.18))
+		# Wide grey plastic GTL protective side band
+		var gtl_band = create_box(Vector3(0.035, 0.22, 1.72), mat_plastic_grey, Vector3(side * 0.73, 0.46, 0.0))
 		root.add_child(gtl_band)
-		var arch_f = create_box(Vector3(0.04, 0.04, 0.65), mat_plastic_grey, Vector3(side * 0.72, 0.46, -1.15))
-		var arch_r = create_box(Vector3(0.04, 0.04, 0.65), mat_plastic_grey, Vector3(side * 0.72, 0.46, 1.15))
-		root.add_child(arch_f); root.add_child(arch_r)
 		
-	# --- 4. GREENHOUSE: WINDSHIELD, ROOF & 3RD SIDE WINDOW ---
-	var windshield = create_box(Vector3(1.22, 0.44, 0.03), mat_glass, Vector3(0.0, 0.88, -0.58))
-	windshield.rotation.x = deg_to_rad(24.0)
-	root.add_child(windshield)
+		# Vintage chrome push-button door handles
+		for h_z in [-0.25, 0.45]:
+			var handle = create_box(Vector3(0.02, 0.038, 0.12), mat_chrome, Vector3(side * 0.73, 0.80, h_z))
+			var lock_btn = create_round_lamp(0.013, mat_chrome, Vector3(side * 0.735, 0.80, h_z + 0.04))
+			root.add_child(handle); root.add_child(lock_btn)
+			
+		# Chrome driver side mirror
+		if side < 0.0:
+			var mir_arm = create_box(Vector3(0.07, 0.02, 0.02), mat_chrome, Vector3(side * 0.73, 0.96, -0.42))
+			var mir_head = create_round_lamp(0.06, mat_chrome, Vector3(side * 0.80, 0.98, -0.42))
+			var mir_glass = create_round_lamp(0.052, mat_mirror_glass, Vector3(side * 0.80, 0.98, -0.415))
+			root.add_child(mir_arm); root.add_child(mir_head); root.add_child(mir_glass)
+
+	# --- 5. CABIN GREENHOUSE, FLUSH GLASS & THE FAMOUS 3RD SIDE WINDOW ---
+	# Authentic tall R4 greenhouse: beltline at Y=0.82m, roof at Y=1.52m (height = 0.70m!)
+	# A-Pillars angled back from cowl (Y=0.84, Z=-0.52) to roof (Y=1.42, Z=-0.16)
+	for side in [-1.0, 1.0]:
+		var a_pillar = create_box(Vector3(0.05, 0.62, 0.05), body_mat, Vector3(side * 0.64, 1.13, -0.34))
+		a_pillar.rotation.x = deg_to_rad(30.0)
+		root.add_child(a_pillar)
+		
+		# Roof cant rails along sides
+		var cant_rail = create_box(Vector3(0.06, 0.06, 2.08), body_mat, Vector3(side * 0.67, 1.42, 0.50))
+		root.add_child(cant_rail)
+		
+		# B-Pillar & C-Pillar
+		var b_pillar = create_box(Vector3(0.05, 0.54, 0.06), body_mat, Vector3(side * 0.70, 1.12, 0.22))
+		var c_pillar = create_box(Vector3(0.05, 0.54, 0.06), body_mat, Vector3(side * 0.70, 1.12, 0.88))
+		root.add_child(b_pillar); root.add_child(c_pillar)
+		
+		# Rear corner D-pillar
+		var d_pillar = create_box(Vector3(0.06, 0.56, 0.08), body_mat, Vector3(side * 0.69, 1.12, 1.55))
+		d_pillar.rotation.x = deg_to_rad(12.0)
+		root.add_child(d_pillar)
+		
+		# Front door window (tall authentic glass with sliding split line)
+		var front_glass = create_box(Vector3(0.02, 0.52, 0.68), mat_glass, Vector3(side * 0.69, 1.12, -0.14))
+		var slide_bar = create_box(Vector3(0.025, 0.51, 0.015), mat_chrome, Vector3(side * 0.695, 1.12, -0.14))
+		root.add_child(front_glass); root.add_child(slide_bar)
+		
+		# Rear door window
+		var rear_door_glass = create_box(Vector3(0.02, 0.52, 0.62), mat_glass, Vector3(side * 0.69, 1.12, 0.55))
+		root.add_child(rear_door_glass)
+		
+		# THE FAMOUS 3RD SIDE WINDOW (vitre de custode - Quatrelle signature!)
+		var custode_glass = create_box(Vector3(0.02, 0.46, 0.48), mat_glass, Vector3(side * 0.69, 1.11, 1.22))
+		var custode_seal = create_box(Vector3(0.025, 0.49, 0.51), mat_plastic_black, Vector3(side * 0.692, 1.11, 1.22))
+		root.add_child(custode_seal); root.add_child(custode_glass)
+
+	# Raked curved windshield with rubber frame & chrome bead
+	var ws_glass = create_box(Vector3(1.24, 0.60, 0.02), mat_glass, Vector3(0.0, 1.13, -0.36))
+	ws_glass.rotation.x = deg_to_rad(30.0)
+	var ws_seal = create_box(Vector3(1.28, 0.63, 0.015), mat_plastic_black, Vector3(0.0, 1.13, -0.365))
+	ws_seal.rotation.x = deg_to_rad(30.0)
+	root.add_child(ws_seal); root.add_child(ws_glass)
 	
-	# Wipers
+	# Articulated wipers
 	for wx in [-0.28, 0.12]:
-		var wiper = create_box(Vector3(0.02, 0.36, 0.02), mat_steel, Vector3(wx, 0.82, -0.46))
+		var wiper = create_box(Vector3(0.02, 0.42, 0.02), mat_steel, Vector3(wx, 0.95, -0.42))
 		wiper.rotation.x = deg_to_rad(-48.0)
 		wiper.rotation.z = deg_to_rad(32.0)
 		root.add_child(wiper)
-		
-	# Side windows & B-pillar
-	for side in [-1.0, 1.0]:
-		var front_glass = create_box(Vector3(0.03, 0.38, 0.78), mat_glass, Vector3(side * 0.68, 0.90, -0.16))
-		var b_pillar = create_box(Vector3(0.04, 0.40, 0.06), body_mat, Vector3(side * 0.69, 0.90, 0.26))
-		var mid_glass = create_box(Vector3(0.03, 0.38, 0.68), mat_glass, Vector3(side * 0.68, 0.90, 0.66))
-		var c_pillar = create_box(Vector3(0.04, 0.40, 0.06), body_mat, Vector3(side * 0.69, 0.90, 1.03))
-		# Famous 3rd side window (custode posteriore)
-		var rear_quarter_glass = create_box(Vector3(0.03, 0.34, 0.42), mat_glass, Vector3(side * 0.68, 0.89, 1.28))
-		root.add_child(front_glass); root.add_child(b_pillar); root.add_child(mid_glass); root.add_child(c_pillar); root.add_child(rear_quarter_glass)
-		
-	var rear_glass = create_box(Vector3(1.18, 0.40, 0.03), mat_glass, Vector3(0.0, 0.89, 1.62))
-	rear_glass.rotation.x = deg_to_rad(10.0)
+
+	# Tailgate slanted rear glass
+	var rear_glass = create_box(Vector3(1.18, 0.52, 0.02), mat_glass, Vector3(0.0, 1.12, 1.58))
+	rear_glass.rotation.x = deg_to_rad(12.0)
 	root.add_child(rear_glass)
-	
-	# Roof panel with longitudinal ribbing
-	var roof_panel = create_box(Vector3(1.36, 0.05, 2.24), body_mat, Vector3(0.0, 1.13, 0.50))
+
+	# Arched Bubble Roof with 5 pressed longitudinal ribs (Toit bombé avec nervures)
+	var roof_panel = create_beveled_box(Vector3(1.38, 0.08, 2.18), body_mat, Vector3(0.0, 1.44, 0.48))
 	root.add_child(roof_panel)
-	for rx in [-0.40, -0.18, 0.0, 0.18, 0.40]:
-		var rib = create_box(Vector3(0.025, 0.02, 2.05), body_mat, Vector3(rx, 1.16, 0.50))
-		root.add_child(rib)
-		
-	# --- 5. 3D COCKPIT INTERIOR: UMBRELLA SHIFTER & HAMMOCK SEATS ---
-	var dash_shelf = create_box(Vector3(1.22, 0.18, 0.32), mat_interior_dark, Vector3(0.0, 0.72, -0.48))
-	var jaeger_pod = create_box(Vector3(0.28, 0.14, 0.18), mat_interior_dark, Vector3(-0.35, 0.82, -0.46))
-	root.add_child(dash_shelf); root.add_child(jaeger_pod)
+	# Center bubble arch top
+	var roof_crown = create_box(Vector3(1.26, 0.05, 2.14), body_mat, Vector3(0.0, 1.48, 0.48))
+	root.add_child(roof_crown)
 	
-	# Steering wheel
+	for rx in [-0.42, -0.21, 0.0, 0.21, 0.42]:
+		var rib = create_box(Vector3(0.025, 0.025, 1.98), body_mat, Vector3(rx, 1.515, 0.48))
+		root.add_child(rib)
+
+	# --- 6. 3D COCKPIT INTERIOR WITH UMBRELLA SHIFTER & JAEGER CLUSTER ---
+	var dash_shelf = create_box(Vector3(1.22, 0.18, 0.32), mat_interior_dark, Vector3(0.0, 0.82, -0.38))
+	var jaeger_pod = create_box(Vector3(0.28, 0.16, 0.18), mat_interior_dark, Vector3(-0.35, 0.94, -0.35))
+	var sp_dial = create_round_lamp(0.052, mat_plastic_black, Vector3(-0.35, 0.94, -0.25))
+	var sp_needle = create_box(Vector3(0.007, 0.040, 0.005), mat_gauge_amber, Vector3(-0.35, 0.955, -0.245))
+	sp_needle.rotation.z = deg_to_rad(-24.0)
+	root.add_child(dash_shelf); root.add_child(jaeger_pod); root.add_child(sp_dial); root.add_child(sp_needle)
+	
+	# Devioluci stalk
+	var stalk = create_box(Vector3(0.09, 0.014, 0.014), mat_plastic_black, Vector3(-0.43, 0.92, -0.16))
+	root.add_child(stalk)
+
+	# Steering Wheel (Dynamic rotating pivot)
 	var steer_pivot = Node3D.new()
-	steer_pivot.position = Vector3(-0.35, 0.82, -0.22)
-	steer_pivot.rotation.x = deg_to_rad(-22.0)
+	steer_pivot.position = Vector3(-0.35, 0.92, -0.16)
+	steer_pivot.rotation.x = deg_to_rad(-24.0)
 	root.add_child(steer_pivot)
 	
 	var steer_node = Node3D.new()
@@ -1920,60 +2116,80 @@ static func build_renault_4(parent: Node3D, body_mat: Material):
 	
 	var sw_rim = MeshInstance3D.new()
 	var torus = TorusMesh.new()
-	torus.inner_radius = 0.14; torus.outer_radius = 0.165; torus.rings = 14; torus.ring_segments = 8
+	torus.inner_radius = 0.145; torus.outer_radius = 0.178; torus.rings = 16; torus.ring_segments = 10
 	torus.material = mat_plastic_black
 	sw_rim.mesh = torus
 	sw_rim.rotation.x = PI * 0.5
 	steer_node.add_child(sw_rim)
 	
-	var spoke_h = create_box(Vector3(0.28, 0.03, 0.015), mat_plastic_black, Vector3(0, 0, 0))
-	var center_hub = create_box(Vector3(0.06, 0.06, 0.025), mat_plastic_black, Vector3(0, 0, 0.01))
+	var spoke_h = create_box(Vector3(0.28, 0.035, 0.018), mat_plastic_black, Vector3(0, 0, 0))
+	var center_hub = create_box(Vector3(0.07, 0.07, 0.028), mat_plastic_black, Vector3(0, 0, 0.01))
 	steer_node.add_child(spoke_h); steer_node.add_child(center_hub)
-	
-	# THE ICONIC DASH-MOUNTED UMBRELLA SHIFTER (Leva a manico d'ombrello / revolver)
-	var umbrella_rod = create_box(Vector3(0.018, 0.018, 0.28), mat_chrome, Vector3(-0.06, 0.75, -0.32))
-	var umbrella_handle = create_box(Vector3(0.018, 0.09, 0.018), mat_chrome, Vector3(-0.06, 0.80, -0.18))
+
+	# THE FAMOUS UMBRELLA SHIFTER (Commande de boîte parapluie / revolver)
+	var umbrella_rod = create_box(Vector3(0.018, 0.018, 0.30), mat_chrome, Vector3(-0.06, 0.88, -0.26))
+	var umbrella_arm = create_box(Vector3(0.018, 0.11, 0.018), mat_chrome, Vector3(-0.06, 0.94, -0.11))
 	var knob_ball = MeshInstance3D.new()
 	var sp_knob = SphereMesh.new()
 	sp_knob.radius = 0.028; sp_knob.height = 0.056
 	sp_knob.material = mat_plastic_black
 	knob_ball.mesh = sp_knob
-	knob_ball.position = Vector3(-0.06, 0.85, -0.18)
-	root.add_child(umbrella_rod); root.add_child(umbrella_handle); root.add_child(knob_ball)
-	
-	# Tubular hammock seats in fabric
-	for seat_x in [-0.35, 0.35]:
-		var frame_bot = create_box(Vector3(0.42, 0.08, 0.42), mat_steel, Vector3(seat_x, 0.46, 0.10))
-		var cushion = create_box(Vector3(0.38, 0.06, 0.38), mat_interior_fabric, Vector3(seat_x, 0.48, 0.10))
-		var frame_back = create_box(Vector3(0.42, 0.48, 0.06), mat_steel, Vector3(seat_x, 0.72, 0.31))
+	knob_ball.position = Vector3(-0.06, 1.00, -0.11)
+	root.add_child(umbrella_rod); root.add_child(umbrella_arm); root.add_child(knob_ball)
+
+	# Tubular Hammock Seats in vintage fabric
+	for seat_x in [-0.34, 0.34]:
+		var frame_bot = create_box(Vector3(0.42, 0.06, 0.42), mat_steel, Vector3(seat_x, 0.48, 0.10))
+		var cushion = create_box(Vector3(0.38, 0.08, 0.38), mat_interior_fabric, Vector3(seat_x, 0.52, 0.10))
+		var frame_back = create_box(Vector3(0.42, 0.54, 0.05), mat_steel, Vector3(seat_x, 0.78, 0.31))
 		frame_back.rotation.x = deg_to_rad(14.0)
-		var back_cloth = create_box(Vector3(0.38, 0.44, 0.03), mat_interior_fabric, Vector3(seat_x, 0.72, 0.30))
+		var back_cloth = create_box(Vector3(0.38, 0.50, 0.03), mat_interior_fabric, Vector3(seat_x, 0.78, 0.30))
 		back_cloth.rotation.x = deg_to_rad(14.0)
 		root.add_child(frame_bot); root.add_child(cushion); root.add_child(frame_back); root.add_child(back_cloth)
 		
-	# --- 6. REAR END & SLIM TAILLIGHTS ---
-	var rear_bumper = create_box(Vector3(1.42, 0.08, 0.08), mat_chrome, Vector3(0.0, 0.34, 1.76))
+	# Rear passenger bench
+	var rear_cushion = create_box(Vector3(1.12, 0.12, 0.40), mat_interior_fabric, Vector3(0.0, 0.50, 0.85))
+	var rear_back = create_box(Vector3(1.12, 0.50, 0.06), mat_interior_fabric, Vector3(0.0, 0.78, 1.05))
+	rear_back.rotation.x = deg_to_rad(12.0)
+	root.add_child(rear_cushion); root.add_child(rear_back)
+
+	# Interior rearview mirror & sun visors
+	var mir_stem = create_box(Vector3(0.015, 0.06, 0.015), mat_chrome, Vector3(0.0, 1.38, -0.28))
+	var mir_housing = create_box(Vector3(0.15, 0.05, 0.02), mat_plastic_black, Vector3(0.0, 1.33, -0.26))
+	var mir_glass_in = create_box(Vector3(0.14, 0.042, 0.005), mat_mirror_glass, Vector3(0.0, 1.33, -0.25))
+	root.add_child(mir_stem); root.add_child(mir_housing); root.add_child(mir_glass_in)
+	for vx in [-0.34, 0.34]:
+		var visor = create_box(Vector3(0.30, 0.08, 0.012), mat_interior_fabric, Vector3(vx, 1.39, -0.22))
+		visor.rotation.x = deg_to_rad(24.0)
+		root.add_child(visor)
+
+	# --- 7. REAR FASCIA, SLIM TAILLIGHTS & EXHAUST ---
+	# Sloped rear tailgate panel
+	var tailgate = create_beveled_box(Vector3(1.32, 0.56, 0.06), body_mat, Vector3(0.0, 0.62, 1.66))
+	tailgate.rotation.x = deg_to_rad(8.0)
+	root.add_child(tailgate)
+	
+	# Chrome tailgate latch handle
+	var hatch_handle = create_box(Vector3(0.08, 0.03, 0.04), mat_chrome, Vector3(0.0, 0.58, 1.70))
+	root.add_child(hatch_handle)
+	
+	var rear_bumper = create_beveled_box(Vector3(1.44, 0.08, 0.08), mat_chrome, Vector3(0.0, 0.36, 1.74))
 	root.add_child(rear_bumper)
 	for side in [-1.0, 1.0]:
-		var overrider = create_box(Vector3(0.045, 0.16, 0.09), mat_plastic_black, Vector3(side * 0.46, 0.34, 1.765))
+		var overrider = create_beveled_box(Vector3(0.05, 0.18, 0.10), mat_plastic_black, Vector3(side * 0.45, 0.36, 1.745))
 		root.add_child(overrider)
-		# Slim vertical taillights
-		var orange_top = create_box(Vector3(0.06, 0.075, 0.03), mat_blinker_orange, Vector3(side * 0.62, 0.58, 1.76))
-		var red_bot = create_box(Vector3(0.06, 0.075, 0.03), mat_tail_red, Vector3(side * 0.62, 0.50, 1.76))
+		
+		# Slim vertical two-tone taillights (amber top, red bottom)
+		var orange_top = create_box(Vector3(0.06, 0.10, 0.03), mat_blinker_orange, Vector3(side * 0.60, 0.70, 1.68))
+		var red_bot = create_box(Vector3(0.06, 0.12, 0.03), mat_tail_red, Vector3(side * 0.60, 0.59, 1.68))
 		root.add_child(orange_top); root.add_child(red_bot)
 		
-	var boot_handle = create_box(Vector3(0.12, 0.03, 0.03), mat_chrome, Vector3(0.0, 0.65, 1.76))
-	var rear_plate = create_license_plate_french_vintage(Vector3(0.0, 0.46, 1.76))
+	var boot_handle = create_box(Vector3(0.08, 0.03, 0.03), mat_chrome, Vector3(0.0, 0.58, 1.70))
+	var rear_plate = create_license_plate_french_vintage(Vector3(0.0, 0.46, 1.70))
 	root.add_child(boot_handle); root.add_child(rear_plate)
 	
 	# Slanted single exhaust pipe under left rear
-	var pipe = MeshInstance3D.new()
-	var p_cyl = CylinderMesh.new()
-	p_cyl.top_radius = 0.025; p_cyl.bottom_radius = 0.025; p_cyl.height = 0.22; p_cyl.radial_segments = 12
-	p_cyl.material = mat_exhaust
-	pipe.mesh = p_cyl
-	pipe.position = Vector3(-0.48, 0.20, 1.82)
-	pipe.rotation.x = PI * 0.48
+	var pipe = create_curved_exhaust_pipe(Vector3(-0.46, 0.22, 1.68), 0.026, 0.20, mat_exhaust)
 	root.add_child(pipe)
 	
 	return root

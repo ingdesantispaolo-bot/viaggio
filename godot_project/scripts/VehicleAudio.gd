@@ -37,6 +37,13 @@ var cash_stream: AudioStreamWAV
 var exhaust_pop_player: AudioStreamPlayer
 var exhaust_pop_stream: AudioStreamWAV
 var overrun_pop_timer: float = 0.0
+
+# Turbo Blow-Off Valve (BOV / Sfiato aria compressa in rilascio)
+var bov_player: AudioStreamPlayer
+var bov_stream: AudioStreamWAV
+var last_throttle: float = 0.0
+var last_boost: float = 0.0
+
 var cached_engine_streams: Dictionary = {}
 var cached_intake_streams: Dictionary = {}
 var cached_mech_streams: Dictionary = {}
@@ -67,6 +74,7 @@ func _ready():
 	road_joint_stream = create_road_joint_stream()
 	church_bell_stream = create_church_bell_stream()
 	exhaust_pop_stream = create_exhaust_pop_stream()
+	bov_stream = create_bov_stream()
 	starter_stream = create_starter_stream()
 	ratchet_stream = create_ratchet_stream()
 	ui_click_stream = create_ui_click_stream()
@@ -104,6 +112,13 @@ func _ready():
 	exhaust_pop_player.volume_db = -14.0
 	add_child(exhaust_pop_player)
 	
+	# Turbo Blow-Off Valve (BOV) Sfiato Player
+	bov_player = AudioStreamPlayer.new()
+	bov_player.stream = bov_stream
+	bov_player.volume_db = -80.0
+	bov_player.autoplay = false
+	add_child(bov_player)
+	
 	# 3. Road & Wind Audio Player
 	road_player = AudioStreamPlayer.new()
 	road_player.stream = road_stream
@@ -111,7 +126,7 @@ func _ready():
 	road_player.autoplay = true
 	add_child(road_player)
 	
-	# 4. Turbo Spool Whistle Player (Garrett T3 on Lancia Delta)
+	# 4. Turbo Spool Whistle Player (Garrett T3, KKK K27, Twin-Turbo & Roots)
 	turbo_player = AudioStreamPlayer.new()
 	turbo_player.stream = turbo_stream
 	turbo_player.volume_db = -80.0
@@ -136,20 +151,40 @@ func set_sound_profile(model_id: String):
 
 func get_engine_family_for_model(model_id: String) -> String:
 	match model_id:
-		"fiat_127", "fiat_topolino":
-			return "small_ohv"
-		"panda_4x4", "renault_4":
-			return "fire_1000"
-		"alfa_gta", "fiat_131_abarth":
-			return "twin_cam_weber"
-		"delta_integrale", "mercedes_a250", "golf_gti_1990":
-			return "turbo_16v"
-		"bmw_320_e30", "mercedes_gwagen":
-			return "inline_6"
-		"lancia_stratos", "lancia_aurelia":
-			return "dino_v6"
+		"fiat_topolino":
+			return "vintage_sidevalve"
 		"alfa_8c":
-			return "straight_8"
+			return "straight_8_supercharged"
+		"lancia_aurelia":
+			return "aurelia_v6"
+		"alfa_gta":
+			return "twin_cam_weber"
+		"fiat_127":
+			return "small_ohv"
+		"fiat_131_abarth":
+			return "twin_cam_16v"
+		"lancia_stratos":
+			return "dino_v6"
+		"porsche_930_turbo":
+			return "flat_6_aircooled_turbo"
+		"renault_4":
+			return "renault_cleon"
+		"mercedes_gwagen":
+			return "inline_6_m110"
+		"panda_4x4":
+			return "fire_1000"
+		"golf_gti_1990":
+			return "vw_16v_na"
+		"bmw_320_e30":
+			return "inline_6_m20"
+		"delta_integrale":
+			return "turbo_16v"
+		"mercedes_a250":
+			return "modern_turbo_4"
+		"porsche_carrera_4s":
+			return "flat_6_twinturbo_modern"
+		"countach_lpi800":
+			return "v12_italian_screamer"
 		_:
 			return "fire_1000"
 
@@ -245,10 +280,11 @@ func _process(delta: float):
 	var rpm = vehicle.engine_rpm
 	var speed = vehicle.current_speed_kmh
 	var throttle = vehicle.ai_throttle if vehicle.is_ai_controlled else clamp(Input.get_action_strength("accelerate"), 0.0, 1.0)
+	var boost = vehicle.current_boost_bar if ("current_boost_bar" in vehicle) else 0.0
 	
 	# 1. PITCH TRACKING LINEARE E ACCURATO (REF_RPM = 1200.0)
-	# Nessun blocco al minimo (850 RPM -> 0.708) e nessuna strozzatura a limitatore (7200 RPM -> 6.0)
-	var target_pitch = clamp(rpm / 1200.0, 0.45, 6.50)
+	# Supporta fino a 8700 RPM (Countach V12 -> 7.25 pitch) senza tagliare l'allungo
+	var target_pitch = clamp(rpm / 1200.0, 0.40, 8.00)
 	var p_lerp = delta * 18.0
 	engine_player.pitch_scale = max(0.1, lerp(engine_player.pitch_scale, target_pitch, p_lerp))
 	if intake_player:
@@ -257,42 +293,72 @@ func _process(delta: float):
 		mech_player.pitch_scale = engine_player.pitch_scale
 	
 	# 2. VOLUME & TIMBRICA STRATIFICATA: Calibrata con regolazione per sezioni
-	var rpm_norm = clamp((rpm - 750.0) / 5500.0, 0.0, 1.0)
+	var rpm_norm = clamp((rpm - 750.0) / 6500.0, 0.0, 1.0)
 	var eg_db = get_engine_gain_db()
 	var amb_db = get_ambient_gain_db()
 	
-	# Canale 1: Scarico e combustione (corposo, profondo, -13 dB al minimo fino a max -5.5 dB)
+	# Canale 1: Scarico e combustione (corposo, profondo, -13 dB al minimo fino a max -4.5 dB)
 	var target_engine_vol = -13.0 + (throttle * 3.5) + (rpm_norm * 4.0) + eg_db
-	engine_player.volume_db = lerp(engine_player.volume_db, clamp(target_engine_vol, -80.0, -2.0), delta * 14.0)
+	if current_model == "countach_lpi800" and rpm > 5000.0:
+		target_engine_vol += ((rpm - 5000.0) / 3700.0) * 3.2 # Urlo V12 ad alto regime
+	engine_player.volume_db = lerp(engine_player.volume_db, clamp(target_engine_vol, -80.0, -1.0), delta * 14.0)
 	
-	# Canale 2: Ruggito di aspirazione / carburatori (silenzioso a filo di gas, profondo ruggito a pieno gas)
+	# Canale 2: Ruggito di aspirazione / carburatori / tromboncini Weber (silenzioso a filo, tuono a pieno carico)
 	if intake_player:
 		var target_intake_vol = -80.0
 		if throttle > 0.04:
 			var intake_power = (throttle - 0.04) / 0.96
-			target_intake_vol = -24.0 + (intake_power * 13.5) + (rpm_norm * 3.5) + eg_db
+			target_intake_vol = -24.0 + (intake_power * 13.5) + (rpm_norm * 3.8) + eg_db
 		intake_player.volume_db = lerp(intake_player.volume_db, clamp(target_intake_vol, -80.0, 0.0), delta * 16.0)
 		
-	# Canale 3: Ticchettio meccanico punterie / distribuzione (chiaro al rilascio e regimi medi)
+	# Canale 3: Ticchettio meccanico punterie / distribuzione / ventola magnesio
 	if mech_player:
 		var target_mech_vol = -24.0 + (rpm_norm * 5.0) + (1.5 if throttle < 0.2 else 0.0) + eg_db
-		mech_player.volume_db = lerp(mech_player.volume_db, clamp(target_mech_vol, -80.0, -4.0), delta * 10.0)
+		if current_model == "porsche_930_turbo":
+			# Ventola posteriore assiale a 11 pale in magnesio
+			target_mech_vol += 4.0 + (rpm_norm * 3.5)
+		mech_player.volume_db = lerp(mech_player.volume_db, clamp(target_mech_vol, -80.0, -2.0), delta * 10.0)
+	
+	# Blow-Off Valve (BOV / Dump Valve): Sfiato dell'aria compressa in rilascio acceleratore
+	if bov_player and (current_model in ["delta_integrale", "porsche_930_turbo", "porsche_carrera_4s", "mercedes_a250"]):
+		if last_boost > 0.22 and throttle < 0.12 and (last_throttle - throttle) > 0.28:
+			play_blow_off_valve(last_boost)
+			
+	last_throttle = throttle
+	last_boost = boost
 	
 	# Scoppiettii e borbottii allo scarico in rilascio dell'acceleratore (Overrun deceleration burble/pops)
 	if throttle < 0.08 and rpm > 2100.0 and speed > 12.0:
 		overrun_pop_timer -= delta
 		if overrun_pop_timer <= 0.0:
-			overrun_pop_timer = randf_range(0.24, 0.58)
+			var pop_min = 0.20
+			var pop_max = 0.52
+			if current_model in ["porsche_930_turbo", "delta_integrale", "alfa_gta"]:
+				pop_min = 0.12
+				pop_max = 0.32
+			overrun_pop_timer = randf_range(pop_min, pop_max)
 			play_exhaust_pop()
 	else:
 		overrun_pop_timer = 0.12
 	
-	# 2. Turbo Spool & Supercharger Roots Whistle (Delta Garrett T3, Mercedes A250 & Alfa 8C Twin-Roots)
-	if (current_model in ["delta_integrale", "mercedes_a250", "alfa_8c"]) and vehicle.current_boost_bar > 0.04:
-		var boost = vehicle.current_boost_bar
-		var turbo_vol = -36.0 + (boost / 1.45) * 26.0 + eg_db
-		turbo_player.volume_db = lerp(turbo_player.volume_db, clamp(turbo_vol, -80.0, 0.0), delta * 10.0)
-		turbo_player.pitch_scale = max(0.1, lerp(1.0, 2.6, boost / 1.45))
+	# 2. Turbo Spool & Supercharger Whistle (Garrett, KKK K27, Twin-Turbo, Twin-Roots, BlueDirect)
+	if (current_model in ["delta_integrale", "porsche_930_turbo", "porsche_carrera_4s", "mercedes_a250", "alfa_8c"]) and boost > 0.04:
+		var max_b = 1.45
+		if current_model == "porsche_930_turbo": max_b = 0.85
+		elif current_model == "porsche_carrera_4s": max_b = 1.25
+		elif current_model == "mercedes_a250": max_b = 1.20
+		elif current_model == "alfa_8c": max_b = 0.65
+		
+		var b_norm = clamp(boost / max_b, 0.0, 1.0)
+		var turbo_vol = -36.0 + (b_norm * 27.0) + eg_db
+		turbo_player.volume_db = lerp(turbo_player.volume_db, clamp(turbo_vol, -80.0, 0.0), delta * 12.0)
+		
+		var p_scale = 1.0
+		if current_model == "alfa_8c":
+			p_scale = lerp(0.85, 2.2, clamp(rpm / 5400.0, 0.0, 1.2)) # Whine volumetrico Roots da giri
+		else:
+			p_scale = lerp(1.0, 2.6, b_norm) # Fischio turbina da boost
+		turbo_player.pitch_scale = max(0.1, p_scale)
 	else:
 		turbo_player.volume_db = lerp(turbo_player.volume_db, -80.0, delta * 8.0)
 	
@@ -337,6 +403,39 @@ func play_exhaust_pop():
 		exhaust_pop_player.volume_db = clamp(randf_range(-16.0, -10.0) + get_engine_gain_db(), -80.0, 0.0)
 		exhaust_pop_player.play()
 
+func play_blow_off_valve(boost_pressure: float):
+	if bov_player and is_inside_tree() and bov_stream:
+		bov_player.pitch_scale = randf_range(0.92, 1.15)
+		var vol = -18.0 + clamp(boost_pressure / 1.45, 0.0, 1.0) * 12.0 + get_engine_gain_db()
+		bov_player.volume_db = clamp(vol, -80.0, 2.0)
+		bov_player.play()
+
+func create_bov_stream() -> AudioStreamWAV:
+	var wav = AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = 22050
+	wav.stereo = false
+	wav.loop_mode = AudioStreamWAV.LOOP_DISABLED
+	
+	var sample_count = int(22050 * 0.28) # 280ms
+	var bytes = PackedByteArray()
+	bytes.resize(sample_count * 2)
+	
+	var noise_flt = 0.0
+	for i in range(sample_count):
+		var t = float(i) / 22050.0
+		var env = exp(-t * 14.0)
+		# Flutter della valvola a fungo con sfiato d'aria in pressione (tshhh-t-t-t)
+		var flutter = 1.0 + 0.45 * sin(t * 55.0 * TAU)
+		var white = randf_range(-1.0, 1.0)
+		noise_flt = lerp(noise_flt, white, 0.22)
+		var s = noise_flt * env * flutter * 0.75
+		var sample_16 = int(clamp(s * 32767.0, -32768.0, 32767.0))
+		bytes.encode_s16(i * 2, sample_16)
+		
+	wav.data = bytes
+	return wav
+
 func create_exhaust_pop_stream() -> AudioStreamWAV:
 	var wav = AudioStreamWAV.new()
 	wav.format = AudioStreamWAV.FORMAT_16_BITS
@@ -379,10 +478,11 @@ func create_engine_stream_for_family(family: String) -> AudioStreamWAV:
 	var raw_samples = PackedFloat32Array()
 	raw_samples.resize(sample_count)
 	
-	# Fondamentale di combustione fisica esatta a 1200 RPM:
+	# Frequenze fondamentali di scoppio fisiche a 1200 RPM (4 tempi):
 	# 4 cilindri: (1200 / 60) * 2 = 40.0 Hz
 	# 6 cilindri: (1200 / 60) * 3 = 60.0 Hz
 	# 8 cilindri: (1200 / 60) * 4 = 80.0 Hz
+	# 12 cilindri: (1200 / 60) * 6 = 120.0 Hz
 	var f_fire = 40.0
 	var h1 = 0.58
 	var h2 = 0.36
@@ -391,27 +491,151 @@ func create_engine_stream_for_family(family: String) -> AudioStreamWAV:
 	var h5 = 0.00
 	var h6 = 0.06
 	var h8 = 0.00
+	var h10 = 0.00
+	var h12 = 0.00
 	var cam_sub = 0.10
 	var drive = 1.7
 	var gain = 0.76
 	var is_dino = false
+	var is_boxer = false
+	var is_v12 = false
 	
 	match family:
-		"small_ohv":
-			f_fire = 40.0 # Fiat 127 903cc aste & bilancieri
-			h1 = 0.44
-			h2 = 0.30
-			h3 = 0.38 # 3a armonica: rasp secco e brillante
-			h4 = 0.20
-			h5 = 0.22 # 5a armonica: squillo metallico punterie
+		"vintage_sidevalve": # Fiat 500A Topolino 569cc valvole laterali (1936)
+			f_fire = 40.0
+			h1 = 0.68 # 1a armonica dominante: chug morbido e rotondo da bassa compressione (6.5:1)
+			h2 = 0.28
+			h3 = 0.08
+			h4 = 0.04
+			h5 = 0.00
+			h6 = 0.00
+			h8 = 0.00
+			cam_sub = 0.06
+			drive = 1.35 # Compressione dolce senza asperità
+			gain = 0.74
+			
+		"straight_8_supercharged": # Alfa Romeo 8C 2900B 2.9L 8L DOHC Twin-Roots (1938)
+			f_fire = 80.0 # 4 impulsi/giro = 80 Hz a 1200 RPM!
+			h1 = 0.54
+			h2 = 0.34
+			h3 = 0.16
+			h4 = 0.24 # Doppia ottava da 8 cilindri
+			h5 = 0.06
+			h6 = 0.12
+			h8 = 0.10
+			cam_sub = 0.05
+			drive = 2.05
+			gain = 0.76
+			
+		"aurelia_v6": # Lancia Aurelia B20 GT 2.5L V6 60° De Virgilio (1953)
+			f_fire = 60.0
+			h1 = 0.56
+			h2 = 0.32
+			h3 = 0.30 # Timbro baritonale nobile ed equilibrato
+			h4 = 0.16
+			h5 = 0.05
+			h6 = 0.14
+			h8 = 0.04
+			cam_sub = 0.04
+			drive = 1.80
+			gain = 0.75
+			
+		"twin_cam_weber": # Alfa Romeo GTA 1.6L Bialbero Twin Spark 2x Weber 45 DCOE (1965)
+			f_fire = 40.0
+			h1 = 0.42
+			h2 = 0.48 # 2a armonica feroce da cornetti aperti
+			h3 = 0.32
+			h4 = 0.28
+			h5 = 0.14
+			h6 = 0.20
+			h8 = 0.10
+			cam_sub = 0.22 # Camme spinte da corsa: minimo irregolare da competizione
+			drive = 2.50
+			gain = 0.79
+			
+		"small_ohv": # Fiat 127 Special 903cc Serie 100 Aste e Bilancieri (1974)
+			f_fire = 40.0
+			h1 = 0.46
+			h2 = 0.32
+			h3 = 0.36 # 3a armonica: rasp italiano vivace e squillante
+			h4 = 0.18
+			h5 = 0.24 # 5a armonica: squillo metallico punterie
 			h6 = 0.08
 			h8 = 0.04
 			cam_sub = 0.12
-			drive = 2.2
+			drive = 2.15
 			gain = 0.77
-		"fire_1000":
-			f_fire = 40.0 # Panda 4x4 FIRE 1000
-			h1 = 0.58 # 1a armonica dominante: tono caldo, corposo e rotondo
+			
+		"twin_cam_16v": # Fiat 131 Abarth Rally 2.0L 16V Lampredi (1976)
+			f_fire = 40.0
+			h1 = 0.50
+			h2 = 0.44
+			h3 = 0.24
+			h4 = 0.34 # 4a armonica: testata 16 valvole ad alto flusso
+			h5 = 0.08
+			h6 = 0.16
+			h8 = 0.06
+			cam_sub = 0.15
+			drive = 2.30
+			gain = 0.78
+			
+		"dino_v6": # Lancia Stratos HF 2.4L Ferrari Dino V6 65° (1974)
+			f_fire = 60.0
+			h1 = 0.38
+			h2 = 0.36
+			h3 = 0.38
+			h4 = 0.24
+			h5 = 0.18
+			h6 = 0.26
+			h8 = 0.10
+			cam_sub = 0.10
+			drive = 2.50
+			gain = 0.79
+			is_dino = true # Fasatura asimmetrica perni manovella 55°/65°
+			
+		"flat_6_aircooled_turbo": # Porsche 911 Turbo 3.0 (930) Boxer-6 aria + KKK K27 (1975)
+			f_fire = 60.0
+			h1 = 0.62 # Basso profondo gutturale con contropressione turbo
+			h2 = 0.44
+			h3 = 0.22
+			h4 = 0.20
+			h5 = 0.06
+			h6 = 0.16
+			h8 = 0.06
+			cam_sub = 0.12
+			drive = 2.20
+			gain = 0.78
+			is_boxer = true # Interferenza bancate contrapposte 180°
+			
+		"renault_cleon": # Renault 4 GTL 1.1L Cléon-Fonte OHV (1980)
+			f_fire = 40.0
+			h1 = 0.58
+			h2 = 0.34
+			h3 = 0.18
+			h4 = 0.12
+			h5 = 0.04
+			h6 = 0.06
+			h8 = 0.00
+			cam_sub = 0.08
+			drive = 1.60
+			gain = 0.75
+			
+		"inline_6_m110": # Mercedes G-Klasse W460 2.8L M110 DOHC (1979)
+			f_fire = 60.0
+			h1 = 0.58 # Rombo profondo e massiccio da fuoristrada
+			h2 = 0.32
+			h3 = 0.28
+			h4 = 0.18
+			h5 = 0.04
+			h6 = 0.14
+			h8 = 0.06
+			cam_sub = 0.05
+			drive = 1.80
+			gain = 0.76
+			
+		"fire_1000": # Fiat Panda 4x4 FIRE 1000 SOHC (1983)
+			f_fire = 40.0
+			h1 = 0.58
 			h2 = 0.36
 			h3 = 0.20
 			h4 = 0.12
@@ -419,69 +643,90 @@ func create_engine_stream_for_family(family: String) -> AudioStreamWAV:
 			h6 = 0.06
 			h8 = 0.00
 			cam_sub = 0.10
-			drive = 1.7
+			drive = 1.70
 			gain = 0.76
-		"twin_cam_weber":
-			f_fire = 40.0 # Alfa GTA Bialbero / Fiat 131 Abarth
-			h1 = 0.46
-			h2 = 0.46 # 2a armonica potente: ruggito condotti aperti Weber 45 DCOE
-			h3 = 0.28
-			h4 = 0.30
-			h5 = 0.12
-			h6 = 0.18
+			
+		"vw_16v_na": # Volkswagen Golf GTI 16V Mk2 1.8L DOHC KR K-Jetronic (1990)
+			f_fire = 40.0
+			h1 = 0.48
+			h2 = 0.42
+			h3 = 0.26
+			h4 = 0.32 # Precisione tagliente 16 valvole aspirata
+			h5 = 0.08
+			h6 = 0.16
+			h8 = 0.06
+			cam_sub = 0.08
+			drive = 2.10
+			gain = 0.77
+			
+		"inline_6_m20": # BMW 320i E30 2.0L M20 6 cilindri (1990)
+			f_fire = 60.0
+			h1 = 0.50
+			h2 = 0.22
+			h3 = 0.44 # Urlo a turbina setoso bavarese
+			h4 = 0.14
+			h5 = 0.00
+			h6 = 0.28 # 6a armonica vellutata
 			h8 = 0.08
-			cam_sub = 0.16 # Borbottio irregolare camme da corsa
-			drive = 2.4
-			gain = 0.78
-		"turbo_16v":
-			f_fire = 40.0 # Lancia Delta Integrale 16V Turbo / Golf GTI Mk2
-			h1 = 0.64 # Basso profondo e muscoloso (turbina allo scarico)
-			h2 = 0.40
+			cam_sub = 0.02 # Equilibratura perfetta a 6 cilindri
+			drive = 1.60
+			gain = 0.74
+			
+		"turbo_16v": # Lancia Delta HF Integrale Evo 2.0L 16V Turbo Garrett T3 (1991)
+			f_fire = 40.0
+			h1 = 0.66 # Ruggito possente e cupo con risonanza scarico rally
+			h2 = 0.42
 			h3 = 0.18
-			h4 = 0.16
+			h4 = 0.18
 			h5 = 0.00
 			h6 = 0.08
 			h8 = 0.04
-			cam_sub = 0.12
-			drive = 1.9
-			gain = 0.77
-		"inline_6":
-			f_fire = 60.0 # BMW 320i E30 M20 6 cilindri (1200/20 = 60 Hz)
-			h1 = 0.52
-			h2 = 0.22
-			h3 = 0.42 # 3a armonica: urlo setoso a turbina
-			h4 = 0.14
-			h5 = 0.00
-			h6 = 0.24 # 6a armonica vellutata
-			h8 = 0.06
-			cam_sub = 0.02 # Perfetta equilibratura a 6 cilindri
-			drive = 1.6
-			gain = 0.74
-		"dino_v6":
-			f_fire = 60.0 # Lancia Stratos HF (Ferrari Dino 65° V6)
-			h1 = 0.40
-			h2 = 0.34
-			h3 = 0.36
-			h4 = 0.22
-			h5 = 0.16
-			h6 = 0.24
-			h8 = 0.08
-			cam_sub = 0.08
-			drive = 2.4
+			cam_sub = 0.14
+			drive = 2.00
 			gain = 0.78
-			is_dino = true # Fasatura asimmetrica 55°/65° alternata
-		"straight_8":
-			f_fire = 80.0 # Alfa 8C 2900B Lungo (1200/15 = 80 Hz)
-			h1 = 0.58
-			h2 = 0.36
-			h3 = 0.14
-			h4 = 0.26
-			h5 = 0.00
+			
+		"modern_turbo_4": # Mercedes A 250 Sport 2.0L Turbo BlueDIRECT DI (2016)
+			f_fire = 40.0
+			h1 = 0.56
+			h2 = 0.38
+			h3 = 0.20
+			h4 = 0.16
+			h5 = 0.04
 			h6 = 0.10
-			h8 = 0.12
-			cam_sub = 0.04
-			drive = 1.9
+			h8 = 0.04
+			cam_sub = 0.06
+			drive = 1.85
 			gain = 0.76
+			
+		"flat_6_twinturbo_modern": # Porsche 911 Carrera 4S (992) 3.0L Boxer-6 Biturbo 24V (2020)
+			f_fire = 60.0
+			h1 = 0.56
+			h2 = 0.40
+			h3 = 0.26
+			h4 = 0.22
+			h5 = 0.04
+			h6 = 0.18
+			h8 = 0.06
+			cam_sub = 0.04
+			drive = 2.00
+			gain = 0.77
+			is_boxer = true
+			
+		"v12_italian_screamer": # Lamborghini Countach LPI 800-4 6.5L V12 Aspirato 60° (2021)
+			f_fire = 120.0 # 12 CILINDRI: 6 scoppi/giro = 120 Hz a 1200 RPM!
+			h1 = 0.42
+			h2 = 0.38
+			h3 = 0.32
+			h4 = 0.26
+			h5 = 0.16
+			h6 = 0.30
+			h8 = 0.18
+			h10 = 0.14
+			h12 = 0.12 # Armonica 1440 Hz a 1200 RPM -> Urlo da F1 ad alto regime (8700 RPM)!
+			cam_sub = 0.03
+			drive = 2.45
+			gain = 0.79
+			is_v12 = true
 
 	for i in range(sample_count):
 		var t = float(i) / 44100.0
@@ -491,11 +736,33 @@ func create_engine_stream_for_family(family: String) -> AudioStreamWAV:
 		if is_dino:
 			# Accensione asimmetrica 55°/65° alternata
 			s = sin(phase) * h1
-			s += sin(phase * 1.0833) * 0.22
+			s += sin(phase * 1.0833) * 0.24
 			s += sin(phase * 2.0) * h2
 			s += sin(phase * 3.0) * h3
 			s += sin(phase * 4.0) * h4
 			s += sin(phase * 6.0) * h6
+		elif is_boxer:
+			# Flat-6: interferenza delle due bancate orizzontali contrapposte
+			s = sin(phase) * h1
+			s += sin(phase * 2.0) * h2
+			s += sin(phase * 3.0) * h3
+			s += sin(phase * 4.0) * h4
+			if h5 > 0.0: s += sin(phase * 5.0) * h5
+			if h6 > 0.0: s += sin(phase * 6.0) * h6
+			if h8 > 0.0: s += sin(phase * 8.0) * h8
+			# Sub-battito sincopato tipico Porsche Flat-6
+			s += sin(phase * 0.5) * 0.15
+		elif is_v12:
+			# V12 Aspirato ad altissima frequenza armonica
+			s = sin(phase) * h1
+			s += sin(phase * 2.0) * h2
+			s += sin(phase * 3.0) * h3
+			s += sin(phase * 4.0) * h4
+			s += sin(phase * 5.0) * h5
+			s += sin(phase * 6.0) * h6
+			s += sin(phase * 8.0) * h8
+			s += sin(phase * 10.0) * h10
+			s += sin(phase * 12.0) * h12
 		else:
 			s = sin(phase) * h1
 			s += sin(phase * 2.0) * h2
@@ -546,41 +813,90 @@ func create_intake_stream_for_family(family: String) -> AudioStreamWAV:
 	
 	var f_fire = 40.0
 	var throat_boost = 1.0
+	var air_mix = 0.25
+	
 	match family:
+		"v12_italian_screamer":
+			f_fire = 120.0
+			throat_boost = 1.65
+			air_mix = 0.35
 		"twin_cam_weber":
 			f_fire = 40.0
-			throat_boost = 1.5
-		"small_ohv":
-			f_fire = 40.0
-			throat_boost = 1.2
-		"fire_1000":
-			f_fire = 40.0
-			throat_boost = 1.0
-		"turbo_16v":
-			f_fire = 40.0
-			throat_boost = 1.1
-		"inline_6":
-			f_fire = 60.0
-			throat_boost = 0.9
+			throat_boost = 1.60
+			air_mix = 0.30
 		"dino_v6":
 			f_fire = 60.0
-			throat_boost = 1.4
-		"straight_8":
+			throat_boost = 1.45
+			air_mix = 0.30
+		"flat_6_aircooled_turbo":
+			f_fire = 60.0
+			throat_boost = 1.35
+			air_mix = 0.25
+		"flat_6_twinturbo_modern":
+			f_fire = 60.0
+			throat_boost = 1.25
+			air_mix = 0.22
+		"twin_cam_16v":
+			f_fire = 40.0
+			throat_boost = 1.30
+			air_mix = 0.26
+		"vw_16v_na":
+			f_fire = 40.0
+			throat_boost = 1.25
+			air_mix = 0.25
+		"straight_8_supercharged":
 			f_fire = 80.0
-			throat_boost = 1.2
+			throat_boost = 1.30
+			air_mix = 0.28
+		"small_ohv":
+			f_fire = 40.0
+			throat_boost = 1.15
+			air_mix = 0.20
+		"aurelia_v6":
+			f_fire = 60.0
+			throat_boost = 1.10
+			air_mix = 0.22
+		"inline_6_m20":
+			f_fire = 60.0
+			throat_boost = 0.95
+			air_mix = 0.20
+		"inline_6_m110":
+			f_fire = 60.0
+			throat_boost = 1.05
+			air_mix = 0.25
+		"turbo_16v":
+			f_fire = 40.0
+			throat_boost = 1.20
+			air_mix = 0.28
+		"modern_turbo_4":
+			f_fire = 40.0
+			throat_boost = 1.05
+			air_mix = 0.22
+		"vintage_sidevalve":
+			f_fire = 40.0
+			throat_boost = 0.85
+			air_mix = 0.15
+		"renault_cleon":
+			f_fire = 40.0
+			throat_boost = 0.90
+			air_mix = 0.18
+		"fire_1000":
+			f_fire = 40.0
+			throat_boost = 1.00
+			air_mix = 0.22
 			
 	var air_filter = 0.0
 	for i in range(sample_count):
 		var t = float(i) / 44100.0
 		var phase = t * f_fire * TAU
 		
-		# Fruscio d'aspirazione dell'aria filtrato morbido
+		# Fruscio d'aspirazione dell'aria nei condotti
 		var white = randf_range(-1.0, 1.0)
 		air_filter = lerp(air_filter, white, 0.06)
 		
 		# Risonanza Helmholtz in fase perfetta con la fondamentale dello scarico
-		var gulp = (sin(phase) * 0.50 + sin(phase * 2.0) * 0.35) * throat_boost
-		var s = (gulp * 0.70 + air_filter * 0.25) * 0.68
+		var gulp = (sin(phase) * 0.50 + sin(phase * 2.0) * 0.35 + sin(phase * 3.0) * 0.15) * throat_boost
+		var s = (gulp * 0.70 + air_filter * air_mix) * 0.68
 		s = tanh(s * 1.6) * 0.72
 		raw_samples[i] = s
 		
@@ -614,16 +930,66 @@ func create_mech_stream_for_family(family: String) -> AudioStreamWAV:
 	raw_samples.resize(sample_count)
 	
 	var num_events = 4
-	if family in ["inline_6", "dino_v6"]:
-		num_events = 6
-	elif family == "straight_8":
-		num_events = 8
+	var click_bright = 3200.0
+	var click_decay = 65.0
+	var is_aircooled_fan = false
+	var is_supercharger_whine = false
+	var is_v12_chatter = false
+	
+	match family:
+		"v12_italian_screamer":
+			num_events = 12 # 48 valvole e distribuzione densa
+			click_bright = 4200.0
+			click_decay = 80.0
+			is_v12_chatter = true
+		"straight_8_supercharged":
+			num_events = 8
+			click_bright = 2800.0
+			click_decay = 60.0
+			is_supercharger_whine = true # Fischio ingranaggi lobi Roots
+		"flat_6_aircooled_turbo":
+			num_events = 6
+			click_bright = 3100.0
+			click_decay = 65.0
+			is_aircooled_fan = true # Ululato turbina ventola assiale magnesio
+		"flat_6_twinturbo_modern", "inline_6_m20", "inline_6_m110", "dino_v6", "aurelia_v6":
+			num_events = 6
+			click_bright = 3300.0
+			click_decay = 70.0
+		"small_ohv":
+			num_events = 4
+			click_bright = 3800.0 # Tintinnio punterie aste e bilancieri Fiat 127
+			click_decay = 55.0
+		"vintage_sidevalve":
+			num_events = 4
+			click_bright = 2000.0 # Valvole laterali morbide Topolino
+			click_decay = 90.0
+		_:
+			num_events = 4
+			click_bright = 3200.0
+			click_decay = 65.0
 		
 	for i in range(sample_count):
 		var t = float(i) / 44100.0
 		var u = fmod(t * 10.0 * float(num_events), 1.0)
-		# Micro-click impulsivo ad altissimo decadimento (rumore meccanico punterie in sottofondo)
-		var click = sin(u * 3200.0 / 441.0 * TAU) * exp(-u * 65.0) * 0.40
+		# Micro-click impulsivo ad altissimo decadimento per le punterie
+		var click = sin(u * click_bright / 441.0 * TAU) * exp(-u * click_decay) * 0.40
+		
+		# Aggiunte timbriche caratteristiche storiche/architetturali
+		if is_aircooled_fan:
+			# Sibilo ventola assiale in magnesio a 11 pale Porsche 930
+			var fan_whine = sin(t * 185.0 * TAU) * 0.24 + sin(t * 370.0 * TAU) * 0.10
+			var fan_air = randf_range(-1.0, 1.0) * 0.08
+			click = click * 0.60 + fan_whine + fan_air
+		elif is_supercharger_whine:
+			# Whine ingranaggi lobi Roots Alfa 8C (720 Hz)
+			var roots_whine = sin(t * 720.0 * TAU) * 0.22 + sin(t * 1440.0 * TAU) * 0.08
+			click = click * 0.65 + roots_whine
+		elif is_v12_chatter:
+			# Vibrazione fittissima a catena e bicchierini idraulici V12
+			var v12_gear = sin(t * 240.0 * TAU) * 0.18 + sin(t * 480.0 * TAU) * 0.10
+			click = click * 0.70 + v12_gear
+			
 		raw_samples[i] = clamp(click * 0.50, -0.65, 0.65)
 		
 	var s0 = raw_samples[0]
@@ -655,12 +1021,16 @@ func create_turbo_stream() -> AudioStreamWAV:
 	var bytes = PackedByteArray()
 	bytes.resize(sample_count * 2)
 	
-	# Garrett T3 turbo compressor high-pitched whine
-	var turbo_freq = 920.0
+	var turbo_freq = 960.0
+	var air_hiss = 0.0
 	for i in range(sample_count):
 		var t = float(i) / 22050.0
-		var s = sin(t * turbo_freq * TAU) * 0.35
-		s += sin(t * turbo_freq * 2.0 * TAU) * 0.15
+		var s = sin(t * turbo_freq * TAU) * 0.32
+		s += sin(t * turbo_freq * 2.0 * TAU) * 0.16
+		s += sin(t * turbo_freq * 3.0 * TAU) * 0.06
+		var white = randf_range(-1.0, 1.0)
+		air_hiss = lerp(air_hiss, white, 0.12)
+		s += air_hiss * 0.10
 		var sample_16 = int(clamp(s * 32767.0, -32768.0, 32767.0))
 		bytes.encode_s16(i * 2, sample_16)
 		

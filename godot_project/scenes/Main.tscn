@@ -13,13 +13,13 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tiltshift"]
 shader = ExtResource("9_tilt_shader")
-shader_parameter/enable_tilt_shift = false
-shader_parameter/focus_plane_y = 0.58
-shader_parameter/focus_band_width = 0.65
-shader_parameter/max_blur_radius = 1.8
-shader_parameter/chromatic_aberration = 0.08
+shader_parameter/enable_tilt_shift = true
+shader_parameter/focus_plane_y = 0.52
+shader_parameter/focus_band_width = 0.62
+shader_parameter/max_blur_radius = 1.5
+shader_parameter/chromatic_aberration = 0.03
 shader_parameter/vignette_strength = 0.10
-shader_parameter/vignette_color = Color(0.03, 0.05, 0.08, 1)
+shader_parameter/vignette_color = Color(0.06, 0.05, 0.04, 1)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main_script")
@@ -28,18 +28,18 @@ script = ExtResource("1_main_script")
 environment = ExtResource("2_env")
 
 [node name="SunLight" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.707107, -0.353553, 0.612372, 0, 0.866025, 0.5, -0.707107, -0.353553, 0.612372, 22, 45, 15)
-light_color = Color(1.0, 0.95, 0.88, 1)
-light_energy = 1.28
+transform = Transform3D(-0.707107, -0.473147, 0.525483, 0, 0.743145, 0.669131, -0.707107, 0.473147, -0.525483, 20, 50, 20)
+light_color = Color(1.06, 0.96, 0.84, 1)
+light_energy = 1.38
 shadow_enabled = true
 shadow_bias = 0.012
-shadow_blur = 1.65
+shadow_blur = 1.85
 directional_shadow_mode = 2
 directional_shadow_split_1 = 0.08
 directional_shadow_split_2 = 0.22
 directional_shadow_split_3 = 0.50
 directional_shadow_blend_splits = true
-directional_shadow_max_distance = 280.0
+directional_shadow_max_distance = 320.0
 directional_shadow_pancaking = true
 
 [node name="BiomeDirector" type="Node" parent="."]

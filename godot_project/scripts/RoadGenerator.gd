@@ -2,6 +2,8 @@ extends Node3D
 class_name RoadGenerator
 
 const BiomeGraph = preload("res://scripts/BiomeGraph.gd")
+const RuralPlainEnvironmentBuilder = preload("res://scripts/RuralPlainEnvironmentBuilder.gd")
+const CoastalEnvironmentBuilder = preload("res://scripts/CoastalEnvironmentBuilder.gd")
 
 # THE LONG MERIDIAN - Procedural Crowned Highway & Alpine Landscape Generator (Godot 4)
 # Inspired by Dorfromantik, Tiny Glade & Art of Rally.
@@ -32,6 +34,7 @@ var active_road_patches: Array = []
 var next_chunk_z: float = -120.0
 var last_chunk_x: float = 0.0
 var last_chunk_angle: float = 0.0
+var last_chunk_bank: float = 0.0
 var active_service_stations: Array = []
 
 # Material Palette
@@ -693,14 +696,25 @@ func get_lake_weight(z: float) -> float:
     else:
         return 1.0 - smoothstep(580.0, 640.0, z)
 
+func get_sea_weight(z: float) -> float:
+    # Raccordo continuo C1 per la discesa e l'affaccio sul mare (7800m -> 11000m)
+    if z < 7800.0 or z > 11000.0:
+        return 0.0
+    elif z >= 8200.0 and z <= 10600.0:
+        return 1.0
+    elif z < 8200.0:
+        return smoothstep(7800.0, 8200.0, z)
+    else:
+        return 1.0 - smoothstep(10600.0, 11000.0, z)
+
 func get_service_flatten_weight(z: float) -> float:
-    # Raccordo continuo C1 per il piazzale delle aree di servizio (Agip 660-780m, Autogrill 3120-3240m)
+    # Raccordo continuo C1 per il piazzale delle aree di servizio (Agip 1380-1500m, Autogrill 3120-3240m)
     var w1 = 0.0
-    if z >= 630.0 and z <= 810.0:
-        if z < 670.0:
-            w1 = smoothstep(630.0, 670.0, z)
-        elif z > 770.0:
-            w1 = 1.0 - smoothstep(770.0, 810.0, z)
+    if z >= 1350.0 and z <= 1530.0:
+        if z < 1390.0:
+            w1 = smoothstep(1350.0, 1390.0, z)
+        elif z > 1490.0:
+            w1 = 1.0 - smoothstep(1490.0, 1530.0, z)
         else:
             w1 = 1.0
             
@@ -806,6 +820,25 @@ func update_generation(player_z: float):
         if active_road_patches[kp].z < min_keep_z:
             active_road_patches.remove_at(kp)
 
+func on_circuit_lap_completed():
+    print("[Circuito Meridiano] 🏁 Giro del circuito completato a 12.000m! Chiusura del cerchio e rientro a San Cristoforo.")
+    # Rimuovi i vecchi chunk oltre 540m per liberare memoria e riprendere la generazione ciclica
+    for i in range(active_chunks.size() - 1, -1, -1):
+        if active_chunks[i].end_z > 540.0:
+            active_chunks[i].node.queue_free()
+            active_chunks.remove_at(i)
+            
+    # Trova le condizioni al contorno del chunk Z=540m per garantire continuità matematica assoluta
+    for chunk in active_chunks:
+        if abs(chunk.end_z - 540.0) < 1.0:
+            var pts = chunk.points
+            var last_pt = pts[pts.size() - 1]
+            last_chunk_x = last_pt.x
+            last_chunk_angle = last_pt.angle
+            last_chunk_bank = last_pt.get("bank", 0.0)
+            break
+    next_chunk_z = 540.0
+
 func get_road_center_x(z: float) -> float:
     for chunk in active_chunks:
         if z >= chunk.start_z and z <= chunk.end_z:
@@ -817,22 +850,31 @@ func get_road_center_x(z: float) -> float:
     return 0.0
 
 const ROAD_ALTITUDE_KEYPOINTS = [
-    Vector2(0.0, 0.0),       # Quota 0: Garage & Piana iniziale
-    Vector2(40.0, 0.0),      # Uscita garage rettilinea piana
-    Vector2(120.0, 3.5),     # Inizio salita alpina morbida (+3.5%)
-    Vector2(260.0, 12.0),    # Salita alpina graduale (+6.1%)
-    Vector2(360.0, 18.5),    # Valico / Scollinamento alpino
-    Vector2(500.0, 11.0),    # Discesa panoramica verso lago
-    Vector2(640.0, 3.5),     # Conca del Lago dei Larici
-    Vector2(840.0, 3.5),     # Piana di San Rocco & Stazione Agip '93 (perfettamente orizzontale)
-    Vector2(1140.0, 14.0),   # Salita Borgo San Cristoforo (+3.5%)
-    Vector2(1440.0, 26.0),   # Pascoli Alti (+4.0%)
-    Vector2(2100.0, 44.0),   # Forra dell'Appennino
+    Vector2(0.0, 0.0),       # San Cristoforo - Quota 0m (Piazza e Borgo)
+    Vector2(80.0, 0.0),      # Uscita dalla Città verso la Pianura
+    Vector2(280.0, 0.6),     # Piana di San Giorgio & Cascina Padana
+    Vector2(520.0, 1.2),     # Ponte in pietra & Mulino ad Acqua
+    Vector2(820.0, 1.5),     # Podere Belvedere & Campagna aperta
+    Vector2(1080.0, 1.4),    # Conca del Lago dei Salici
+    Vector2(1380.0, 3.5),    # Piana Stazione Agip '93 (orizzontale)
+    Vector2(1620.0, 4.0),    # Uscita dalla Piana, inizio salita verso l'Appennino
+    Vector2(2100.0, 32.0),   # Forra dell'Appennino
     Vector2(2800.0, 62.0),   # Viadotto dei Ciclopi
     Vector2(3240.0, 62.0),   # Piana Autogrill Valico del Meridiano (orizzontale)
     Vector2(3900.0, 105.0),  # I Tornanti dei Larici (+6.5%)
     Vector2(4600.0, 145.0),  # Uscita Tornanti
-    Vector2(6000.0, 220.0)   # Valico Glaciale del Duca Quota 2650m
+    Vector2(6000.0, 220.0),  # Valico Glaciale del Duca Quota 2650m
+    Vector2(6800.0, 205.0),  # Giro della Montagna attorno al Massiccio
+    Vector2(7500.0, 155.0),  # Discesa Panoramica delle Balze Rocciose
+    Vector2(8200.0, 85.0),   # Inizio Costiera delle Sirene & Primo Panorama sul Mare
+    Vector2(8700.0, 48.0),   # Belvedere delle Sirene & Faro della Scogliera
+    Vector2(9300.0, 15.0),   # Discesa litoranea verso il mare
+    Vector2(9600.0, 2.5),    # Ingresso Borgo Marina dei Pescatori
+    Vector2(10200.0, 2.5),   # Calata del Porto e Banchine Gozzi
+    Vector2(10700.0, 2.5),   # Uscita Borgo Marina
+    Vector2(11200.0, 1.0),   # Viale degli Oleandri e Pini Marittimi
+    Vector2(11700.0, 0.0),   # Porta Marina - Rientro Trionfale a San Cristoforo
+    Vector2(12000.0, 0.0)    # Piazza San Cristoforo - Chiusura Cerchio Perfetta
 ]
 
 func calculate_road_elevation(z: float) -> float:
@@ -862,11 +904,16 @@ func calculate_road_elevation(z: float) -> float:
     # 2. Raccordo perfetto per i piazzali di servizio (Stazione Agip a 3.5m e Autogrill a 62.0m)
     var s_weight = get_service_flatten_weight(z)
     if s_weight > 0.0:
-        var s_target = 3.5 if z < 1500.0 else 62.0
+        var s_target = 3.5 if z < 2300.0 else 62.0
         base_alt = lerp(base_alt, s_target, s_weight)
         
     # 3. Micro-rilievo procedurale morbido e naturale (niente sobbalzi secchi)
     var micro_elev = elevation_noise.get_noise_1d(z * 0.005) * 0.35 if elevation_noise else 0.0
+    if z >= 11800.0:
+        var end_blend = clamp((12000.0 - z) / 200.0, 0.0, 1.0)
+        # Raccordo cubico dolce C1 per annullare il micro-rilievo al traguardo di San Cristoforo
+        end_blend = end_blend * end_blend * (3.0 - 2.0 * end_blend)
+        micro_elev *= end_blend
     return (base_alt + micro_elev) * blend
 
 func generate_chunk():
@@ -882,10 +929,10 @@ func generate_chunk():
     var grip_mult = 1.00
     var chunk_road_mat = road_asphalt_alpine_mat
     
-    if start_z >= 840.0 and start_z < 1140.0:
+    if (start_z >= 840.0 and start_z < 1140.0) or (start_z >= 9400.0 and start_z < 10700.0):
         surface_type = 2
-        surface_name = "PAVÉ DI PORFIDO TRENTINO"
-        grip_mult = 0.86
+        surface_name = "PAVÉ MARINARO DI BORGO MARINA" if start_z >= 9400.0 else "PAVÉ DI PORFIDO TRENTINO"
+        grip_mult = 0.88 if start_z >= 9400.0 else 0.86
         chunk_road_mat = road_pave_porfido_mat
     elif start_z >= 1440.0 and start_z < 3000.0:
         surface_type = 3
@@ -897,11 +944,16 @@ func generate_chunk():
         surface_name = "STRADA BIANCA TOSCANA"
         grip_mult = 0.68
         chunk_road_mat = road_strada_bianca_mat
-    elif (start_z >= 120.0 and start_z < 340.0) or (start_z >= 1200.0 and start_z < 1390.0) or (start_z >= 3000.0 and start_z < 3480.0):
+    elif (start_z >= 120.0 and start_z < 340.0) or (start_z >= 1200.0 and start_z < 1390.0) or (start_z >= 3000.0 and start_z < 3480.0) or (start_z >= 8200.0 and start_z < 9400.0):
         surface_type = 1
-        surface_name = "ASFALTO VALICO & TORNANTI"
-        grip_mult = 0.95
+        surface_name = "ASFALTO COSTIERO PANORAMICO" if start_z >= 8200.0 else "ASFALTO VALICO & TORNANTI"
+        grip_mult = 0.98 if start_z >= 8200.0 else 0.95
         chunk_road_mat = road_asphalt_curves_mat
+    elif start_z >= 10700.0 and start_z <= 12000.0:
+        surface_type = 0
+        surface_name = "VIALE DEI PINI MARITTIMI"
+        grip_mult = 1.00
+        chunk_road_mat = road_asphalt_alpine_mat
     else:
         surface_type = 0
         surface_name = "ASFALTO ALPINO USURATO"
@@ -911,17 +963,17 @@ func generate_chunk():
     var points: Array = []
     var cur_x = last_chunk_x
     var cur_angle = last_chunk_angle
-    var cur_bank = 0.0
+    var cur_bank = last_chunk_bank
     
     for s in range(road_segments + 1):
         var z = start_z + float(s) * step_z
         var y = calculate_road_elevation(z)
         
         # Adaptive civil engineering roadway widths
-        var is_hairpin_now = (z >= 130.0 and z <= 330.0) or (z >= 1200.0 and z <= 1390.0) or (z >= 3000.0 and z <= 3480.0) or (z >= 4250.0 and z <= 4800.0) or (z >= 5650.0 and z <= 6200.0)
+        var is_hairpin_now = (z >= 130.0 and z <= 330.0) or (z >= 1200.0 and z <= 1390.0) or (z >= 3000.0 and z <= 3480.0) or (z >= 4250.0 and z <= 4800.0) or (z >= 5650.0 and z <= 6200.0) or (z >= 6900.0 and z <= 7400.0)
         var width = base_width
-        if z >= 840.0 and z <= 1140.0:
-            width = 6.6 # Authentic narrow historic street (Borgo San Cristoforo)
+        if (z >= 840.0 and z <= 1140.0) or (z >= 9400.0 and z <= 10700.0):
+            width = 6.8 # Authentic narrow historic street (Borgo San Cristoforo & Borgo Marina)
         elif (z >= 3480.0 and z <= 4200.0) or (z >= 4800.0 and z <= 5600.0):
             width = 7.0 # Rural Strada Bianca
         elif is_hairpin_now:
@@ -936,13 +988,13 @@ func generate_chunk():
             var curv_scale = b_info.get("curv_factor", 1.0)
             
             # --- CURVATURE MODULATION: TORNANTI A 180°, CHICANE & RETTILINEI ---
-            var is_hairpin_zone = (z >= 130.0 and z <= 330.0) or (z >= 1200.0 and z <= 1390.0) or (z >= 3000.0 and z <= 3480.0) or (z >= 4250.0 and z <= 4800.0) or (z >= 5650.0 and z <= 6200.0)
-            var is_straight_zone = (z < 60.0) or (z >= 380.0 and z <= 540.0) or (z >= 670.0 and z <= 790.0) or (z >= 3120.0 and z <= 3240.0)
+            var is_hairpin_zone = (z >= 130.0 and z <= 330.0) or (z >= 1200.0 and z <= 1390.0) or (z >= 3000.0 and z <= 3480.0) or (z >= 4250.0 and z <= 4800.0) or (z >= 5650.0 and z <= 6200.0) or (z >= 6900.0 and z <= 7400.0)
+            var is_straight_zone = (z < 60.0) or (z >= 380.0 and z <= 540.0) or (z >= 670.0 and z <= 790.0) or (z >= 3120.0 and z <= 3240.0) or (z >= 11500.0)
             
             var target_angle_delta = 0.0
             if is_straight_zone:
-                # Tratti rettilinei (partenza, lungolago, piazzali stazioni)
-                target_angle_delta = -cur_angle * 0.15 # Ricentramento rapido
+                # Tratti rettilinei (partenza, lungolago, piazzali stazioni e rientro a San Cristoforo a 12000m)
+                target_angle_delta = -cur_angle * (0.28 if z >= 11500.0 else 0.15)
             elif is_hairpin_zone:
                 # TORNANTI ALPINI A GOMITO (180° Hairpins): decisa inversione ad arco
                 var hairpin_cycle = sin(z * 0.048)
@@ -960,14 +1012,21 @@ func generate_chunk():
                 target_angle_delta += pull
                 
             cur_angle += target_angle_delta
-            # Angolo fino a +/- 1.15 rad (~66°) per autentici tornanti a gomito alpini!
-            cur_angle = clamp(cur_angle, -1.15, 1.15)
-            cur_x += sin(cur_angle) * step_z * 0.72
-            # Sopraelevazione parabolica in curva (Inward superelevation banking)
-            cur_bank = clamp((target_angle_delta / max(0.1, step_z)) * 2.2, -0.13, 0.13)
+            if z >= 11500.0:
+                cur_angle = clamp(cur_angle, -0.6, 0.6)
+                cur_x = lerp(cur_x, 0.0, 0.08)
+                cur_bank = lerp(cur_bank, 0.0, 0.15)
+            else:
+                # Angolo fino a +/- 1.15 rad (~66°) per autentici tornanti a gomito alpini!
+                cur_angle = clamp(cur_angle, -1.15, 1.15)
+                cur_x += sin(cur_angle) * step_z * 0.72
+                # Sopraelevazione parabolica in curva (Inward superelevation banking)
+                cur_bank = clamp((target_angle_delta / max(0.1, step_z)) * 2.2, -0.13, 0.13)
+
             
     last_chunk_x = cur_x
     last_chunk_angle = cur_angle
+    last_chunk_bank = cur_bank
     next_chunk_z = end_z
     
     var chunk_node = build_chunk_node(points, start_z, chunk_road_mat)
@@ -1003,9 +1062,17 @@ func build_chunk_node(points: Array, start_z: float, chunk_road_mat: Material = 
     
     var collision_faces = PackedVector3Array()
     
+    # Precalcolo dei vettori normali perpendicolari alla traiettoria per ogni fetta (continui al 100% sui giunti dei chunk)
+    var normals: Array = []
+    for k in range(num_pts):
+        var ang = points[k].angle
+        normals.append(Vector3(cos(ang), 0.0, -sin(ang)))
+        
     for i in range(num_pts - 1):
         var p1 = points[i]
         var p2 = points[i + 1]
+        var n1 = normals[i]
+        var n2 = normals[i + 1]
         
         var hw1 = p1.width * 0.5
         var phw1 = hw1 * 0.78
@@ -1028,18 +1095,18 @@ func build_chunk_node(points: Array, start_z: float, chunk_road_mat: Material = 
         var b2_3 = -phw2 * bank2
         var b2_4 = -hw2 * bank2
         
-        # 5 crowned road points with authentic camber & banking
-        var v1_0 = Vector3(p1.x - hw1, p1.y + b1_0, p1.z)
-        var v1_1 = Vector3(p1.x - phw1, p1.y + 0.045 + b1_1, p1.z)
+        # 5 crowned road points with authentic camber & banking (calcolati rigorosamente lungo la normale alla curva)
+        var v1_0 = Vector3(p1.x - n1.x * hw1, p1.y + b1_0, p1.z - n1.z * hw1)
+        var v1_1 = Vector3(p1.x - n1.x * phw1, p1.y + 0.045 + b1_1, p1.z - n1.z * phw1)
         var v1_2 = Vector3(p1.x, p1.y + 0.08, p1.z)
-        var v1_3 = Vector3(p1.x + phw1, p1.y + 0.045 + b1_3, p1.z)
-        var v1_4 = Vector3(p1.x + hw1, p1.y + b1_4, p1.z)
+        var v1_3 = Vector3(p1.x + n1.x * phw1, p1.y + 0.045 + b1_3, p1.z + n1.z * phw1)
+        var v1_4 = Vector3(p1.x + n1.x * hw1, p1.y + b1_4, p1.z + n1.z * hw1)
         
-        var v2_0 = Vector3(p2.x - hw2, p2.y + b2_0, p2.z)
-        var v2_1 = Vector3(p2.x - phw2, p2.y + 0.045 + b2_1, p2.z)
+        var v2_0 = Vector3(p2.x - n2.x * hw2, p2.y + b2_0, p2.z - n2.z * hw2)
+        var v2_1 = Vector3(p2.x - n2.x * phw2, p2.y + 0.045 + b2_1, p2.z - n2.z * phw2)
         var v2_2 = Vector3(p2.x, p2.y + 0.08, p2.z)
-        var v2_3 = Vector3(p2.x + phw2, p2.y + 0.045 + b2_3, p2.z)
-        var v2_4 = Vector3(p2.x + hw2, p2.y + b2_4, p2.z)
+        var v2_3 = Vector3(p2.x + n2.x * phw2, p2.y + 0.045 + b2_3, p2.z + n2.z * phw2)
+        var v2_4 = Vector3(p2.x + n2.x * hw2, p2.y + b2_4, p2.z + n2.z * hw2)
         
         add_quad(surface_tool, collision_faces, v1_0, v2_0, v2_1, v1_1, 0.0, 0.122, uv_y1, uv_y2)
         add_quad(surface_tool, collision_faces, v1_1, v2_1, v2_2, v1_2, 0.122, 0.500, uv_y1, uv_y2)
@@ -1052,8 +1119,8 @@ func build_chunk_node(points: Array, start_z: float, chunk_road_mat: Material = 
         var jl_weight2 = get_junction_flatten_weight_left(p2.z)
         var swale_l_drop1 = lerp(-0.25, 0.0, jl_weight1)
         var swale_l_drop2 = lerp(-0.25, 0.0, jl_weight2)
-        var v_swale_l1 = Vector3(p1.x - hw1 - 18.0, p1.y + b1_0 + swale_l_drop1, p1.z)
-        var v_swale_l2 = Vector3(p2.x - hw2 - 18.0, p2.y + b2_0 + swale_l_drop2, p2.z)
+        var v_swale_l1 = Vector3(p1.x - n1.x * (hw1 + 18.0), p1.y + b1_0 + swale_l_drop1, p1.z - n1.z * (hw1 + 18.0))
+        var v_swale_l2 = Vector3(p2.x - n2.x * (hw2 + 18.0), p2.y + b2_0 + swale_l_drop2, p2.z - n2.z * (hw2 + 18.0))
         add_quad(terrain_tool, collision_faces, v_swale_l1, v_swale_l2, v2_0, v1_0, 0.0, 0.25, uv_y1, uv_y2)
         
         var s_weight1 = get_service_flatten_weight(p1.z)
@@ -1064,8 +1131,8 @@ func build_chunk_node(points: Array, start_z: float, chunk_road_mat: Material = 
         var r_flatten2 = max(s_weight2, jr_weight2)
         var swale_r_drop1 = lerp(-0.25, 0.0, r_flatten1)
         var swale_r_drop2 = lerp(-0.25, 0.0, r_flatten2)
-        var v_swale_r1 = Vector3(p1.x + hw1 + 18.0, p1.y + b1_4 + swale_r_drop1, p1.z)
-        var v_swale_r2 = Vector3(p2.x + hw2 + 18.0, p2.y + b2_4 + swale_r_drop2, p2.z)
+        var v_swale_r1 = Vector3(p1.x + n1.x * (hw1 + 18.0), p1.y + b1_4 + swale_r_drop1, p1.z + n1.z * (hw1 + 18.0))
+        var v_swale_r2 = Vector3(p2.x + n2.x * (hw2 + 18.0), p2.y + b2_4 + swale_r_drop2, p2.z + n2.z * (hw2 + 18.0))
         add_quad(terrain_tool, collision_faces, v1_4, v2_4, v_swale_r2, v_swale_r1, 0.75, 1.0, uv_y1, uv_y2)
         
         # Zone 2: Rolling Pasture Knolls (18m to 65m) - Raccordo continuo analitico C1 (Zero salti nel vuoto)
@@ -1079,42 +1146,60 @@ func build_chunk_node(points: Array, start_z: float, chunk_road_mat: Material = 
         var h_knoll_l2_base = lerp(normal_knoll_l2, lake_knoll_l2, l_weight2)
         var h_knoll_l1 = lerp(h_knoll_l1_base, p1.y, jl_weight1)
         var h_knoll_l2 = lerp(h_knoll_l2_base, p2.y, jl_weight2)
-        var v_knoll_l1 = Vector3(p1.x - hw1 - 65.0, h_knoll_l1, p1.z)
-        var v_knoll_l2 = Vector3(p2.x - hw2 - 65.0, h_knoll_l2, p2.z)
+        
+        var sea_w1 = get_sea_weight(p1.z)
+        var sea_w2 = get_sea_weight(p2.z)
+        if sea_w1 > 0.0:
+            h_knoll_l1 = lerp(h_knoll_l1, min(p1.y - 1.2, 1.8), sea_w1)
+        if sea_w2 > 0.0:
+            h_knoll_l2 = lerp(h_knoll_l2, min(p2.y - 1.2, 1.8), sea_w2)
+            
+        var v_knoll_l1 = Vector3(p1.x - n1.x * (hw1 + 65.0), h_knoll_l1, p1.z - n1.z * (hw1 + 65.0))
+        var v_knoll_l2 = Vector3(p2.x - n2.x * (hw2 + 65.0), h_knoll_l2, p2.z - n2.z * (hw2 + 65.0))
         add_quad(terrain_tool, collision_faces, v_knoll_l1, v_knoll_l2, v_swale_l2, v_swale_l1, 0.0, 0.45, uv_y1, uv_y2)
         
         var normal_knoll_r1 = p1.y + sin(p1.z * 0.022 + 1.4) * 3.4 + cos(p1.z * 0.011) * 2.2
         var normal_knoll_r2 = p2.y + sin(p2.z * 0.022 + 1.4) * 3.4 + cos(p2.z * 0.011) * 2.2
         var h_knoll_r1 = lerp(normal_knoll_r1, p1.y, r_flatten1)
         var h_knoll_r2 = lerp(normal_knoll_r2, p2.y, r_flatten2)
-        var v_knoll_r1 = Vector3(p1.x + hw1 + 65.0, h_knoll_r1, p1.z)
-        var v_knoll_r2 = Vector3(p2.x + hw2 + 65.0, h_knoll_r2, p2.z)
+        var v_knoll_r1 = Vector3(p1.x + n1.x * (hw1 + 65.0), h_knoll_r1, p1.z + n1.z * (hw1 + 65.0))
+        var v_knoll_r2 = Vector3(p2.x + n2.x * (hw2 + 65.0), h_knoll_r2, p2.z + n2.z * (hw2 + 65.0))
         add_quad(terrain_tool, collision_faces, v_swale_r1, v_swale_r2, v_knoll_r2, v_knoll_r1, 0.55, 1.0, uv_y1, uv_y2)
         
         # Zone 3: Outer Foothills (65m to 165m) - Con piena collisione fisica per evitare cadute laterali nel vuoto
         var h_foot_l1 = p1.y + 6.0 + sin(p1.z * 0.016) * 6.5 + cos(p1.z * 0.006) * 3.5
         var h_foot_l2 = p2.y + 6.0 + sin(p2.z * 0.016) * 6.5 + cos(p2.z * 0.006) * 3.5
-        var v_foot_l1 = Vector3(p1.x - hw1 - 165.0, h_foot_l1, p1.z)
-        var v_foot_l2 = Vector3(p2.x - hw2 - 165.0, h_foot_l2, p2.z)
+        if sea_w1 > 0.0:
+            h_foot_l1 = lerp(h_foot_l1, 0.2, sea_w1)
+        if sea_w2 > 0.0:
+            h_foot_l2 = lerp(h_foot_l2, 0.2, sea_w2)
+            
+        var v_foot_l1 = Vector3(p1.x - n1.x * (hw1 + 165.0), h_foot_l1, p1.z - n1.z * (hw1 + 165.0))
+        var v_foot_l2 = Vector3(p2.x - n2.x * (hw2 + 165.0), h_foot_l2, p2.z - n2.z * (hw2 + 165.0))
         add_quad(terrain_tool, collision_faces, v_foot_l1, v_foot_l2, v_knoll_l2, v_knoll_l1, 0.0, 0.4, uv_y1, uv_y2)
         
         var h_foot_r1 = p1.y + 6.0 + sin(p1.z * 0.015 + 2.0) * 6.0 + cos(p1.z * 0.007) * 3.5
         var h_foot_r2 = p2.y + 6.0 + sin(p2.z * 0.015 + 2.0) * 6.0 + cos(p2.z * 0.007) * 3.5
-        var v_foot_r1 = Vector3(p1.x + hw1 + 165.0, h_foot_r1, p1.z)
-        var v_foot_r2 = Vector3(p2.x + hw2 + 165.0, h_foot_r2, p2.z)
+        var v_foot_r1 = Vector3(p1.x + n1.x * (hw1 + 165.0), h_foot_r1, p1.z + n1.z * (hw1 + 165.0))
+        var v_foot_r2 = Vector3(p2.x + n2.x * (hw2 + 165.0), h_foot_r2, p2.z + n2.z * (hw2 + 165.0))
         add_quad(terrain_tool, collision_faces, v_knoll_r1, v_knoll_r2, v_foot_r2, v_foot_r1, 0.6, 1.0, uv_y1, uv_y2)
         
         # Zone 4: Extended Horizon Foothills (165m to 280m)
         var h_rim_l1 = h_foot_l1 + 14.0 + sin(p1.z * 0.011) * 8.0
         var h_rim_l2 = h_foot_l2 + 14.0 + sin(p2.z * 0.011) * 8.0
-        var v_rim_l1 = Vector3(p1.x - hw1 - 280.0, h_rim_l1, p1.z)
-        var v_rim_l2 = Vector3(p2.x - hw2 - 280.0, h_rim_l2, p2.z)
+        if sea_w1 > 0.0:
+            h_rim_l1 = lerp(h_rim_l1, 0.1, sea_w1)
+        if sea_w2 > 0.0:
+            h_rim_l2 = lerp(h_rim_l2, 0.1, sea_w2)
+
+        var v_rim_l1 = Vector3(p1.x - n1.x * (hw1 + 280.0), h_rim_l1, p1.z - n1.z * (hw1 + 280.0))
+        var v_rim_l2 = Vector3(p2.x - n2.x * (hw2 + 280.0), h_rim_l2, p2.z - n2.z * (hw2 + 280.0))
         add_quad_mesh_only(terrain_tool, v_rim_l1, v_rim_l2, v_foot_l2, v_foot_l1, 0.0, 0.2, uv_y1, uv_y2)
         
         var h_rim_r1 = h_foot_r1 + 14.0 + sin(p1.z * 0.010 + 1.8) * 8.0
         var h_rim_r2 = h_foot_r2 + 14.0 + sin(p2.z * 0.010 + 1.8) * 8.0
-        var v_rim_r1 = Vector3(p1.x + hw1 + 280.0, h_rim_r1, p1.z)
-        var v_rim_r2 = Vector3(p2.x + hw2 + 280.0, h_rim_r2, p2.z)
+        var v_rim_r1 = Vector3(p1.x + n1.x * (hw1 + 280.0), h_rim_r1, p1.z + n1.z * (hw1 + 280.0))
+        var v_rim_r2 = Vector3(p2.x + n2.x * (hw2 + 280.0), h_rim_r2, p2.z + n2.z * (hw2 + 280.0))
         add_quad_mesh_only(terrain_tool, v_foot_r1, v_foot_r2, v_rim_r2, v_rim_r1, 0.8, 1.0, uv_y1, uv_y2)
 
     surface_tool.generate_normals()
@@ -1180,6 +1265,14 @@ func build_chunk_node(points: Array, start_z: float, chunk_road_mat: Material = 
     # 10. Incroci Stradali, Semafori Italiani & Delineatori di Curva a Chevron
     spawn_road_junctions_and_traffic_lights(root, points, start_z)
     
+    # 11. Pianura Agricola dei Poderi & Campagna Aperta (Fattorie, Campi, Mulino, Bivi, Laghi e Ruscelli)
+    if start_z >= 60.0 and start_z < 1380.0:
+        RuralPlainEnvironmentBuilder.spawn_plain_chunk_features(root, points, start_z)
+        
+    # 12. Tratto Costiero, Affacci sul Mare & Borgo Marina dei Pescatori (Z >= 7800m -> 12000m)
+    if start_z >= 7800.0:
+        CoastalEnvironmentBuilder.spawn_coastal_chunk_features(root, points, start_z, water_material)
+    
     return root
 
 func build_mountain_backdrop(root: Node3D, points: Array, start_z: float):
@@ -1209,11 +1302,13 @@ func build_mountain_backdrop(root: Node3D, points: Array, start_z: float):
                 root.add_child(mono)
     else:
         # --- PASSO ALPI / VALICO / ALTOPIANO: MAJESTIC FACETED ALPINE MASSIFS ---
-        # 1. Mid-distance Mountain Ridge Peaks (130m - 170m away)
+        # 1. Mid-distance Mountain Ridge Peaks
         var mid_samples = [int(num_pts * 0.2), int(num_pts * 0.5), int(num_pts * 0.8)]
         for idx in mid_samples:
             var p = points[idx]
-            for side in [-1.0, 1.0]:
+            var is_sea = get_sea_weight(p.z) > 0.0
+            var mid_sides = [1.0] if is_sea else [-1.0, 1.0]
+            for side in mid_sides:
                 var peak = MeshInstance3D.new()
                 var seed_v = p.z * 0.03 + side * 7.7
                 var pw = randf_range(90.0, 140.0)
@@ -1221,16 +1316,21 @@ func build_mountain_backdrop(root: Node3D, points: Array, start_z: float):
                 var ph = 52.0 + sin(p.z * 0.02 + side) * 16.0 + (32.0 if not is_golden else 16.0)
                 peak.mesh = create_organic_mountain_massif(pw, pd, ph, seed_v)
                 peak.material_override = mountain_material
-                var dist_x = side * (145.0 + sin(p.z * 0.015) * 25.0)
+                # Per la pianura agricola, arretra i massicci montuosi ad almeno 340m per lasciare spazio alla grande vallata aperta
+                var is_plain = p.z < 1380.0
+                var base_dist = 340.0 if is_plain else (280.0 if p.z < 180.0 else 145.0)
+                var dist_x = side * (base_dist + sin(p.z * 0.015) * 25.0)
                 peak.position = Vector3(p.x + dist_x, p.y, p.z)
                 peak.rotation.y = randf_range(0.0, TAU)
                 root.add_child(peak)
                 
-        # 2. Grand Alpine Summits (210m - 270m away, towering snow-capped peaks)
+        # 2. Grand Alpine Summits (towering snow-capped peaks)
         var far_samples = [int(num_pts * 0.3), int(num_pts * 0.7)]
         for idx in far_samples:
             var p = points[idx]
-            for side in [-1.0, 1.0]:
+            var is_sea_far = get_sea_weight(p.z) > 0.0
+            var far_sides = [1.0] if is_sea_far else [-1.0, 1.0]
+            for side in far_sides:
                 var summit = MeshInstance3D.new()
                 var seed_v = p.z * 0.02 + side * 19.3
                 var sw = randf_range(140.0, 200.0)
@@ -1238,10 +1338,13 @@ func build_mountain_backdrop(root: Node3D, points: Array, start_z: float):
                 var sh = 82.0 + cos(p.z * 0.012 + side * 2.0) * 28.0 + (42.0 if not is_golden else 20.0)
                 summit.mesh = create_organic_mountain_massif(sw, sd, sh, seed_v)
                 summit.material_override = mountain_material
-                var dist_far = side * (225.0 + cos(p.z * 0.01) * 35.0)
+                var is_plain = p.z < 1380.0
+                var base_far = 440.0 if is_plain else (380.0 if p.z < 180.0 else 225.0)
+                var dist_far = side * (base_far + cos(p.z * 0.01) * 35.0)
                 summit.position = Vector3(p.x + dist_far, p.y + 4.0, p.z)
                 summit.rotation.y = randf_range(0.0, TAU)
                 root.add_child(summit)
+
 
 func create_organic_mountain_massif(width: float, depth: float, height: float, seed_val: float) -> ArrayMesh:
     var st = SurfaceTool.new()
@@ -1359,6 +1462,11 @@ func add_tri_flat(st: SurfaceTool, p1: Vector3, p2: Vector3, p3: Vector3):
 
 func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
     var num_points = points.size()
+    var normals: Array = []
+    for k in range(num_points):
+        var ang = points[k].angle
+        normals.append(Vector3(cos(ang), 0.0, -sin(ang)))
+
     var b_info = get_biome_at(start_z)
     var b_type = b_info.get("type", BiomeGraph.BiomeType.ALPINE_MEADOWS)
     var is_gorge = b_type == BiomeGraph.BiomeType.ROCKY_GORGE
@@ -1370,8 +1478,9 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
     var is_bridge = b_info.get("has_bridge", false)
     var is_lake = b_info.get("has_lake", false)
     
-    # 1. Alpine Chalet / Baita (1 per chunk nestled in scenic pasture)
-    if not is_gorge and not is_village and not is_service and not is_bridge:
+    var is_plain = b_type == BiomeGraph.BiomeType.AGRICULTURAL_PLAIN or (start_z >= 60.0 and start_z < 1380.0)
+    # 1. Alpine Chalet / Baita (1 per chunk nestled in scenic pasture, starting outside town)
+    if not is_gorge and not is_plain and not is_village and not is_service and not is_bridge and start_z >= 120.0:
         var chalet_idx = int(num_points * 0.45)
         var cp = points[chalet_idx]
         # In lake chunks, ALWAYS place chalet on the uphill slope (c_side = 1.0) overlooking the lake, never in the water
@@ -1398,9 +1507,11 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
     # 2. Roadside Milestone / Altitude Pass Marker at start of chunk
     if start_z > 40.0 and (int(start_z) % 240 == 0):
         var p0 = points[0]
+        var n0 = normals[0]
         var p1 = points[min(2, num_points - 1)]
         var r_angle = atan2(p1.x - p0.x, p1.z - p0.z)
-        var sign_pos = Vector3(p0.x - p0.width * 0.5 - 3.2, p0.y + 0.1, p0.z)
+        # Posizionato lungo la normale della strada a +2.5m dal ciglio, senza mai invadere l'asfalto
+        var sign_pos = Vector3(p0.x - n0.x * (p0.width * 0.5 + 2.5), p0.y + 0.1, p0.z - n0.z * (p0.width * 0.5 + 2.5))
         var sign_text = b_info.get("name", "PASSO ALPINO")
         spawn_alpine_signpost(root, sign_pos, r_angle + PI, sign_text)
 
@@ -1408,9 +1519,10 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
     if start_z > 80.0 and (int(start_z) % 240 == 120) and not is_village and not is_bridge and not is_gorge:
         var mid_idx = int(num_points * 0.5)
         var p_mid = points[mid_idx]
+        var n_mid = normals[mid_idx]
         var p_mid_next = points[min(mid_idx + 1, num_points - 1)]
         var r_rot = atan2(p_mid_next.x - p_mid.x, p_mid_next.z - p_mid.z)
-        var sos_pos = Vector3(p_mid.x + p_mid.width * 0.5 + 1.25, p_mid.y, p_mid.z)
+        var sos_pos = Vector3(p_mid.x + n_mid.x * (p_mid.width * 0.5 + 1.8), p_mid.y, p_mid.z + n_mid.z * (p_mid.width * 0.5 + 1.8))
         var sos_pillar = create_sos_call_pillar(sos_pos, r_rot - PI * 0.5)
         root.add_child(sos_pillar)
 
@@ -1433,9 +1545,11 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
         var p_next = points[min(i + 1, num_points - 1)]
         var hw = p.width * 0.5
         var hw_next = p_next.width * 0.5
+        var n_curr = normals[i]
+        var n_next = normals[min(i + 1, num_points - 1)]
         
-        # Guide posts every 3 steps (~15m) - suppressed on bridge decks and service station entrance
-        if not is_bridge and i % 3 == 0:
+        # Guide posts every 3 steps (~15m) - suppressed in city center, on bridge decks and service station entrance
+        if not is_bridge and i % 3 == 0 and (p.z < -80.0 or p.z > 80.0):
             for side in [-1.0, 1.0]:
                 if is_service and side > 0.0:
                     continue
@@ -1444,7 +1558,7 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
                 cyl.top_radius = 0.05; cyl.bottom_radius = 0.06; cyl.height = 0.88
                 cyl.material = post_material
                 post.mesh = cyl
-                post.position = Vector3(p.x + side * (hw + 0.38), p.y + 0.44, p.z)
+                post.position = Vector3(p.x + n_curr.x * side * (hw + 0.50), p.y + 0.44, p.z + n_curr.z * side * (hw + 0.50))
                 
                 # Black diagonal band / cap
                 var cap = MeshInstance3D.new()
@@ -1476,7 +1590,7 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
         var is_curving = abs(p_next.x - p.x) > 0.065
         var need_barrier_both_sides = is_gorge or (start_z >= 1400.0 and start_z < 3000.0) or (abs(p.y) > 4.5 and is_curving)
         
-        if not is_bridge:
+        if not is_bridge and (p.z < -80.0 or p.z > 80.0):
             var wall_side = 1.0 if (p_next.x - p.x) >= 0.0 else -1.0
             var sides_to_protect = [-1.0, 1.0] if need_barrier_both_sides else [wall_side]
             
@@ -1494,30 +1608,35 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
                 var use_stone_wall = is_outer_curve and (b_info.get("has_village", false) or b_type == BiomeGraph.BiomeType.ALPINE_VILLAGE or b_type == BiomeGraph.BiomeType.GOLDEN_PLATEAU or b_type == BiomeGraph.BiomeType.TUSCAN_HILLS)
                 
                 if use_stone_wall and p.z > 50.0:
-                    var w_p1 = Vector3(p.x + b_side * (hw + 0.55), p.y, p.z)
-                    var w_p2 = Vector3(p_next.x + b_side * (hw_next + 0.55), p_next.y, p_next.z)
+                    var w_p1 = Vector3(p.x + n_curr.x * b_side * (hw + 0.65), p.y, p.z + n_curr.z * b_side * (hw + 0.65))
+                    var w_p2 = Vector3(p_next.x + n_next.x * b_side * (hw_next + 0.65), p_next.y, p_next.z + n_next.z * b_side * (hw_next + 0.65))
                     spawn_drystone_wall(root, w_p1, w_p2)
-                elif (is_curving or need_barrier_both_sides or (i % 8 >= 4 and p.z > 60.0)):
-                    # Guardrail Anas metallico continuo con profilo a doppia onda e catadiottri
+                elif (is_curving or need_barrier_both_sides or (abs(p.y) > 3.5 and p.z > 60.0)):
+                    # Guardrail Anas metallico continuo calcolato lungo la normale alla curva (senza interruzioni a scatti)
                     var rail = MeshInstance3D.new()
                     var box = BoxMesh.new()
-                    var seg_len = max(0.5, p_next.z - p.z)
-                    box.size = Vector3(0.12, 0.35, seg_len * 1.04)
+                    var p_curr_v = Vector3(p.x, p.y, p.z)
+                    var p_next_v = Vector3(p_next.x, p_next.y, p_next.z)
+                    var seg_vec = p_next_v - p_curr_v
+                    var seg_len = max(0.5, seg_vec.length())
+                    box.size = Vector3(0.12, 0.36, seg_len * 1.02)
                     box.material = guardrail_material
                     rail.mesh = box
                     
-                    var mid_x = lerp(p.x + b_side * (hw + 0.32), p_next.x + b_side * (hw_next + 0.32), 0.5)
-                    var mid_y = lerp(p.y, p_next.y, 0.5) + 0.52
-                    rail.position = Vector3(mid_x, mid_y, (p.z + p_next.z) * 0.5)
-                    rail.rotation.y = atan2(p_next.x - p.x, p_next.z - p.z)
+                    var mid_norm = (n_curr + n_next).normalized()
+                    var mid_hw = (hw + hw_next) * 0.5
+                    var mid_pt = (p_curr_v + p_next_v) * 0.5
+                    # Distanza di sicurezza realistica dal bordo strada (banchina di 80 cm libera)
+                    rail.position = mid_pt + mid_norm * b_side * (mid_hw + 0.82) + Vector3(0.0, 0.52, 0.0)
+                    rail.rotation.y = atan2(seg_vec.x, seg_vec.z)
                     
-                    # Montante IPE verticale di sostegno
+                    # Montante IPE verticale di sostegno arretrato
                     var post_inst = MeshInstance3D.new()
                     var p_cyl = CylinderMesh.new()
                     p_cyl.top_radius = 0.045; p_cyl.bottom_radius = 0.045; p_cyl.height = 0.72
                     p_cyl.material = guardrail_material
                     post_inst.mesh = p_cyl
-                    post_inst.position = Vector3(0.0, -0.22, 0.0)
+                    post_inst.position = Vector3(b_side * 0.05, -0.22, 0.0)
                     rail.add_child(post_inst)
                     
                     # Catadiottro Anas (rosso a destra, bianco a sinistra)
@@ -1529,19 +1648,25 @@ func spawn_scenic_props(root: Node3D, points: Array, start_z: float):
                     catad.position = Vector3(-b_side * 0.065, 0.0, 0.0)
                     rail.add_child(catad)
                     
-                    # Physical Solid Crash Barrier Collider
+                    # Physical Solid Crash Barrier Collider con fisica di scivolamento anti-incastro
                     var col_body = StaticBody3D.new()
                     var col_shape = CollisionShape3D.new()
                     var c_shape_box = BoxShape3D.new()
-                    c_shape_box.size = Vector3(0.35, 1.10, seg_len * 1.05)
+                    c_shape_box.size = Vector3(0.26, 0.88, seg_len * 1.02)
                     col_shape.shape = c_shape_box
                     col_body.add_child(col_shape)
-                    rail.add_child(col_body)
                     
+                    # Materiale fisico a basso attrito (Teflon/acciaio zincato) e zero rimbalzo per evitare incastri
+                    var barrier_phys = PhysicsMaterial.new()
+                    barrier_phys.friction = 0.04
+                    barrier_phys.bounce = 0.0
+                    col_body.physics_material_override = barrier_phys
+                    
+                    rail.add_child(col_body)
                     root.add_child(rail)
 
         # Multi-Tier Miniature Trees (Tiny Glade style)
-        if i % 5 == 0:
+        if i % 5 == 0 and (p.z < -80.0 or p.z > 80.0):
             for side in [-1.0, 1.0]:
                 if is_service and side > 0.0:
                     continue
@@ -3226,7 +3351,8 @@ func spawn_water_features(root: Node3D, points: Array, start_z: float):
     var mid_p = points[int(num_pts * 0.5)]
     
     # 6a. LAGO ALPINO (Passo delle Alpi, Z in [360, 600])
-    if start_z >= 360.0 and start_z < 600.0:
+    # Nella nuova geografia, il tratto Z in [80, 1380] ospita l'ampia pianura agricola con Ruscello Chiaro e Lago dei Salici gestiti da RuralPlainEnvironmentBuilder
+    if false and start_z >= 360.0 and start_z < 600.0:
         var min_road_y = 999.0
         var avg_road_x = 0.0
         for pt in points:
@@ -3506,8 +3632,8 @@ func spawn_villages(root: Node3D, points: Array, start_z: float):
     var num_pts = points.size()
     var mid_p = points[int(num_pts * 0.5)]
     
-    # 7a. BORGO SAN CRISTOFORO - Entrata e Corso (Z in [840, 960])
-    if start_z >= 840.0 and start_z < 960.0:
+    # 7a. BORGO SAN CRISTOFORO - Generato ora alla partenza (Z in [0, 80m]) da CityEnvironmentBuilder
+    if false and start_z >= 840.0 and start_z < 960.0:
         var village_group = Node3D.new()
         spawn_village_sidewalks(village_group, points)
         
@@ -4218,12 +4344,12 @@ func create_windmill(pos: Vector3) -> Node3D:
 # 8. STAZIONI DI SERVIZIO & AMENITÀ (Gas Station & Amenities)
 # =========================================================================
 func spawn_service_station(root: Node3D, points: Array, start_z: float):
-    if (start_z >= 660.0 and start_z < 780.0) or (start_z >= 3120.0 and start_z < 3240.0):
+    if (start_z >= 1380.0 and start_z < 1500.0) or (start_z >= 3120.0 and start_z < 3240.0):
         var num_pts = points.size()
         var mid_p = points[int(num_pts * 0.5)]
         var station = Node3D.new()
-        var is_alpine_pass = start_z < 1000.0
-        var station_name = "AGIP ALPI 1840M (PASSO DELLE ALPI)" if is_alpine_pass else "AUTOGRILL VALICO DEL MERIDIANO"
+        var is_alpine_pass = start_z < 2000.0
+        var station_name = "STAZIONE AGIP '93 - PIANURA DEI PODERI" if is_alpine_pass else "AUTOGRILL VALICO DEL MERIDIANO"
         var forecourt_x = mid_p.x + (mid_p.width * 0.5) + 10.0
         var forecourt_y = mid_p.y
         var forecourt_z = mid_p.z
@@ -4958,6 +5084,19 @@ func get_terrain_elevation(road_y: float, z: float, lateral_offset: float, _is_l
     var l_weight = get_lake_weight(z)
     var s_weight = get_service_flatten_weight(z)
     
+    # 0. Ampia Zona Pianeggiante dei Poderi & Campagna (Z in [60, 1380])
+    var is_plain = (z >= 60.0 and z < 1380.0)
+    if is_plain:
+        if abs_dist <= 75.0:
+            # Piattaforma perfettamente livellata per campi di grano, girasoli, cascine e bivi poderali
+            var drop = -0.05 * (abs_dist / 75.0)
+            return road_y + drop
+        else:
+            # Morbida salita verso le colline di contorno dell'orizzonte
+            var t_hill = clamp((abs_dist - 75.0) / 105.0, 0.0, 1.0)
+            var hill_height = 8.0 + sin(z * 0.015) * 4.0 + cos(z * 0.008) * 3.0
+            return road_y - 0.05 + t_hill * t_hill * hill_height
+            
     if abs_dist <= 18.0:
         var drop = lerp(-0.25, 0.0, s_weight)
         return road_y + (abs_dist / 18.0) * drop
@@ -5424,6 +5563,83 @@ func spawn_mossy_fallen_log(pos: Vector3, rot_y: float, length: float) -> Node3D
     
     return log_node
 
+func spawn_summit_pass_closure_barrier(root: Node3D, points: Array, start_z: float):
+    if start_z < 5400.0 or start_z >= 5520.0:
+        return
+    var num_pts = points.size()
+    var mid_p = points[int(num_pts * 0.5)]
+    var b_node = Node3D.new()
+    b_node.name = "SummitClosureBarrier"
+    
+    # 1. Barriere New Jersey pesanti in calcestruzzo a sbarramento carreggiata (anti-caduta nel vuoto)
+    for nj_i in range(5):
+        var nj_x = mid_p.x - 4.0 + float(nj_i) * 2.0
+        var nj_body = StaticBody3D.new()
+        var nj_mesh = MeshInstance3D.new()
+        var b_box = BoxMesh.new()
+        b_box.size = Vector3(1.85, 1.10, 0.65)
+        b_box.material = cobblestone_material
+        nj_mesh.mesh = b_box
+        nj_mesh.position = Vector3(nj_x, mid_p.y + 0.55, mid_p.z)
+        nj_body.add_child(nj_mesh)
+        
+        var c_shape = CollisionShape3D.new()
+        var b_shape = BoxShape3D.new()
+        b_shape.size = Vector3(1.90, 1.30, 0.80)
+        c_shape.shape = b_shape
+        c_shape.position = Vector3(nj_x, mid_p.y + 0.65, mid_p.z)
+        nj_body.add_child(c_shape)
+        b_node.add_child(nj_body)
+        
+    # 2. Trave orizzontale in legno e segnaletica bicolore rifrangente ANAS
+    var beam = MeshInstance3D.new()
+    var beam_box = BoxMesh.new()
+    beam_box.size = Vector3(mid_p.width + 1.2, 0.45, 0.15)
+    beam_box.material = danger_sign_red_material
+    beam.mesh = beam_box
+    beam.position = Vector3(mid_p.x, mid_p.y + 1.25, mid_p.z - 0.2)
+    b_node.add_child(beam)
+    
+    # Cartello di chiusura passo: "VALICO DEL DUCA - STRADA CHIUSA PER NEVE"
+    var sign_mesh = MeshInstance3D.new()
+    var s_box = BoxMesh.new()
+    s_box.size = Vector3(4.2, 0.85, 0.12)
+    s_box.material = danger_sign_white_material
+    sign_mesh.mesh = s_box
+    sign_mesh.position = Vector3(mid_p.x, mid_p.y + 2.1, mid_p.z - 0.2)
+    b_node.add_child(sign_mesh)
+    
+    # 3. Lampeggianti arancioni attivi per cantiere/chiusura passo
+    for lx in [-3.5, 3.5]:
+        var beacon = Node3D.new()
+        beacon.position = Vector3(mid_p.x + lx, mid_p.y + 1.7, mid_p.z - 0.2)
+        var light = OmniLight3D.new()
+        light.light_color = Color(1.0, 0.65, 0.10)
+        light.light_energy = 2.2
+        light.omni_range = 10.0
+        beacon.add_child(light)
+        b_node.add_child(beacon)
+        
+    # 4. Muri di contenimento neve e valanghe laterali
+    for side in [-1.0, 1.0]:
+        var snow_wall = StaticBody3D.new()
+        var sw_mesh = MeshInstance3D.new()
+        var sw_box = BoxMesh.new()
+        sw_box.size = Vector3(25.0, 3.5, 2.5)
+        sw_box.material = drystone_material
+        sw_mesh.mesh = sw_box
+        sw_mesh.position = Vector3(mid_p.x + side * (mid_p.width * 0.5 + 13.0), mid_p.y + 1.75, mid_p.z)
+        snow_wall.add_child(sw_mesh)
+        var sw_col = CollisionShape3D.new()
+        var sw_shape = BoxShape3D.new()
+        sw_shape.size = Vector3(25.0, 3.5, 2.5)
+        sw_col.shape = sw_shape
+        sw_col.position = sw_mesh.position
+        snow_wall.add_child(sw_col)
+        b_node.add_child(snow_wall)
+        
+    root.add_child(b_node)
+
 func spawn_road_potholes(root: Node3D, points: Array, start_z: float):
     if start_z < 100.0 or points.size() < 6: return
     
@@ -5492,9 +5708,11 @@ func spawn_road_patches_and_details(root: Node3D, points: Array, start_z: float)
     for i in range(1, points.size() - 1, step):
         var pt = points[i]
         var hw = pt.width * 0.5 + 0.65
+        var p_nx = cos(pt.angle)
+        var p_nz = -sin(pt.angle)
         for side in [-1.0, 1.0]:
             var delin = Node3D.new()
-            delin.position = Vector3(pt.x + side * hw, pt.y, pt.z)
+            delin.position = Vector3(pt.x + p_nx * side * hw, pt.y, pt.z + p_nz * side * hw)
             
             # Fusto cilindrico bianco
             var post = MeshInstance3D.new()
@@ -6189,6 +6407,9 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
         var rx = r.get("x", pos.x)
         var ry = r.get("y", pos.y)
         var hw = r.get("width", 7.4) * 0.5
+        var r_ang = r.get("angle", 0.0)
+        var n_x = cos(r_ang)
+        var n_z = -sin(r_ang)
         
         var x_road_rel = rx - pos.x
         var y_road_rel = ry - pos.y
@@ -6197,16 +6418,20 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
         var norm_z = clamp(z_rel / z_half, -1.0, 1.0)
         var flare = cos(norm_z * (PI * 0.5))
         
-        # Bordo interno: combacia esattamente con il ciglio della carreggiata curvilinea!
-        var x_inner = x_road_rel + dir_side * hw
-        # Bordo esterno: si allarga dolcemente verso la vallata/diramazione secondaria
-        var x_outer = x_road_rel + dir_side * (hw + flare * 9.2)
-        var y_outer = y_road_rel - 0.04 * flare
+        # Bordo interno: combacia con il ciglio esterno della banchina (mai all'interno dell'asfalto!)
+        var in_dist = (hw + 0.05) * dir_side
+        var out_dist = (hw + 0.05 + flare * 8.5) * dir_side
+        var x_inner = x_road_rel + n_x * in_dist
+        var z_inner = z_rel + n_z * in_dist
+        var x_outer = x_road_rel + n_x * out_dist
+        var z_outer = z_rel + n_z * out_dist
+        var y_outer = y_road_rel - 0.03 * flare
         
         sections.append({
-            "z": z_rel,
-            "y_in": y_road_rel + 0.015,
-            "y_out": y_outer + 0.015,
+            "z_in": z_inner,
+            "z_out": z_outer,
+            "y_in": y_road_rel - 0.005,
+            "y_out": y_outer - 0.005,
             "x_in": x_inner,
             "x_out": x_outer
         })
@@ -6216,10 +6441,10 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
         var s1 = sections[k]
         var s2 = sections[k + 1]
         
-        var v_in1 = Vector3(s1.x_in, s1.y_in, s1.z)
-        var v_out1 = Vector3(s1.x_out, s1.y_out, s1.z)
-        var v_in2 = Vector3(s2.x_in, s2.y_in, s2.z)
-        var v_out2 = Vector3(s2.x_out, s2.y_out, s2.z)
+        var v_in1 = Vector3(s1.x_in, s1.y_in, s1.z_in)
+        var v_out1 = Vector3(s1.x_out, s1.y_out, s1.z_out)
+        var v_in2 = Vector3(s2.x_in, s2.y_in, s2.z_in)
+        var v_out2 = Vector3(s2.x_out, s2.y_out, s2.z_out)
         
         if is_right_side:
             st.add_vertex(v_in1); st.add_vertex(v_out1); st.add_vertex(v_out2)
@@ -6251,11 +6476,10 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
         var s1 = sections[k]
         var s2 = sections[k + 1]
         
-        # Scarpata con pendenza dolce a 45 gradi e ancoraggio nel terreno
-        var v_top1 = Vector3(s1.x_out, s1.y_out, s1.z)
-        var v_bot1 = Vector3(s1.x_out + dir_side * 0.75, s1.y_out - 1.6, s1.z)
-        var v_top2 = Vector3(s2.x_out, s2.y_out, s2.z)
-        var v_bot2 = Vector3(s2.x_out + dir_side * 0.75, s2.y_out - 1.6, s2.z)
+        var v_top1 = Vector3(s1.x_out, s1.y_out, s1.z_out)
+        var v_bot1 = Vector3(s1.x_out + dir_side * 0.75, s1.y_out - 1.6, s1.z_out)
+        var v_top2 = Vector3(s2.x_out, s2.y_out, s2.z_out)
+        var v_bot2 = Vector3(s2.x_out + dir_side * 0.75, s2.y_out - 1.6, s2.z_out)
         
         if is_right_side:
             st_wall.add_vertex(v_top1); st_wall.add_vertex(v_bot1); st_wall.add_vertex(v_bot2)
@@ -6294,10 +6518,12 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
         
         var r1 = get_road_info_at(pos.z + z1)
         var r2 = get_road_info_at(pos.z + z2)
-        var stop_x1 = (r1.get("x", pos.x) - pos.x) + dir_side * 5.6
-        var stop_x2 = (r2.get("x", pos.x) - pos.x) + dir_side * 5.6
-        var y1 = (r1.get("y", pos.y) - pos.y) + 0.022
-        var y2 = (r2.get("y", pos.y) - pos.y) + 0.022
+        var r1_hw = r1.get("width", 7.4) * 0.5
+        var r2_hw = r2.get("width", 7.4) * 0.5
+        var stop_x1 = (r1.get("x", pos.x) - pos.x) + dir_side * (r1_hw + 1.2)
+        var stop_x2 = (r2.get("x", pos.x) - pos.x) + dir_side * (r2_hw + 1.2)
+        var y1 = (r1.get("y", pos.y) - pos.y) + 0.008
+        var y2 = (r2.get("y", pos.y) - pos.y) + 0.008
         
         var sv1 = Vector3(stop_x1 - dir_side * stop_w * 0.5, y1, z1)
         var sv2 = Vector3(stop_x1 + dir_side * stop_w * 0.5, y1, z1)
@@ -6317,11 +6543,16 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
     j_node.add_child(stop_line_inst)
     
     # --------------------------------------------------------------------------
-    # 4. CARTELLO DIREZIONALE ITALIANO STATALE SU PALO ANCORATO
+    # 4. CARTELLO DIREZIONALE ITALIANO STATALE SU PALO ANCORATO (Fuori dalla carreggiata)
     # --------------------------------------------------------------------------
     var pole_z = -7.5
     var r_pole = get_road_info_at(pos.z + pole_z)
-    var pole_x = (r_pole.get("x", pos.x) - pos.x) + dir_side * 5.8
+    var p_ang = r_pole.get("angle", 0.0)
+    var p_nx = cos(p_ang)
+    var p_nz = -sin(p_ang)
+    var p_dist = dir_side * (r_pole.get("width", 7.4) * 0.5 + 2.5)
+    var pole_x = (r_pole.get("x", pos.x) - pos.x) + p_nx * p_dist
+    var pole_z_real = pole_z + p_nz * p_dist
     var pole_yg = r_pole.get("y", pos.y) - pos.y
     
     var sign_pole = MeshInstance3D.new()
@@ -6329,7 +6560,7 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
     p_cyl.top_radius = 0.04; p_cyl.bottom_radius = 0.045; p_cyl.height = 3.6
     sign_pole.mesh = p_cyl
     sign_pole.material_override = curb_mat
-    sign_pole.position = Vector3(pole_x, pole_yg + 1.2, pole_z) # Base affonda di -0.6m
+    sign_pole.position = Vector3(pole_x, pole_yg + 1.2, pole_z_real)
     j_node.add_child(sign_pole)
     
     # Freccia Direzione Principale (Blu Statale ANAS)
@@ -6340,7 +6571,7 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
     f1_mat.albedo_color = Color(0.10, 0.28, 0.68)
     f1.mesh = fb1
     f1.material_override = f1_mat
-    f1.position = Vector3(pole_x, pole_yg + 2.7, pole_z)
+    f1.position = Vector3(pole_x, pole_yg + 2.7, pole_z_real)
     j_node.add_child(f1)
     
     # Freccia Ramo secondario (Marrone Turistica / Località montana)
@@ -6351,19 +6582,24 @@ func create_road_junction_prop(pos: Vector3, _rot_y: float, _dest_main: String, 
     f2_mat.albedo_color = Color(0.48, 0.28, 0.16)
     f2.mesh = fb2
     f2.material_override = f2_mat
-    f2.position = Vector3(pole_x, pole_yg + 2.25, pole_z)
+    f2.position = Vector3(pole_x, pole_yg + 2.25, pole_z_real)
     j_node.add_child(f2)
     
     # --------------------------------------------------------------------------
-    # 5. CARTELLO STOP OTTAGONALE SU PALO SUL RAMO SECONDARIO
+    # 5. CARTELLO STOP OTTAGONALE SU PALO SUL RAMO SECONDARIO (Ben arretrato)
     # --------------------------------------------------------------------------
     var stop_z = 3.0
     var r_stop = get_road_info_at(pos.z + stop_z)
-    var stop_px = (r_stop.get("x", pos.x) - pos.x) + dir_side * 7.2
+    var s_ang = r_stop.get("angle", 0.0)
+    var s_nx = cos(s_ang)
+    var s_nz = -sin(s_ang)
+    var s_dist = dir_side * (r_stop.get("width", 7.4) * 0.5 + 3.2)
+    var stop_px = (r_stop.get("x", pos.x) - pos.x) + s_nx * s_dist
+    var stop_z_real = stop_z + s_nz * s_dist
     var stop_yg = r_stop.get("y", pos.y) - pos.y
     
     var stop_group = Node3D.new()
-    stop_group.position = Vector3(stop_px, stop_yg, stop_z)
+    stop_group.position = Vector3(stop_px, stop_yg, stop_z_real)
     stop_group.rotation.y = dir_side * deg_to_rad(90.0)
     
     var stop_post = MeshInstance3D.new()
@@ -6637,8 +6873,8 @@ func create_olive_tree(pos: Vector3) -> Node3D:
     var flare = MeshInstance3D.new()
     var f_cyl = CylinderMesh.new()
     f_cyl.top_radius = 0.42; f_cyl.bottom_radius = 0.72; f_cyl.height = 0.60
-    f_cyl.material_override = olive_bark_material
     flare.mesh = f_cyl
+    flare.material_override = olive_bark_material
     flare.position.y = 0.10
     tree.add_child(flare)
     
@@ -6678,8 +6914,8 @@ func create_maritime_pine(pos: Vector3) -> Node3D:
     var flare = MeshInstance3D.new()
     var f_cyl = CylinderMesh.new()
     f_cyl.top_radius = 0.38; f_cyl.bottom_radius = 0.68; f_cyl.height = 0.80
-    f_cyl.material_override = maritime_pine_bark_material
     flare.mesh = f_cyl
+    flare.material_override = maritime_pine_bark_material
     flare.position.y = 0.20
     pine.add_child(flare)
     
@@ -6702,6 +6938,36 @@ func create_maritime_pine(pos: Vector3) -> Node3D:
     
     return pine
 
+func get_safe_roadside_point(target_z: float, side: float, clearance: float, pts: Array = []) -> Dictionary:
+    var info: Dictionary
+    var found_in_pts = false
+    if pts.size() > 0 and target_z >= pts[0].z and target_z <= pts[pts.size() - 1].z:
+        info = sample_chunk_road(pts, target_z)
+        found_in_pts = true
+    if not found_in_pts:
+        var r = get_road_info_at(target_z)
+        if r.get("found", false):
+            info = r
+        elif pts.size() > 0:
+            var p_clamp = pts[0] if target_z < pts[0].z else pts[pts.size() - 1]
+            info = { "x": p_clamp.x, "y": p_clamp.y, "width": p_clamp.width, "angle": p_clamp.angle }
+        else:
+            info = { "x": 0.0, "y": 0.0, "width": base_width, "angle": 0.0 }
+            
+    var rx: float = info.x
+    var ry: float = info.y
+    var rw: float = info.width
+    var r_ang: float = info.angle
+    
+    var t_dx = sin(r_ang)
+    var t_dz = cos(r_ang)
+    var n_x = t_dz
+    var n_z = -t_dx
+    
+    var dist = side * (rw * 0.5 + clearance)
+    var pos = Vector3(rx + n_x * dist, ry, target_z + n_z * dist)
+    return { "pos": pos, "angle": r_ang, "x": rx, "y": ry, "width": rw }
+
 func spawn_road_junctions_and_traffic_lights(root: Node3D, points: Array, start_z: float):
     var num_pts = points.size()
     var mid_p = points[int(num_pts * 0.5)]
@@ -6713,35 +6979,38 @@ func spawn_road_junctions_and_traffic_lights(root: Node3D, points: Array, start_
         var junction = create_road_junction_prop(j_pos, mid_p.angle, "PASSO DEL VALICO", "CASCINA SAN ROCCO", true)
         root.add_child(junction)
         
-        # Specchio parabolico stradale per incrocio cieco montano
-        var mirror_pos = Vector3(mid_p.x + mid_p.width * 0.5 + 2.2, mid_p.y, mid_p.z - 3.0)
-        var mirror = create_parabolic_mirror(mirror_pos, mid_p.angle + PI * 0.8)
+        # Specchio parabolico stradale per incrocio cieco montano (posizionato in banchina esterna)
+        var mirror_pt = get_safe_roadside_point(mid_p.z - 3.0, 1.0, 2.4, points)
+        var mirror = create_parabolic_mirror(mirror_pt.pos, mirror_pt.angle + PI * 0.8)
         root.add_child(mirror)
         
         # Semaforo a luce gialla lampeggiante d'attenzione per incrocio montano
-        var tl_pos = Vector3(mid_p.x + mid_p.width * 0.5 + 1.2, mid_p.y, mid_p.z - 6.0)
-        var tl = create_traffic_light(tl_pos, mid_p.angle, "amber_blink")
+        var tl_pt = get_safe_roadside_point(mid_p.z - 6.0, 1.0, 1.8, points)
+        var tl = create_traffic_light(tl_pt.pos, tl_pt.angle, "amber_blink")
         root.add_child(tl)
         
     # 2. Semaforo e Ingresso Storico Borgo San Cristoforo (Z in [840, 960])
     elif start_z >= 840.0 and start_z < 960.0:
-        # Cartello di pericolo strettoia / centro abitato 35m prima dell'arco
-        var danger_entry = create_italian_danger_sign(Vector3(p0.x + p0.width * 0.5 + 1.5, p0.y, p0.z - 25.0), p0.angle, "strettoia")
+        # Cartello di pericolo strettoia / centro abitato 25m prima dell'arco (in banchina sicura)
+        var d_pt = get_safe_roadside_point(p0.z - 25.0, 1.0, 2.2, points)
+        var danger_entry = create_italian_danger_sign(d_pt.pos, d_pt.angle, "strettoia")
         root.add_child(danger_entry)
         
         # Specchio parabolico per visibilità angolo cieco mura
-        var mirror_entry = create_parabolic_mirror(Vector3(p0.x - p0.width * 0.5 - 1.8, p0.y, p0.z + 2.0), p0.angle - PI * 0.25)
+        var m_pt = get_safe_roadside_point(p0.z + 2.0, -1.0, 2.2, points)
+        var mirror_entry = create_parabolic_mirror(m_pt.pos, m_pt.angle - PI * 0.25)
         root.add_child(mirror_entry)
         
         # Semaforo di regolazione all'ingresso del borgo
-        var tl_entry_pos = Vector3(p0.x + p0.width * 0.5 + 1.2, p0.y, p0.z + 4.0)
-        var tl_entry = create_traffic_light(tl_entry_pos, p0.angle, "green")
+        var tl_pt = get_safe_roadside_point(p0.z + 4.0, 1.0, 1.8, points)
+        var tl_entry = create_traffic_light(tl_pt.pos, tl_pt.angle, "green")
         root.add_child(tl_entry)
         
         # Strisce pedonali (Zebra crossing) all'ingresso del borgo
         var zebra_group = Node3D.new()
-        zebra_group.position = Vector3(p0.x, p0.y + 0.016, p0.z + 8.0)
-        zebra_group.rotation.y = p0.angle
+        var z_info = sample_chunk_road(points, p0.z + 8.0)
+        zebra_group.position = Vector3(z_info.x, z_info.y + 0.016, p0.z + 8.0)
+        zebra_group.rotation.y = z_info.angle
         var z_mat = StandardMaterial3D.new()
         z_mat.albedo_color = Color(0.96, 0.96, 0.98)
         for s in range(7):
@@ -6750,18 +7019,19 @@ func spawn_road_junctions_and_traffic_lights(root: Node3D, points: Array, start_
             sb.size = Vector3(0.55, 0.015, 2.6)
             stripe.mesh = sb
             stripe.material_override = z_mat
-            stripe.position = Vector3(-p0.width * 0.40 + float(s) * (p0.width * 0.80 / 6.0), 0.0, 0.0)
+            stripe.position = Vector3(-z_info.width * 0.40 + float(s) * (z_info.width * 0.80 / 6.0), 0.0, 0.0)
             zebra_group.add_child(stripe)
         root.add_child(zebra_group)
         
     # 3. Strettoia Forra dell'Appennino / Ponte dei Ciclopi (Z in [1400, 1520])
     elif start_z >= 1400.0 and start_z < 1520.0:
-        var tl_bridge_pos = Vector3(p0.x + p0.width * 0.5 + 1.2, p0.y, p0.z + 12.0)
-        var tl_bridge = create_traffic_light(tl_bridge_pos, p0.angle, "green")
+        var tl_pt = get_safe_roadside_point(p0.z + 12.0, 1.0, 1.8, points)
+        var tl_bridge = create_traffic_light(tl_pt.pos, tl_pt.angle, "green")
         root.add_child(tl_bridge)
         
-        # Cartello di pericolo ponte stretto
-        var danger_bridge = create_italian_danger_sign(Vector3(p0.x + p0.width * 0.5 + 1.6, p0.y, p0.z - 20.0), p0.angle, "strettoia")
+        # Cartello di pericolo ponte stretto sulla banchina a monte
+        var db_pt = get_safe_roadside_point(p0.z - 20.0, 1.0, 2.2, points)
+        var danger_bridge = create_italian_danger_sign(db_pt.pos, db_pt.angle, "strettoia")
         root.add_child(danger_bridge)
         
     # 4. Bivio Cava di Marmo & Forra Appennino (Z in [1680, 1800])
@@ -6770,11 +7040,12 @@ func spawn_road_junctions_and_traffic_lights(root: Node3D, points: Array, start_
         var junction = create_road_junction_prop(j_pos, mid_p.angle, "FORRA DEI CICLOPI", "CAVA DI MARMO", false)
         root.add_child(junction)
         
-        var mirror_pos = Vector3(mid_p.x - mid_p.width * 0.5 - 2.2, mid_p.y, mid_p.z - 2.5)
-        var mirror = create_parabolic_mirror(mirror_pos, mid_p.angle - PI * 0.82)
+        var m_pt = get_safe_roadside_point(mid_p.z - 2.5, -1.0, 2.4, points)
+        var mirror = create_parabolic_mirror(m_pt.pos, m_pt.angle - PI * 0.82)
         root.add_child(mirror)
         
-        var danger_junc = create_italian_danger_sign(Vector3(p0.x - p0.width * 0.5 - 1.5, p0.y, p0.z - 25.0), p0.angle, "incrocio")
+        var dj_pt = get_safe_roadside_point(p0.z - 25.0, -1.0, 2.2, points)
+        var danger_junc = create_italian_danger_sign(dj_pt.pos, dj_pt.angle, "incrocio")
         root.add_child(danger_junc)
         
     # 5. Bivio Valico del Duca & 14 Tornanti dei Larici (Z in [3360, 3480])
@@ -6783,11 +7054,12 @@ func spawn_road_junctions_and_traffic_lights(root: Node3D, points: Array, start_
         var junction = create_road_junction_prop(j_pos, mid_p.angle, "I 14 TORNANTI", "VALICO DEL DUCA", false)
         root.add_child(junction)
         
-        var mirror_pos = Vector3(mid_p.x - mid_p.width * 0.5 - 2.2, mid_p.y, mid_p.z - 2.5)
-        var mirror = create_parabolic_mirror(mirror_pos, mid_p.angle - PI * 0.82)
+        var m_pt = get_safe_roadside_point(mid_p.z - 2.5, -1.0, 2.4, points)
+        var mirror = create_parabolic_mirror(m_pt.pos, m_pt.angle - PI * 0.82)
         root.add_child(mirror)
         
-        var danger_junc = create_italian_danger_sign(Vector3(p0.x - p0.width * 0.5 - 1.5, p0.y, p0.z - 25.0), p0.angle, "incrocio")
+        var dj_pt = get_safe_roadside_point(p0.z - 25.0, -1.0, 2.2, points)
+        var danger_junc = create_italian_danger_sign(dj_pt.pos, dj_pt.angle, "incrocio")
         root.add_child(danger_junc)
         
     # 6. Bivio Tenuta Agricola e Podere San Pietro (Z in [5040, 5160])
@@ -6796,11 +7068,12 @@ func spawn_road_junctions_and_traffic_lights(root: Node3D, points: Array, start_
         var junction = create_road_junction_prop(j_pos, mid_p.angle, "BORGO ALTOPIANO", "PODERE SAN PIETRO", true)
         root.add_child(junction)
         
-        var mirror_pos = Vector3(mid_p.x + mid_p.width * 0.5 + 2.2, mid_p.y, mid_p.z - 2.5)
-        var mirror = create_parabolic_mirror(mirror_pos, mid_p.angle + PI * 0.80)
+        var m_pt = get_safe_roadside_point(mid_p.z - 2.5, 1.0, 2.4, points)
+        var mirror = create_parabolic_mirror(m_pt.pos, m_pt.angle + PI * 0.80)
         root.add_child(mirror)
         
-        var danger_junc = create_italian_danger_sign(Vector3(p0.x + p0.width * 0.5 + 1.5, p0.y, p0.z - 25.0), p0.angle, "incrocio")
+        var dj_pt = get_safe_roadside_point(p0.z - 25.0, 1.0, 2.2, points)
+        var danger_junc = create_italian_danger_sign(dj_pt.pos, dj_pt.angle, "incrocio")
         root.add_child(danger_junc)
         
     # 4. Curve a gomito e tornanti: Delineatori modulari a Chevron & Cartelli Curva Pericolosa (Anti-Punti Ciechi)
@@ -6809,21 +7082,20 @@ func spawn_road_junctions_and_traffic_lights(root: Node3D, points: Array, start_
     if abs(angle_diff) > 0.08 and start_z > 80.0:
         var is_right = angle_diff > 0.0
         var outer_side = -1.0 if is_right else 1.0 # Delineatore sul lato esterno della curva
-        var ch_info = sample_chunk_road(points, mid_p.z)
-        var ch_pos = Vector3(ch_info.x + outer_side * (ch_info.width * 0.5 + 1.6), ch_info.y, mid_p.z)
-        var chevrons = create_chevron_curve_sign(ch_pos, ch_info.angle, 3, is_right)
+        var ch_pt = get_safe_roadside_point(mid_p.z, outer_side, 2.2, points)
+        var chevrons = create_chevron_curve_sign(ch_pt.pos, ch_pt.angle, 3, is_right)
         root.add_child(chevrons)
         
         # Cartello triangolare di pericolo prima della curva cieca per visibilità preventiva
-        var danger_sign_pos = Vector3(p0.x + (ch_info.width * 0.5 + 1.5), p0.y, p0.z - 15.0)
-        var d_sign = create_italian_danger_sign(danger_sign_pos, p0.angle, "curva_destra" if is_right else "curva_sinistra")
+        var ds_pt = get_safe_roadside_point(p0.z - 15.0, 1.0, 2.2, points)
+        var d_sign = create_italian_danger_sign(ds_pt.pos, ds_pt.angle, "curva_destra" if is_right else "curva_sinistra")
         root.add_child(d_sign)
         
     # 5. Dossi e cambi di pendenza ripidi: Segnale pericolo Dosso per eliminare punti ciechi verticali
     var elev_change = p_last.y - p0.y
     if abs(elev_change) > 1.8 and start_z > 120.0 and int(start_z) % 240 == 0:
-        var dosso_pos = Vector3(p0.x + (p0.width * 0.5 + 1.5), p0.y, p0.z - 20.0)
-        var dosso_sign = create_italian_danger_sign(dosso_pos, p0.angle, "dosso")
+        var dosso_pt = get_safe_roadside_point(p0.z - 20.0, 1.0, 2.2, points)
+        var dosso_sign = create_italian_danger_sign(dosso_pt.pos, dosso_pt.angle, "dosso")
         root.add_child(dosso_sign)
         
     # 6. Vegetazione Mediterranea Iconica (Ulivi e Pini Marittimi nelle zone collinari/rurali)

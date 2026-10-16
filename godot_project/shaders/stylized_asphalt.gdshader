@@ -75,16 +75,8 @@ void fragment() {
     rough = mix(rough, is_wet_gorge ? 0.22 : 0.68, rut_mask * 0.35);
     spec = mix(spec, is_wet_gorge ? 0.70 : 0.22, rut_mask * 0.30);
     
-    // 3. Sigillature fessure con bitume liquido (Tar Snakes tipiche alpine)
-    if (!is_wet_gorge) {
-        float tar_n = abs(noise2D(world_pos.xz * 0.75 + vec2(4.1, 8.7)) - 0.5);
-        float tar_snake = smoothstep(0.012, 0.003, tar_n) * smoothstep(0.10, 0.25, u) * smoothstep(0.90, 0.75, u);
-        if (tar_snake > 0.05) {
-            col = mix(col, tar_snake_color.rgb, tar_snake * 0.85);
-            rough = mix(rough, 0.32, tar_snake);
-            spec = mix(spec, 0.45, tar_snake);
-        }
-    }
+    // 3. Bituminous fine aggregate texture (subtle matte micro-variation, no shiny loops)
+    col += vec3((micro_grain - 0.05) * 0.08);
     
     // 4. Strisce continue laterali bianche (Segnaletica orizzontale Anas)
     // u = 0.122 e u = 0.878 corrispondono esattamente alle linee di corsia

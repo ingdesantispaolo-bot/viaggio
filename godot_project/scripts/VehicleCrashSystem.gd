@@ -220,9 +220,80 @@ static func apply_structural_deformation(vehicle_node: Node3D, contact_point_glo
 				
 		# Additional dent deformation on meshes
 		if p is MeshInstance3D and dist_to_contact < (0.95 + crush_depth):
-			# Compress mesh local dimensions slightly in direction of impact
 			var dent_dir = (local_contact - p_pos).normalized()
 			p.position += dent_dir * (part_crush * 0.35)
+
+	# B. PROCEDURAL SOFT-BODY VERTEX DEFORMATION (Real sheet metal crumple & denting)
+	var deform_radius = 1.25 + crush_depth * 1.6
+	apply_mesh_deformation_recursive(model_root, local_contact, local_normal, deform_radius, crush_depth)
+
+# --- 2b. RECURSIVE MESH VERTEX CRUMPLE ZONE DEFORMATION ---
+static func apply_mesh_deformation_recursive(node: Node, vehicle_local_contact: Vector3, vehicle_local_normal: Vector3, max_radius: float, crush_depth: float):
+	if node is MeshInstance3D:
+		deform_mesh_node_vertices(node, vehicle_local_contact, vehicle_local_normal, max_radius, crush_depth)
+	for child in node.get_children():
+		apply_mesh_deformation_recursive(child, vehicle_local_contact, vehicle_local_normal, max_radius, crush_depth)
+
+static func deform_mesh_node_vertices(mi: MeshInstance3D, vehicle_local_contact: Vector3, vehicle_local_normal: Vector3, max_radius: float, crush_depth: float):
+	if mi == null or mi.mesh == null:
+		return
+	var mi_name = mi.name.to_lower()
+	# Don't deform mechanical wheels or glass directly with dent noise
+	if "wheel" in mi_name or "rim" in mi_name or "tire" in mi_name:
+		return
+		
+	var orig_mesh = mi.mesh
+	var array_mesh: ArrayMesh = null
+	
+	if orig_mesh is ArrayMesh:
+		array_mesh = orig_mesh
+	elif orig_mesh is PrimitiveMesh:
+		var st = SurfaceTool.new()
+		st.create_from(orig_mesh, 0)
+		array_mesh = st.commit()
+		mi.mesh = array_mesh
+		
+	if array_mesh == null:
+		return
+		
+	if not mi.has_meta("is_deformed_copy"):
+		array_mesh = array_mesh.duplicate()
+		mi.mesh = array_mesh
+		mi.set_meta("is_deformed_copy", true)
+		
+	var mi_inv = mi.transform.affine_inverse()
+	var mesh_local_contact = mi_inv * vehicle_local_contact
+	var mesh_local_dir = (mi_inv.basis * vehicle_local_normal).normalized()
+	
+	var surf_count = array_mesh.get_surface_count()
+	for s in range(surf_count):
+		var arrays = array_mesh.surface_get_arrays(s)
+		if arrays.is_empty(): continue
+		var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		if verts.is_empty(): continue
+		var changed = false
+		
+		for vi in range(verts.size()):
+			var v = verts[vi]
+			var dist = v.distance_to(mesh_local_contact)
+			if dist < max_radius:
+				var falloff = 1.0 - (dist / max_radius)
+				var d_amount = falloff * falloff * crush_depth
+				var wrinkle = 1.0 + sin(v.x * 24.0 + v.z * 18.0) * 0.22
+				verts[vi] += mesh_local_dir * (d_amount * wrinkle)
+				changed = true
+				
+		if changed:
+			arrays[Mesh.ARRAY_VERTEX] = verts
+			var mat = array_mesh.surface_get_material(s)
+			if mat == null: mat = mi.material_override
+			var st = SurfaceTool.new()
+			st.create_from_arrays(arrays)
+			st.generate_normals()
+			var new_mesh = st.commit()
+			mi.mesh = new_mesh
+			if mat != null:
+				mi.material_override = mat
 
 static func find_vehicle_model_root(vehicle_node: Node3D) -> Node3D:
 	if vehicle_node == null: return null

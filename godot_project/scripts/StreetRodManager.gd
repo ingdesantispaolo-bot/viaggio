@@ -515,8 +515,45 @@ var contracts = [
 		"unlocked_car": "delta_integrale",
 		"completed": false,
 		"active": false
+	},
+	{
+		"id": "tour_costiera",
+		"title": "🌊 LA COSTIERA DELLE SIRENE & IL FARO",
+		"client": "Capitan Corrado - Vecchio Lupo di Mare",
+		"destination": "Belvedere delle Sirene & Faro (Z = 8700m)",
+		"target_dist_m": 8700.0,
+		"lore": "Scendi dal massiccio montuoso e raggiungi il primo incantevole affaccio sul mare blu cobalto e la lanterna del Faro della Scogliera.",
+		"reward_lire": 3200000,
+		"reward_rep": 250,
+		"completed": false,
+		"active": false
+	},
+	{
+		"id": "tour_borgo_marina",
+		"title": "⛵ BORGO MARINA & LA CALATA DEI PESCATORI",
+		"client": "Osteria del Porto di Borgo Marina",
+		"destination": "Banchina dei Gozzi - Borgo Marina (Z = 10200m)",
+		"target_dist_m": 10200.0,
+		"lore": "Attraversa il borgo marinaro dai tetti in coppi e facciate pastello, costeggiando le barche in legno ormeggiate in banchina e la Pieve sul mare.",
+		"reward_lire": 3800000,
+		"reward_rep": 300,
+		"completed": false,
+		"active": false
+	},
+	{
+		"id": "grand_tour_circuito",
+		"title": "🏁 IL GRANDE CIRCUITO DEL MERIDIANO (12.0 KM)",
+		"client": "Automobile Club d'Italia & Officina Paolo",
+		"destination": "Porta Marina - Rientro Trionfale a San Cristoforo (Z = 12000m)",
+		"target_dist_m": 11950.0,
+		"lore": "Chiudi il cerchio! Rientra a San Cristoforo attraverso il Viale degli Oleandri e la monumentale Porta Marina per completare l'anello leggendario di 12 chilometri.",
+		"reward_lire": 7500000,
+		"reward_rep": 600,
+		"completed": false,
+		"active": false
 	}
 ]
+
 
 # Workshop Available Upgrades
 var tuning_catalog = {
@@ -1025,21 +1062,74 @@ func complete_contract(contract: Dictionary):
 	broadcast_career()
 	save_career()
 
+var circuit_laps_completed: int = 0
+
+func register_circuit_lap_completed():
+	circuit_laps_completed += 1
+	var prize_lire = 1500000
+	var rep_bonus = 80
+	cash_lire += prize_lire
+	reputation += rep_bonus
+	if player_profile.has("stats"):
+		player_profile["stats"]["circuits_completed"] = circuit_laps_completed
+	play_sfx("fanfare")
+	post_notification(
+		"GIRO CIRCUITO COMPLETATO! 🏁",
+		"Hai chiuso il cerchio di 12.0 km!\n+L. %s | +%d Rispetto (Giro %d)" % [
+			format_lire(prize_lire),
+			rep_bonus,
+			circuit_laps_completed
+		],
+		"🏁",
+		"fanfare"
+	)
+	broadcast_career()
+	save_career()
+
 # ==============================================================================
 # DRAG RACING & RIVAL CHALLENGES
 # ==============================================================================
-func challenge_rival(rival_id: String, is_pink_slip: bool = false) -> Dictionary:
+func can_challenge_rival(rival_id: String, is_pink_slip: bool = false) -> Dictionary:
 	if not rivals.has(rival_id):
-		return {"success": false, "reason": "Rivale inesistente"}
+		return {"can_race": false, "reason": "Rivale inesistente."}
 	var r = rivals[rival_id]
-	if reputation < r.rep_required:
-		return {"success": false, "reason": "Rispetto insufficiente (richiesti %d pt)" % r.rep_required}
-	var bet = r.bet_lire if not is_pink_slip else 0
+	if reputation < r.get("rep_required", 0):
+		return {
+			"can_race": false,
+			"reason": "Rispetto insufficiente per sfidare %s! Richiesti %d pt (ne possiedi %d)." % [r.name, r.rep_required, reputation]
+		}
+	var bet = r.get("bet_lire", 0) if not is_pink_slip else 0
 	if not is_pink_slip and cash_lire < bet:
-		return {"success": false, "reason": "Non hai abbastanza Lire per coprire la scommessa!"}
-		
+		return {
+			"can_race": false,
+			"reason": "Fondi insufficienti per la scommessa di L. %s! Possiedi solo L. %s." % [format_lire(bet), format_lire(cash_lire)]
+		}
+	if is_pink_slip and garage.size() < 2:
+		return {
+			"can_race": false,
+			"reason": "Regola Libretto: non puoi scommettere il libretto della tua unica auto! Acquista o trova un'altra vettura prima di rischiare il sequestro."
+		}
+	var car = get_active_car()
+	if car.is_empty():
+		return {
+			"can_race": false,
+			"reason": "Nessuna vettura selezionata nel garage!"
+		}
+	var eng_health = car.get("engine_health", 1.0)
+	if eng_health < 0.20:
+		return {
+			"can_race": false,
+			"reason": "Motore in avaria critica (salute %d%%)! Esegui un tagliando in Officina prima di poter gareggiare." % int(eng_health * 100.0)
+		}
+	var tire_health = car.get("tire_health", 1.0)
+	if tire_health < 0.15:
+		return {
+			"can_race": false,
+			"reason": "Pneumatici usurati oltre il limite di sicurezza (%d%%)! Monta gomme nuove in Officina." % int(tire_health * 100.0)
+		}
 	return {
-		"success": true,
+		"can_race": true,
+		"reason": "",
 		"rival_id": rival_id,
 		"rival_name": r.name,
 		"rival_car": r.car_name,
@@ -1048,10 +1138,25 @@ func challenge_rival(rival_id: String, is_pink_slip: bool = false) -> Dictionary
 		"target_time": r.drag_time_target
 	}
 
-func resolve_drag_race(rival_id: String, player_time: float, is_pink_slip: bool = false) -> Dictionary:
+func challenge_rival(rival_id: String, is_pink_slip: bool = false) -> Dictionary:
+	var check = can_challenge_rival(rival_id, is_pink_slip)
+	if not check.can_race:
+		return {"success": false, "reason": check.reason}
 	var r = rivals[rival_id]
-	var rival_time = r.drag_time_target + randf_range(-0.4, 0.5)
-	var player_won = player_time < rival_time
+	return {
+		"success": true,
+		"rival_id": rival_id,
+		"rival_name": r.name,
+		"rival_car": r.car_name,
+		"bet_lire": r.get("bet_lire", 0) if not is_pink_slip else 0,
+		"is_pink_slip": is_pink_slip,
+		"target_time": r.drag_time_target
+	}
+
+func resolve_drag_race(rival_id: String, player_time: float, is_pink_slip: bool = false, override_won: Variant = null, override_rival_time: float = -1.0) -> Dictionary:
+	var r = rivals[rival_id]
+	var rival_time = override_rival_time if override_rival_time > 0.0 else (r.drag_time_target + randf_range(-0.4, 0.5))
+	var player_won = bool(override_won) if override_won != null else (player_time < rival_time)
 	
 	if player_won:
 		if is_pink_slip:
@@ -1089,6 +1194,17 @@ func resolve_drag_race(rival_id: String, player_time: float, is_pink_slip: bool 
 			post_notification("SCONFITTA AL RETTIFILO", "%s ti ha staccato! Tempo: %.2fs vs %.2fs (-L. %s)" % [
 				r.name, player_time, rival_time, format_lire(r.bet_lire)
 			], "💨", "error")
+		else:
+			# Lost car at pink slips!
+			var lost_car_name = "la tua auto"
+			if garage.size() >= 2:
+				var lost_car = garage[current_car_idx]
+				lost_car_name = lost_car.get("name", "vettura")
+				garage.remove_at(current_car_idx)
+				current_car_idx = 0
+			reputation = max(10, reputation - 50)
+			play_sfx("error")
+			post_notification("LIBRETTO PERSO!", "%s ha vinto la sfida! Hai ceduto %s." % [r.name, lost_car_name], "❌", "error")
 			
 	broadcast_career()
 	save_career()

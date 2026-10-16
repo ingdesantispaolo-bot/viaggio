@@ -281,6 +281,26 @@ func build_result_card():
 # RACE INITIALIZATION & 3D STAGING
 # ==============================================================================
 func start_drag_race(r_id: String, pink_slip: bool = false, src_tab: int = 3):
+	# 1. Resolve node references first
+	if not road_generator and get_parent() and get_parent().has_node("RoadGenerator"):
+		road_generator = get_parent().get_node("RoadGenerator")
+	if not player_vehicle and get_parent() and get_parent().has_node("Vehicle"):
+		player_vehicle = get_parent().get_node("Vehicle")
+	if not street_rod_manager and get_parent() and get_parent().has_node("StreetRodManager"):
+		street_rod_manager = get_parent().get_node("StreetRodManager")
+	if not camera_controller and get_parent() and get_parent().has_node("CameraController"):
+		camera_controller = get_parent().get_node("CameraController")
+
+	# 2. Strict Pre-Race Rule Validation: se le regole non sono soddisfatte, NON far partire la gara!
+	if street_rod_manager and street_rod_manager.has_method("can_challenge_rival"):
+		var check = street_rod_manager.can_challenge_rival(r_id, pink_slip)
+		if not check.can_race:
+			print("[RaceDirector] GARA BLOCCATA: ", check.reason)
+			if street_rod_manager.has_method("post_notification"):
+				street_rod_manager.post_notification("GARA NON CONSENTITA", check.reason, "⚠️", "error")
+			return_to_race_menu()
+			return
+
 	rival_id = r_id
 	is_pink_slip = pink_slip
 	race_source_tab = src_tab
@@ -303,16 +323,6 @@ func start_drag_race(r_id: String, pink_slip: bool = false, src_tab: int = 3):
 		"bepi": rival_reaction_delay = 0.36
 		"chiara": rival_reaction_delay = 0.20
 		_: rival_reaction_delay = 0.28
-		
-	# 1. Resolve node references
-	if not road_generator and get_parent() and get_parent().has_node("RoadGenerator"):
-		road_generator = get_parent().get_node("RoadGenerator")
-	if not player_vehicle and get_parent() and get_parent().has_node("Vehicle"):
-		player_vehicle = get_parent().get_node("Vehicle")
-	if not street_rod_manager and get_parent() and get_parent().has_node("StreetRodManager"):
-		street_rod_manager = get_parent().get_node("StreetRodManager")
-	if not camera_controller and get_parent() and get_parent().has_node("CameraController"):
-		camera_controller = get_parent().get_node("CameraController")
 		
 	# 1a. Preserve pre-race exploration state (la gara e' una cosa a parte!)
 	if player_vehicle and not has_pre_race_state:
@@ -353,6 +363,13 @@ func start_drag_race(r_id: String, pink_slip: bool = false, src_tab: int = 3):
 		PhysicsServer3D.body_set_state(player_vehicle.get_rid(), PhysicsServer3D.BODY_STATE_LINEAR_VELOCITY, Vector3.ZERO)
 		PhysicsServer3D.body_set_state(player_vehicle.get_rid(), PhysicsServer3D.BODY_STATE_ANGULAR_VELOCITY, Vector3.ZERO)
 		player_vehicle.current_speed_kmh = 0.0
+		# Turn engine ON and ready in 1st gear
+		player_vehicle.is_engine_running = true
+		if player_vehicle.has_method("set_engine_running"):
+			player_vehicle.set_engine_running(true)
+		player_vehicle.current_gear = 1
+		player_vehicle.is_reversing = false
+		player_vehicle.engine_rpm = 2500.0
 		# Lock player throttle and apply brake until green
 		player_vehicle.ai_handbrake = true
 		player_vehicle.is_ai_controlled = true
@@ -425,6 +442,13 @@ func setup_rival_vehicle(start_z: float, r_info: Dictionary):
 	PhysicsServer3D.body_set_state(rival_vehicle.get_rid(), PhysicsServer3D.BODY_STATE_LINEAR_VELOCITY, Vector3.ZERO)
 	PhysicsServer3D.body_set_state(rival_vehicle.get_rid(), PhysicsServer3D.BODY_STATE_ANGULAR_VELOCITY, Vector3.ZERO)
 	rival_vehicle.current_speed_kmh = 0.0
+	# Turn rival engine ON and ready in 1st gear
+	rival_vehicle.is_engine_running = true
+	if rival_vehicle.has_method("set_engine_running"):
+		rival_vehicle.set_engine_running(true)
+	rival_vehicle.current_gear = 1
+	rival_vehicle.is_reversing = false
+	rival_vehicle.engine_rpm = 2500.0
 	rival_vehicle.ai_throttle = 0.0
 	rival_vehicle.ai_brake = 1.0
 	rival_vehicle.ai_handbrake = true
@@ -677,47 +701,55 @@ func update_countdown(delta: float):
 	# Stage 0: Staging (0.0s - 1.0s)
 	if countdown_timer < 1.0:
 		set_tree_light(0, true)
-		hud_countdown_label.text = "🟡 STAGING..."
-		hud_countdown_label.add_theme_color_override("font_color", Color(1.0, 0.80, 0.20))
+		if hud_countdown_label:
+			hud_countdown_label.text = "🟡 STAGING..."
+			hud_countdown_label.add_theme_color_override("font_color", Color(1.0, 0.80, 0.20))
 	# Stage 1: Amber 1 (1.0s)
 	elif countdown_timer >= 1.0 and countdown_timer < 2.0:
-		if not tree_lights_mesh[1].mesh.material.emission_enabled:
+		if tree_lights_mesh.size() > 1 and not tree_lights_mesh[1].mesh.material.emission_enabled:
 			set_tree_light(1, true)
-			countdown_beep_player.play()
-		hud_countdown_label.text = "🟡 3"
+			if countdown_beep_player: countdown_beep_player.play()
+		if hud_countdown_label: hud_countdown_label.text = "🟡 3"
 	# Stage 2: Amber 2 (2.0s)
 	elif countdown_timer >= 2.0 and countdown_timer < 3.0:
-		if not tree_lights_mesh[2].mesh.material.emission_enabled:
+		if tree_lights_mesh.size() > 2 and not tree_lights_mesh[2].mesh.material.emission_enabled:
 			set_tree_light(2, true)
-			countdown_beep_player.play()
-		hud_countdown_label.text = "🟡 2"
+			if countdown_beep_player: countdown_beep_player.play()
+		if hud_countdown_label: hud_countdown_label.text = "🟡 2"
 	# Stage 3: Amber 3 (3.0s)
 	elif countdown_timer >= 3.0 and countdown_timer < 4.0:
-		hud_countdown_label.text = "🟡 1"
+		if hud_countdown_label: hud_countdown_label.text = "🟡 1"
 	# Stage 4: GREEN LIGHT! (4.0s) -> LAUNCH!
 	elif countdown_timer >= 4.0:
 		set_tree_light(3, true)
-		go_chime_player.play()
-		hud_countdown_label.text = "🟢 VIA! VIA! VIA!"
-		hud_countdown_label.add_theme_color_override("font_color", Color(0.20, 1.0, 0.35))
+		if go_chime_player: go_chime_player.play()
+		if hud_countdown_label:
+			hud_countdown_label.text = "🟢 VIA! VIA! VIA!"
+			hud_countdown_label.add_theme_color_override("font_color", Color(0.20, 1.0, 0.35))
 		
 		# Hand off control to player
 		if player_vehicle:
+			player_vehicle.is_engine_running = true
+			if player_vehicle.has_method("set_engine_running"):
+				player_vehicle.set_engine_running(true)
 			player_vehicle.is_ai_controlled = false
 			player_vehicle.ai_handbrake = false
 			player_vehicle.ai_brake = 0.0
+			player_vehicle.current_gear = 1
+			player_vehicle.is_reversing = false
 			
 		current_state = RaceState.RACING
 		race_time_elapsed = 0.0
 		
 		# Fade out countdown text after 1.2s
-		get_tree().create_timer(1.2).timeout.connect(func():
-			if current_state == RaceState.RACING:
-				hud_countdown_label.visible = false
-		)
+		if get_tree() and hud_countdown_label:
+			get_tree().create_timer(1.2).timeout.connect(func():
+				if current_state == RaceState.RACING and hud_countdown_label:
+					hud_countdown_label.visible = false
+			)
 
 func set_tree_light(idx: int, is_on: bool):
-	if idx >= tree_lights_mesh.size(): return
+	if idx >= tree_lights_mesh.size() or idx >= tree_omni_lights.size(): return
 	var lamp = tree_lights_mesh[idx]
 	var omni = tree_omni_lights[idx]
 	var mat = lamp.mesh.material as StandardMaterial3D
@@ -741,19 +773,27 @@ func update_race(delta: float):
 	if not rival_launched and race_time_elapsed >= rival_reaction_delay:
 		rival_launched = true
 		if rival_vehicle:
+			rival_vehicle.is_engine_running = true
+			if rival_vehicle.has_method("set_engine_running"):
+				rival_vehicle.set_engine_running(true)
 			rival_vehicle.ai_handbrake = false
 			rival_vehicle.ai_brake = 0.0
 			rival_vehicle.ai_throttle = 1.0
+			rival_vehicle.current_gear = 1
+			rival_vehicle.is_reversing = false
 			
 	if rival_vehicle and rival_launched:
+		rival_vehicle.is_engine_running = true
+		rival_vehicle.ai_handbrake = false
+		rival_vehicle.ai_brake = 0.0
+		rival_vehicle.ai_throttle = 1.0
 		# Drive rival straight along Lane 2 (+1.95m from road center)
 		var r_z = rival_vehicle.global_position.z
 		var r_info = road_generator.get_road_info_at(r_z) if road_generator else { "x": 0.0 }
 		var target_x = r_info.x + 1.95
 		var cur_x = rival_vehicle.global_position.x
 		var x_err = target_x - cur_x
-		rival_vehicle.ai_steer = clamp(x_err * 0.45, -0.25, 0.25)
-		rival_vehicle.ai_throttle = 1.0
+		rival_vehicle.ai_steer = clamp(x_err * 0.35, -0.20, 0.20)
 		
 	# 2. Update Live Racing HUD
 	var p_z = player_vehicle.global_position.z if player_vehicle else 0.0
@@ -765,63 +805,92 @@ func update_race(delta: float):
 	if street_rod_manager and street_rod_manager.rivals.has(rival_id):
 		riv_name = street_rod_manager.rivals[rival_id].name
 		
-	hud_banner_label.text = "🏁 400M DRAG | TU: %d KM/H | %s: %d KM/H | TRAGUARDO: %d M" % [
-		p_spd, riv_name, r_spd, int(dist_remaining)
-	]
+	if hud_banner_label:
+		hud_banner_label.text = "🏁 400M DRAG | TU: %d KM/H | %s: %d KM/H | TRAGUARDO: %d M" % [
+			p_spd, riv_name, r_spd, int(dist_remaining)
+		]
 	
 	# 3. Check Finish Line Crossings
 	if not player_crossed and p_z >= race_finish_z:
 		player_crossed = true
 		player_finish_time = race_time_elapsed
-		player_trap_speed = player_vehicle.current_speed_kmh
+		player_trap_speed = player_vehicle.current_speed_kmh if player_vehicle else 0.0
 		
 	if not rival_crossed and r_z >= race_finish_z:
 		rival_crossed = true
 		rival_finish_time = race_time_elapsed
-		rival_trap_speed = rival_vehicle.current_speed_kmh
+		rival_trap_speed = rival_vehicle.current_speed_kmh if rival_vehicle else 0.0
 		
-	# 4. Resolve Race when both crossed or timeout
-	if (player_crossed and rival_crossed) or race_time_elapsed > 35.0:
+	# 4. Resolve Race when both crossed, or 6s after winner crossed, or 35s timeout
+	var race_ended = false
+	if player_crossed and rival_crossed:
+		race_ended = true
+	elif (player_crossed or rival_crossed) and race_time_elapsed > max(player_finish_time, rival_finish_time) + 6.0:
+		race_ended = true
+	elif race_time_elapsed > 35.0:
+		race_ended = true
+		
+	if race_ended:
 		on_race_finished()
 
 func on_race_finished():
 	current_state = RaceState.FINISHED
 	finish_strobe_timer = 5.0
 	auto_return_timer = 7.0 # Auto-return to race menu after 7s if not skipped
-	finish_fanfare_player.play()
+	if finish_fanfare_player: finish_fanfare_player.play()
 	
-	var player_won = player_finish_time < rival_finish_time
+	# Rigorous physical victory determination:
+	# Chi taglia per primo il traguardo vince!
+	# Se il rivale non parte o non taglia il traguardo e il giocatore sì -> Vince il GIOCATORE.
+	# Se nessuno dei due taglia entro il tempo limite -> DNF per entrambi.
+	var player_won = false
+	if player_crossed and rival_crossed:
+		player_won = player_finish_time < rival_finish_time
+	elif player_crossed and not rival_crossed:
+		player_won = true
+	elif rival_crossed and not player_crossed:
+		player_won = false
+	else:
+		player_won = false
+		
 	var r_data = street_rod_manager.rivals.get(rival_id, {}) if street_rod_manager else {}
 	var riv_name = r_data.get("name", rival_id)
 	
-	# Resolve with career economy in StreetRodManager
+	# Resolve with career economy in StreetRodManager passing real 3D race outcome
 	var res = {}
 	if street_rod_manager and street_rod_manager.has_method("resolve_drag_race"):
-		res = street_rod_manager.resolve_drag_race(rival_id, player_finish_time, is_pink_slip)
+		res = street_rod_manager.resolve_drag_race(rival_id, player_finish_time, is_pink_slip, player_won, rival_finish_time)
 	
 	# Show clean post-race results card
-	var title_lbl = hud_result_card.find_child("ResultTitle", true, false) as Label
-	var details_lbl = hud_result_card.find_child("ResultDetails", true, false) as Label
-	
-	if player_won:
-		title_lbl.text = "🏆 VITTORIA AL RETTIFILO! HAI VINTO LA SFIDA!"
-		title_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.20))
-	else:
-		title_lbl.text = "💨 SCONFITTA AL TRAGUARDO... TI HA STACCATO!"
-		title_lbl.add_theme_color_override("font_color", Color(1.0, 0.40, 0.35))
+	if hud_result_card:
+		var title_lbl = hud_result_card.find_child("ResultTitle", true, false) as Label
+		var details_lbl = hud_result_card.find_child("ResultDetails", true, false) as Label
 		
-	var bet_str = street_rod_manager.format_lire(r_data.get("bet_lire", 500000)) if street_rod_manager else "500.000"
-	var cash_effect = ("+L. %s" % bet_str) if player_won else ("-L. %s" % bet_str)
-	if is_pink_slip:
-		cash_effect = "AUTO VINTA (LIBRETTO AGGIUNTO AL GARAGE!)" if player_won else "AUTO PERSA A LIBRETTO!"
+		if title_lbl:
+			if player_won:
+				title_lbl.text = "🏆 VITTORIA AL RETTIFILO! HAI VINTO LA SFIDA!"
+				title_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.20))
+			else:
+				title_lbl.text = "💨 SCONFITTA AL TRAGUARDO... TI HA STACCATO!"
+				title_lbl.add_theme_color_override("font_color", Color(1.0, 0.40, 0.35))
+			
+		var bet_str = street_rod_manager.format_lire(r_data.get("bet_lire", 500000)) if street_rod_manager else "500.000"
+		var cash_effect = ("+L. %s" % bet_str) if player_won else ("-L. %s" % bet_str)
+		if is_pink_slip:
+			cash_effect = "AUTO VINTA (LIBRETTO AGGIUNTO AL GARAGE!)" if player_won else "AUTO PERSA A LIBRETTO!"
+			
+		var p_time_str = ("%.2fs (Velocità: %d km/h)" % [player_finish_time, int(player_trap_speed)]) if player_crossed else "DNF (Non arrivato)"
+		var r_time_str = ("%.2fs (Velocità: %d km/h)" % [rival_finish_time, int(rival_trap_speed)]) if rival_crossed else "DNF (Ritirato/Fermo)"
 		
-	details_lbl.text = "Il Tuo Tempo 1/4 Miglio: %.2fs (Velocità: %d km/h)\nTempo %s: %.2fs (Velocità: %d km/h)\nEsito Scommessa: %s | Reputazione: %s" % [
-		player_finish_time, int(player_trap_speed),
-		riv_name, rival_finish_time, int(rival_trap_speed),
-		cash_effect, ("+35 PT" if player_won else "-15 PT")
-	]
-	
-	hud_result_card.visible = true
+		if details_lbl:
+			details_lbl.text = "Il Tuo Tempo 1/4 Miglio: %s\nTempo %s: %s\nEsito Scommessa: %s | Reputazione: %s" % [
+				p_time_str,
+				riv_name, r_time_str,
+				cash_effect, ("+80 PT" if player_won else "-20 PT")
+			]
+		
+		hud_result_card.visible = true
+
 	emit_signal("race_finished", {
 		"won": player_won,
 		"player_time": player_finish_time,
@@ -848,7 +917,7 @@ func return_to_race_menu():
 		
 	# Re-open StreetRodUI directly on the race menu tab
 	var ui = street_rod_ui
-	if not ui and get_tree() and get_tree().root:
+	if not ui and is_inside_tree() and get_tree() and get_tree().root:
 		ui = get_tree().root.find_child("StreetRodUI", true, false)
 	if ui and ui.has_method("open_screen"):
 		ui.open_screen(race_source_tab)
@@ -871,9 +940,40 @@ func _unhandled_input(event: InputEvent):
 func close_race_mode():
 	current_state = RaceState.IDLE
 	auto_return_timer = -1.0
-	hud_banner_panel.visible = false
-	hud_countdown_label.visible = false
-	hud_result_card.visible = false
+	if hud_banner_panel:
+		hud_banner_panel.visible = false
+	if hud_countdown_label:
+		hud_countdown_label.visible = false
+	if hud_result_card:
+		hud_result_card.visible = false
+	
+	# Despawn rival vehicle or hide and reset controls
+	if rival_vehicle:
+		rival_vehicle.visible = false
+		rival_vehicle.is_ai_controlled = false
+		rival_vehicle.ai_throttle = 0.0
+		rival_vehicle.ai_brake = 0.0
+		rival_vehicle.ai_steer = 0.0
+		
+	# Restore player vehicle controls
+	if player_vehicle:
+		player_vehicle.is_ai_controlled = false
+		player_vehicle.ai_handbrake = false
+		player_vehicle.ai_brake = 0.0
+		player_vehicle.ai_throttle = 0.0
+		
+	# Restore camera offsets
+	if camera_controller:
+		camera_controller.user_dist_offset = 0.0
+		camera_controller.user_height_offset = 0.0
+		
+	# Clean up start and finish gantries
+	if start_gantry_node:
+		start_gantry_node.queue_free()
+		start_gantry_node = null
+	if finish_gantry_node:
+		finish_gantry_node.queue_free()
+		finish_gantry_node = null
 	
 	# Despawn rival vehicle or hide and reset controls
 	if rival_vehicle:

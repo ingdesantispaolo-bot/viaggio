@@ -674,6 +674,144 @@ var VEHICLE_CATALOG = {
 		"center_of_mass": Vector3(0.0, -0.20, -0.02),
 		"tire_radius": 0.290,
 		"tire_width": 0.210
+	},
+	"porsche_930_turbo": {
+		"id": "porsche_930_turbo",
+		"name": "Porsche 911 Turbo 3.0 (Type 930 - 1975)",
+		"short_name": "911 TURBO (930)",
+		"maker": "Porsche AG Stuttgart-Zuffenhausen",
+		"year": 1975,
+		"engine": "3.0L Boxer-6 Turbo KKK K27 Raffreddato ad Aria (260 CV)",
+		"mass": 1195.0,
+		"brake_force": 260.0,
+		"steer_angle": 28.0,
+		"redline_rpm": 6800.0,
+		"idle_rpm": 950.0,
+		"torque_peak_rpm": 4000.0,
+		"max_power_rpm": 5500.0,
+		"engine_torque_nm": 343.0,
+		"drivetrain_efficiency": 0.90,
+		"top_speed": 250.0,
+		"force_scale": 0.95,
+		"cd_area": 0.62,
+		"drivetrain": "TRAZIONE POSTERIORE RWD MOTORE POSTERIORE A SBALZO",
+		"drivetrain_2wd": "TRAZIONE POSTERIORE [RWD]",
+		"has_turbo": true,
+		"turbo_boost_max": 0.85,
+		"tank_l": 80.0,
+		"gear_ratios": [2.250, 1.304, 0.893, 0.656, -2.444],
+		"gear_names": ["1a", "2a", "3a", "4a", "R"],
+		"shift_speeds": [72.0, 130.0, 192.0],
+		"final_drive": 4.222,
+		"wheel_radius": 0.315,
+		"clutch_lockup_speed": 12.0,
+		"cluster_style": "vdo_porsche_5dial",
+		"speedo_max": 300,
+		"track_x": 0.78,
+		"wheelbase_z": 1.18,
+		"wheel_y_mount": 0.25,
+		"wheel_rest_length": 0.09,
+		"suspension_travel": 0.09,
+		"suspension_stiffness": 62.0,
+		"damping_compression": 2.90,
+		"damping_relaxation": 3.90,
+		"wheel_roll_influence": 0.07,
+		"wheel_friction_slip": 3.45,
+		"center_of_mass": Vector3(0.0, -0.19, 0.28),
+		"tire_radius": 0.315,
+		"tire_width": 0.245
+	},
+	"porsche_carrera_4s": {
+		"id": "porsche_carrera_4s",
+		"name": "Porsche 911 Carrera 4S (992 - 2020)",
+		"short_name": "911 CARRERA 4S",
+		"maker": "Porsche AG Stuttgart-Zuffenhausen",
+		"year": 2020,
+		"engine": "3.0L Boxer-6 Biturbo DOHC 24V (450 CV)",
+		"mass": 1565.0,
+		"brake_force": 360.0,
+		"steer_angle": 27.0,
+		"redline_rpm": 7500.0,
+		"idle_rpm": 750.0,
+		"torque_peak_rpm": 2300.0,
+		"max_power_rpm": 6500.0,
+		"engine_torque_nm": 530.0,
+		"drivetrain_efficiency": 0.92,
+		"top_speed": 306.0,
+		"force_scale": 0.96,
+		"cd_area": 0.60,
+		"drivetrain": "TRAZIONE INTEGRALE PTM [AWD TORQUE VECTORING]",
+		"drivetrain_2wd": "TRAZIONE INTEGRALE [AWD]",
+		"has_turbo": true,
+		"turbo_boost_max": 1.25,
+		"tank_l": 67.0,
+		"gear_ratios": [4.89, 3.17, 2.15, 1.56, 1.18, 0.94, 0.76, 0.61, -3.99],
+		"gear_names": ["PDK 1", "PDK 2", "PDK 3", "PDK 4", "PDK 5", "PDK 6", "PDK 7", "PDK 8", "R"],
+		"shift_speeds": [48.0, 84.0, 126.0, 172.0, 220.0, 265.0, 295.0],
+		"final_drive": 3.12,
+		"wheel_radius": 0.335,
+		"clutch_lockup_speed": 6.0,
+		"cluster_style": "porsche_modern_digital",
+		"speedo_max": 330,
+		"track_x": 0.82,
+		"wheelbase_z": 1.25,
+		"wheel_y_mount": 0.26,
+		"wheel_rest_length": 0.08,
+		"suspension_travel": 0.08,
+		"suspension_stiffness": 70.0,
+		"damping_compression": 3.20,
+		"damping_relaxation": 4.20,
+		"wheel_roll_influence": 0.06,
+		"wheel_friction_slip": 3.75,
+		"center_of_mass": Vector3(0.0, -0.22, 0.12),
+		"tire_radius": 0.335,
+		"tire_width": 0.305
+	},
+	"countach_lpi800": {
+		"id": "countach_lpi800",
+		"name": "Lamborghini Countach LPI 800-4 (2021)",
+		"short_name": "COUNTACH LPI 800",
+		"maker": "Automobili Lamborghini Sant'Agata Bolognese",
+		"year": 2021,
+		"engine": "6.5L V12 Aspirato 60° + Supercondensatore 48V (814 CV)",
+		"mass": 1595.0,
+		"brake_force": 420.0,
+		"steer_angle": 26.0,
+		"redline_rpm": 8700.0,
+		"idle_rpm": 1050.0,
+		"torque_peak_rpm": 6750.0,
+		"max_power_rpm": 8500.0,
+		"engine_torque_nm": 720.0,
+		"drivetrain_efficiency": 0.93,
+		"top_speed": 355.0,
+		"force_scale": 1.00,
+		"cd_area": 0.58,
+		"drivetrain": "TRAZIONE INTEGRALE PERMANENTE HALDEX IV [AWD]",
+		"drivetrain_2wd": "TRAZIONE INTEGRALE [AWD]",
+		"has_turbo": false,
+		"turbo_boost_max": 0.0,
+		"tank_l": 70.0,
+		"gear_ratios": [3.909, 2.438, 1.810, 1.458, 1.185, 0.967, 0.844, -3.429],
+		"gear_names": ["ISR 1", "ISR 2", "ISR 3", "ISR 4", "ISR 5", "ISR 6", "ISR 7", "R"],
+		"shift_speeds": [68.0, 114.0, 162.0, 218.0, 275.0, 325.0],
+		"final_drive": 2.87,
+		"wheel_radius": 0.345,
+		"clutch_lockup_speed": 7.0,
+		"cluster_style": "lamborghini_corsa_tft",
+		"speedo_max": 400,
+		"track_x": 0.88,
+		"wheelbase_z": 1.35,
+		"wheel_y_mount": 0.24,
+		"wheel_rest_length": 0.07,
+		"suspension_travel": 0.07,
+		"suspension_stiffness": 82.0,
+		"damping_compression": 3.60,
+		"damping_relaxation": 4.80,
+		"wheel_roll_influence": 0.05,
+		"wheel_friction_slip": 3.90,
+		"center_of_mass": Vector3(0.0, -0.24, 0.04),
+		"tire_radius": 0.345,
+		"tire_width": 0.355
 	}
 }
 
@@ -685,13 +823,16 @@ var model_keys = [
 	"fiat_127",
 	"fiat_131_abarth",
 	"lancia_stratos",
+	"porsche_930_turbo",
 	"renault_4",
 	"mercedes_gwagen",
 	"panda_4x4",
 	"golf_gti_1990",
 	"bmw_320_e30",
 	"delta_integrale",
-	"mercedes_a250"
+	"mercedes_a250",
+	"porsche_carrera_4s",
+	"countach_lpi800"
 ]
 var current_model_idx: int = 0
 var current_model_id: String = "fiat_127"
@@ -786,6 +927,9 @@ var model_aurelia: Node3D = null
 var model_gta: Node3D = null
 var model_stratos: Node3D = null
 var model_131: Node3D = null
+var model_porsche_930: Node3D = null
+var model_porsche_c4s: Node3D = null
+var model_countach: Node3D = null
 
 # Rim Dynamic Materials per vehicle
 var mat_panda_rim: StandardMaterial3D
@@ -1020,7 +1164,34 @@ func _ready():
 	mat_131_body.clearcoat_enabled = true
 	mat_131_body.clearcoat = 0.90
 
+	# Setup Inelastic Real-World Automotive Physics Material (absorbs impact energy, zero bouncy rubber ball behavior)
+	var auto_phys_mat = PhysicsMaterial.new()
+	auto_phys_mat.friction = 0.55
+	auto_phys_mat.bounce = 0.02
+	physics_material_override = auto_phys_mat
+	continuous_cd = true
+	contact_monitor = true
+	max_contacts_reported = 8
+
 	# Ensure model container nodes exist in tree
+	if has_node("ModelPanda"): model_panda = $ModelPanda
+	else:
+		model_panda = Node3D.new()
+		model_panda.name = "ModelPanda"
+		add_child(model_panda)
+
+	if has_node("ModelDelta"): model_delta = $ModelDelta
+	else:
+		model_delta = Node3D.new()
+		model_delta.name = "ModelDelta"
+		add_child(model_delta)
+
+	if has_node("ModelGwagen"): model_gwagen = $ModelGwagen
+	else:
+		model_gwagen = Node3D.new()
+		model_gwagen.name = "ModelGwagen"
+		add_child(model_gwagen)
+
 	if has_node("ModelFiat127"): model_127 = $ModelFiat127
 	else:
 		model_127 = Node3D.new()
@@ -1087,52 +1258,108 @@ func _ready():
 		model_131.name = "ModelFiat131"
 		add_child(model_131)
 
-	# Procedurally build authentic vehicle models and 3D cockpits (scalati al 75%)
-	if model_panda:
-		VehicleModelBuilder.build_panda_4x4(model_panda, mat_panda_body)
-		model_panda.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_delta:
-		VehicleModelBuilder.build_delta_integrale(model_delta, mat_delta_body)
-		model_delta.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_gwagen:
-		VehicleModelBuilder.build_gwagen_w460(model_gwagen, mat_gwagen_body)
-		model_gwagen.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_127:
-		VehicleModelBuilder.build_fiat_127(model_127, mat_127_body)
-		model_127.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_golf:
-		VehicleModelBuilder.build_golf_gti_1990(model_golf, mat_golf_body)
-		model_golf.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_r4:
-		VehicleModelBuilder.build_renault_4(model_r4, mat_r4_body)
-		model_r4.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_bmw:
-		VehicleModelBuilder.build_bmw_320_e30(model_bmw, mat_bmw_body)
-		model_bmw.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_a250:
-		VehicleModelBuilder.build_mercedes_a250(model_a250, mat_a250_body)
-		model_a250.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_8c:
-		VehicleModelBuilder.build_alfa_8c_2900b(model_8c, mat_8c_body)
-		model_8c.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_topolino:
-		VehicleModelBuilder.build_fiat_topolino(model_topolino, mat_topolino_body)
-		model_topolino.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_aurelia:
-		VehicleModelBuilder.build_lancia_aurelia_b20(model_aurelia, mat_aurelia_body)
-		model_aurelia.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_gta:
-		VehicleModelBuilder.build_alfa_giulia_gta(model_gta, mat_gta_body)
-		model_gta.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_stratos:
-		VehicleModelBuilder.build_lancia_stratos(model_stratos, mat_stratos_body)
-		model_stratos.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
-	if model_131:
-		VehicleModelBuilder.build_fiat_131_abarth(model_131, mat_131_body)
-		model_131.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
+	if has_node("ModelPorsche930"): model_porsche_930 = $ModelPorsche930
+	else:
+		model_porsche_930 = Node3D.new()
+		model_porsche_930.name = "ModelPorsche930"
+		add_child(model_porsche_930)
+
+	if has_node("ModelPorscheC4S"): model_porsche_c4s = $ModelPorscheC4S
+	else:
+		model_porsche_c4s = Node3D.new()
+		model_porsche_c4s.name = "ModelPorscheC4S"
+		add_child(model_porsche_c4s)
+
+	if has_node("ModelCountachLPI800"): model_countach = $ModelCountachLPI800
+	else:
+		model_countach = Node3D.new()
+		model_countach.name = "ModelCountachLPI800"
+		add_child(model_countach)
+
+	# Procedurally build authentic vehicle models or load external GLB/GLTF drop-in assets
+	setup_hybrid_vehicle_model(model_panda, "panda_4x4", VehicleModelBuilder.build_panda_4x4, mat_panda_body)
+	setup_hybrid_vehicle_model(model_delta, "delta_integrale", VehicleModelBuilder.build_delta_integrale, mat_delta_body)
+	setup_hybrid_vehicle_model(model_gwagen, "mercedes_gwagen", VehicleModelBuilder.build_gwagen_w460, mat_gwagen_body)
+	setup_hybrid_vehicle_model(model_127, "fiat_127", VehicleModelBuilder.build_fiat_127, mat_127_body)
+	setup_hybrid_vehicle_model(model_golf, "golf_gti_1990", VehicleModelBuilder.build_golf_gti_1990, mat_golf_body)
+	setup_hybrid_vehicle_model(model_r4, "renault_4", VehicleModelBuilder.build_renault_4, mat_r4_body)
+	setup_hybrid_vehicle_model(model_bmw, "bmw_320_e30", VehicleModelBuilder.build_bmw_320_e30, mat_bmw_body)
+	setup_hybrid_vehicle_model(model_a250, "mercedes_a250", VehicleModelBuilder.build_mercedes_a250, mat_a250_body)
+	setup_hybrid_vehicle_model(model_8c, "alfa_8c", VehicleModelBuilder.build_alfa_8c_2900b, mat_8c_body)
+	setup_hybrid_vehicle_model(model_topolino, "fiat_topolino", VehicleModelBuilder.build_fiat_topolino, mat_topolino_body)
+	setup_hybrid_vehicle_model(model_aurelia, "lancia_aurelia", VehicleModelBuilder.build_lancia_aurelia_b20, mat_aurelia_body)
+	setup_hybrid_vehicle_model(model_gta, "alfa_gta", VehicleModelBuilder.build_alfa_giulia_gta, mat_gta_body)
+	setup_hybrid_vehicle_model(model_stratos, "lancia_stratos", VehicleModelBuilder.build_lancia_stratos, mat_stratos_body)
+	setup_hybrid_vehicle_model(model_131, "fiat_131_abarth", VehicleModelBuilder.build_fiat_131_abarth, mat_131_body)
+	setup_hybrid_vehicle_model(model_porsche_930, "porsche_930_turbo", Callable(), null)
+	setup_hybrid_vehicle_model(model_porsche_c4s, "porsche_carrera_4s", Callable(), null)
+	setup_hybrid_vehicle_model(model_countach, "countach_lpi800", Callable(), null)
 
 	apply_vehicle_model(current_model_id)
 	setup_wheel_particles()
+
+func setup_hybrid_vehicle_model(model_node: Node3D, car_id: String, fallback_builder: Callable, body_mat: Material):
+	if not model_node: return
+	var candidate_paths = [
+		"res://models/" + car_id + ".glb",
+		"res://models/" + car_id.capitalize().replace(" ", "_") + ".glb",
+		"res://models/" + car_id + ".gltf",
+		"res://models/" + car_id.capitalize().replace(" ", "_") + ".gltf",
+		"res://models/" + car_id + ".blend",
+		"res://models/" + car_id.capitalize().replace(" ", "_") + ".blend"
+	]
+	var found_path = ""
+	for p in candidate_paths:
+		if FileAccess.file_exists(p) or ResourceLoader.exists(p):
+			found_path = p
+			break
+	
+	if found_path != "":
+		for c in model_node.get_children(): c.queue_free()
+		var inst: Node3D = null
+		
+		# 1. Standard engine ResourceLoader (se pre-importato da Godot)
+		if ResourceLoader.exists(found_path):
+			var scene_res = load(found_path)
+			if scene_res is PackedScene:
+				inst = scene_res.instantiate()
+		
+		# 2. GLTFDocument runtime loader nativo (se non ancora pre-importato dall'editor)
+		if not inst and (found_path.ends_with(".glb") or found_path.ends_with(".gltf")):
+			var gltf_doc = GLTFDocument.new()
+			var gltf_state = GLTFState.new()
+			if gltf_doc.append_from_file(found_path, gltf_state) == OK:
+				inst = gltf_doc.generate_scene(gltf_state)
+				
+		if inst:
+			# Allineamento orientamento: i modelli Blender esportati spesso guardano verso +Z.
+			# Godot richiede avanti verso -Z. Ruotiamo di 180° attorno a Y se rivolto in avanti.
+			if car_id == "fiat_127":
+				inst.rotation.y = PI
+				var static_rims = inst.find_child("llantas", true, false)
+				if static_rims: static_rims.visible = true
+				var static_tires = inst.find_child("neumaticos", true, false)
+				if static_tires: static_tires.visible = true
+				inst.position.y = 0.65
+			elif car_id == "porsche_930_turbo":
+				inst.rotation.y = PI
+				inst.position.y = 1.06
+			elif car_id == "porsche_carrera_4s":
+				inst.rotation.y = PI
+				inst.position.y = 0.55
+			elif car_id == "countach_lpi800":
+				inst.rotation.y = PI
+				inst.position.y = 0.53
+			elif inst.find_child("fatos_delanteros", true, false) != null:
+				inst.rotation.y = PI
+				
+			model_node.add_child(inst)
+			model_node.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
+			print("[AUTO HYBRID] Caricato con successo modello 3D esterno GLB: ", found_path)
+			return
+			
+	fallback_builder.call(model_node, body_mat)
+	model_node.scale = Vector3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE)
 
 func switch_vehicle():
 	current_model_idx = (current_model_idx + 1) % model_keys.size()
@@ -1239,6 +1466,9 @@ func apply_vehicle_model(model_id: String, reset_fuel: bool = false):
 	if model_gta: model_gta.visible = (model_id == "alfa_gta")
 	if model_stratos: model_stratos.visible = (model_id == "lancia_stratos")
 	if model_131: model_131.visible = (model_id == "fiat_131_abarth")
+	if model_porsche_930: model_porsche_930.visible = (model_id == "porsche_930_turbo")
+	if model_porsche_c4s: model_porsche_c4s.visible = (model_id == "porsche_carrera_4s")
+	if model_countach: model_countach.visible = (model_id == "countach_lpi800")
 	
 	# 4. Model-specific Physical Collision Box (scalato rigorosamente al 75%)
 	var col_shape_node = get_node_or_null("CollisionShape3D")
@@ -1288,6 +1518,15 @@ func apply_vehicle_model(model_id: String, reset_fuel: bool = false):
 		elif model_id == "fiat_131_abarth":
 			box_size = Vector3(1.72, 0.78, 4.20)
 			box_y = 0.54
+		elif model_id == "porsche_930_turbo":
+			box_size = Vector3(1.78, 0.72, 4.29)
+			box_y = 0.50
+		elif model_id == "porsche_carrera_4s":
+			box_size = Vector3(1.85, 0.70, 4.52)
+			box_y = 0.48
+		elif model_id == "countach_lpi800":
+			box_size = Vector3(2.05, 0.65, 4.87)
+			box_y = 0.46
 		c_box.size = box_size * PLAYER_SCALE
 		col_shape_node.shape = c_box
 		col_shape_node.position.y = box_y * PLAYER_SCALE
@@ -1354,6 +1593,18 @@ func apply_vehicle_model(model_id: String, reset_fuel: bool = false):
 			tz = 2.06
 			ty = 0.54
 			tx = 0.62
+		elif model_id == "porsche_930_turbo":
+			tz = 2.10
+			ty = 0.52
+			tx = 0.70
+		elif model_id == "porsche_carrera_4s":
+			tz = 2.20
+			ty = 0.54
+			tx = 0.74
+		elif model_id == "countach_lpi800":
+			tz = 2.38
+			ty = 0.52
+			tx = 0.82
 		taillight_l.position = Vector3(-tx * PLAYER_SCALE, ty * PLAYER_SCALE, tz * PLAYER_SCALE)
 		taillight_r.position = Vector3(tx * PLAYER_SCALE, ty * PLAYER_SCALE, tz * PLAYER_SCALE)
 		taillight_l.omni_range = 2.4 * PLAYER_SCALE
@@ -2345,21 +2596,68 @@ func play_horn_honk():
 			va.play_horn()
 	print("[Clacson Vintage '93] 📯 BEEP-BEEP! Segnalazione sorpasso al traffico civile!")
 
-func on_hard_impact_detected(decel_val: float):
+func _integrate_forces(state: PhysicsDirectBodyState3D):
+	var contact_num = state.get_contact_count()
+	if contact_num == 0:
+		return
+		
+	var v = state.linear_velocity
+	var v_len = v.length()
+	if v_len < 0.6:
+		return
+		
+	for i in range(contact_num):
+		var c_norm = -state.get_contact_local_normal(i)
+		# Se l'ostacolo è prevalentemente verticale (guardrail, muro, veicolo, roccia, palo)
+		if abs(c_norm.y) < 0.65:
+			var v_dot_n = v.dot(c_norm)
+			if v_dot_n < -0.85: # Movimento incidente verso l'ostacolo
+				var c_pos = state.get_contact_collider_position(i)
+				var impact_spd = abs(v_dot_n)
+				var impact_spd_kmh = impact_spd * 3.6
+				
+				# Coefficiente di restituzione anelastico (la lamiera dissipa ~88% dell'energia normale)
+				var e = 0.12
+				var v_norm_component = c_norm * v_dot_n
+				var v_tangent_component = v - v_norm_component
+				
+				# Smorzamento inelastico: annulla il rimbalzo da pallina di gomma
+				# e preserva la velocità tangenziale permettendo all'auto di scivolare fluida lungo il guardrail
+				var new_v_norm = c_norm * (-v_dot_n * e)
+				var new_v_tangent = v_tangent_component * 0.95
+				state.linear_velocity = new_v_norm + new_v_tangent
+				
+				# Impulso angolare di imbardata realistico (fishtail / deviazione controllata da braccio di leva)
+				var r_arm = c_pos - global_position
+				var torque_yaw = (r_arm.cross(-v_norm_component * mass)).y * 0.0016
+				state.angular_velocity.y += clamp(torque_yaw, -3.2, 3.2)
+				
+				if impact_cooldown <= 0.0 and impact_spd_kmh > 7.0:
+					impact_cooldown = 0.35
+					on_hard_impact_detected(impact_spd * 25.0, c_pos, c_norm)
+				break
+
+func on_hard_impact_detected(decel_val: float, custom_pt: Vector3 = Vector3.ZERO, custom_norm: Vector3 = Vector3.ZERO):
 	var impact_kmh = max(current_speed_kmh, decel_val * 0.45)
-	var contact_pt = global_position + (-global_transform.basis.z * 1.55)
-	var impact_norm = global_transform.basis.z
+	var contact_pt = custom_pt if custom_pt != Vector3.ZERO else (global_position + (-global_transform.basis.z * 1.55))
+	var impact_norm = custom_norm if custom_norm != Vector3.ZERO else global_transform.basis.z
 	
-	# Scuotimento angolare e smorzamento inelastico
+	# Scuotimento angolare e smorzamento inelastico dell'energia d'urto
 	var yaw_shock = -sign(steering if abs(steering) > 0.05 else randf_range(-1.0, 1.0)) * clamp(impact_kmh * 0.035, 0.4, 3.2)
 	angular_velocity.y += yaw_shock
-	linear_velocity *= 0.38
+	linear_velocity *= 0.42
 	
-	# Deformazione plastica reale della carrozzeria e parti 3D
+	# Deformazione plastica reale della carrozzeria e parti 3D con soft-body vertex crumple
 	VehicleCrashSystem.apply_structural_deformation(self, contact_pt, impact_kmh, impact_norm)
 	
 	if audio_engine and audio_engine.has_method("play_impact_thud"):
 		audio_engine.play_impact_thud()
+		
+	var cam = get_parent().get_node_or_null("CameraController") if get_parent() else null
+	if not cam and get_tree() and get_tree().root:
+		cam = get_tree().root.find_child("CameraController", true, false)
+	if cam and cam.has_method("add_trauma"):
+		cam.add_trauma(clamp(impact_kmh / 75.0, 0.22, 0.85))
 		
 	var main_node = get_parent()
 	var sr_mgr = null
@@ -2377,7 +2675,7 @@ func on_hard_impact_detected(decel_val: float):
 			cur_car["engine_health"] = max(0.18, cur_car.get("engine_health", 0.90) - dmg_eng)
 			sr_mgr.post_notification(
 				"💥 URTO STRADALE!",
-				"Impatto violento contro ostacolo!\nCarrozzeria: -%d%% | Motore: -%d%%" % [int(dmg_body * 100), int(dmg_eng * 100)],
+				"Impatto contro ostacolo!\nCarrozzeria: -%d%% | Motore: -%d%%" % [int(dmg_body * 100), int(dmg_eng * 100)],
 				"💥",
 				"error"
 			)

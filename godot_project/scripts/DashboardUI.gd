@@ -131,7 +131,21 @@ var label_hud_objective: Label = null
 var label_hud_score: Label = null
 var label_hud_cash: Label = null
 var btn_hud_logbook: Button = null
+var btn_hud_story: Button = null
 var btn_hud_street_rod: Button = null
+
+# Story Campaign & POI Manager References
+var story_manager: Node = null
+var poi_manager: Node = null
+var active_near_poi_data: Dictionary = {}
+
+# Story Campaign Modal
+var story_overlay: Control = null
+var story_modal_box: PanelContainer = null
+var story_title_label: Label = null
+var story_manifesto_label: Label = null
+var story_chapters_container: VBoxContainer = null
+var story_active_objective_label: Label = null
 
 # Milestone Discovery & Fanfare Elements
 var milestone_panel: PanelContainer = null
@@ -220,6 +234,7 @@ func _ready():
 	setup_stage_clear_banner()
 	setup_resource_warnings()
 	setup_logbook_modal()
+	setup_story_campaign_modal()
 	setup_bar_service_modal()
 	setup_audio_mixer_modal()
 	setup_historic_clusters()
@@ -270,6 +285,12 @@ func _process(delta: float):
 		logbook_overlay.size = vp
 		logbook_modal_box.size = Vector2(min(960.0, vp.x - 40.0), min(540.0, vp.y - 80.0))
 		logbook_modal_box.position = (vp - logbook_modal_box.size) * 0.5
+
+	if story_overlay and story_overlay.visible and story_modal_box:
+		var vp = get_viewport_rect().size
+		story_overlay.size = vp
+		story_modal_box.size = Vector2(min(1000.0, vp.x - 40.0), min(600.0, vp.y - 60.0))
+		story_modal_box.position = (vp - story_modal_box.size) * 0.5
 
 	if bar_service_overlay and bar_service_overlay.visible and bar_modal_box:
 		var vp = get_viewport_rect().size
@@ -433,6 +454,21 @@ func setup_expedition_hud():
 	btn_hud_logbook.add_theme_stylebox_override("normal", sb_btn)
 	btn_hud_logbook.pressed.connect(toggle_logbook)
 	hbox.add_child(btn_hud_logbook)
+	
+	# 6b. Story Campaign & Declared Goal Button
+	btn_hud_story = Button.new()
+	btn_hud_story.text = " [T] 📜 TRAMA '93 "
+	btn_hud_story.custom_minimum_size = Vector2(125, 26)
+	btn_hud_story.add_theme_font_size_override("font_size", 10)
+	var sb_st = StyleBoxFlat.new()
+	sb_st.bg_color = Color(0.22, 0.15, 0.08, 0.92) # Warm vintage amber
+	sb_st.border_color = Color(1.0, 0.78, 0.22, 0.95)
+	sb_st.set_border_width_all(1)
+	sb_st.set_corner_radius_all(4)
+	btn_hud_story.add_theme_stylebox_override("normal", sb_st)
+	btn_hud_story.tooltip_text = "[T] Consulta la Trama Ufficiale, lo Scopo del Gioco, gli Obiettivi e la Coppa del Valico '93"
+	btn_hud_story.pressed.connect(toggle_story_campaign_modal)
+	hbox.add_child(btn_hud_story)
 	
 	# 7. Vintage Car Radio Button
 	btn_hud_radio = Button.new()
@@ -636,13 +672,16 @@ func setup_service_prompt():
 	service_prompt_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	service_prompt_panel.gui_input.connect(func(ev: InputEvent):
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			var main_node = get_tree().root.get_node_or_null("Main") if get_tree() and get_tree().root else null
-			var s_type = "autogrill_bar"
-			var s_name = ""
-			if main_node and main_node.get("vehicle"):
-				s_name = main_node.vehicle.get("service_station_name")
-				s_type = main_node.vehicle.get("service_station_type", "autogrill_bar")
-			open_bar_service_modal(s_type, { "name": s_name })
+			if poi_manager and not active_near_poi_data.is_empty():
+				poi_manager.open_poi_visit(active_near_poi_data.get("id"))
+			else:
+				var main_node = get_tree().root.get_node_or_null("Main") if get_tree() and get_tree().root else null
+				var s_type = "autogrill_bar"
+				var s_name = ""
+				if main_node and main_node.get("vehicle"):
+					s_name = main_node.vehicle.get("service_station_name")
+					s_type = main_node.vehicle.get("service_station_type", "autogrill_bar")
+				open_bar_service_modal(s_type, { "name": s_name })
 	)
 	
 	var sb = StyleBoxFlat.new()
@@ -890,6 +929,268 @@ func toggle_logbook():
 
 func is_logbook_open() -> bool:
 	return logbook_overlay != null and logbook_overlay.visible
+
+# =========================================================================
+# 6a. OFFICIAL STORY CAMPAIGN & DECLARED GOAL MODAL ("COPPA DEL MERIDIANO '93")
+# =========================================================================
+func set_story_manager(sm: Node):
+	story_manager = sm
+	if story_manager:
+		story_manager.campaign_updated.connect(func(_info):
+			update_story_hud_objective()
+			if is_story_modal_open():
+				refresh_story_modal_contents()
+		)
+		story_manager.objective_completed.connect(func(_obj_id, _lire, _rep):
+			update_story_hud_objective()
+		)
+		update_story_hud_objective()
+
+func set_poi_manager(pm: Node):
+	poi_manager = pm
+	if poi_manager:
+		poi_manager.poi_entered_zone.connect(_on_poi_entered_zone)
+		poi_manager.poi_exited_zone.connect(_on_poi_exited_zone)
+
+func _on_poi_entered_zone(poi_data: Dictionary):
+	active_near_poi_data = poi_data
+	if service_prompt_panel and service_prompt_label:
+		var icon_str = poi_data.get("icon", "📍")
+		var name_str = poi_data.get("name", "PUNTO D'INTERESSE")
+		var badge_str = poi_data.get("badge", "")
+		service_prompt_label.text = "%s %s [%s] | PREMI [E] O CLICCA PER ENTRARE" % [icon_str, name_str, badge_str]
+		service_prompt_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.25))
+		service_prompt_panel.visible = true
+
+func _on_poi_exited_zone(poi_data: Dictionary):
+	if active_near_poi_data.get("id") == poi_data.get("id"):
+		active_near_poi_data = {}
+		if service_prompt_panel:
+			service_prompt_panel.visible = false
+
+func update_story_hud_objective():
+	if story_manager and label_hud_objective:
+		label_hud_objective.text = "🎯 " + story_manager.get_active_objective_text()
+
+func setup_story_campaign_modal():
+	story_overlay = Control.new()
+	story_overlay.anchors_preset = Control.PRESET_FULL_RECT
+	story_overlay.z_index = 80
+	story_overlay.visible = false
+	
+	# Dark semi-transparent background
+	var bg_dim = ColorRect.new()
+	bg_dim.anchors_preset = Control.PRESET_FULL_RECT
+	bg_dim.color = Color(0.02, 0.03, 0.04, 0.88)
+	bg_dim.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseButton and ev.pressed:
+			toggle_story_campaign_modal()
+	)
+	story_overlay.add_child(bg_dim)
+	
+	story_modal_box = PanelContainer.new()
+	var sb_modal = StyleBoxFlat.new()
+	sb_modal.bg_color = Color(0.06, 0.08, 0.11, 0.98) # Dark Amiga Charcoal
+	sb_modal.border_color = Color(0.96, 0.78, 0.22, 0.95) # Gold Championship Frame
+	sb_modal.set_border_width_all(2)
+	sb_modal.set_corner_radius_all(10)
+	sb_modal.shadow_size = 28
+	sb_modal.shadow_color = Color(0, 0, 0, 0.88)
+	story_modal_box.add_theme_stylebox_override("panel", sb_modal)
+	
+	var margin_c = MarginContainer.new()
+	margin_c.add_theme_constant_override("margin_left", 18)
+	margin_c.add_theme_constant_override("margin_right", 18)
+	margin_c.add_theme_constant_override("margin_top", 14)
+	margin_c.add_theme_constant_override("margin_bottom", 14)
+	story_modal_box.add_child(margin_c)
+	
+	var main_vbox = VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 10)
+	margin_c.add_child(main_vbox)
+	
+	# Header
+	var m_head = HBoxContainer.new()
+	m_head.add_theme_constant_override("separation", 8)
+	
+	story_title_label = Label.new()
+	story_title_label.text = "🏆 LA COPPA DEL MERIDIANO '93: DALLA BOTTEGA AL VALICO DEL DUCA"
+	story_title_label.add_theme_font_size_override("font_size", 16)
+	story_title_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.25))
+	m_head.add_child(story_title_label)
+	
+	var sp_m = Control.new()
+	sp_m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	m_head.add_child(sp_m)
+	
+	var btn_close = Button.new()
+	btn_close.text = " [X] CHIUDI TRAMA (ESC / T) "
+	btn_close.add_theme_font_size_override("font_size", 11)
+	var sb_c = StyleBoxFlat.new()
+	sb_c.bg_color = Color(0.18, 0.22, 0.28, 0.90)
+	sb_c.border_color = Color(0.85, 0.70, 0.25, 0.80)
+	sb_c.set_border_width_all(1)
+	sb_c.set_corner_radius_all(4)
+	btn_close.add_theme_stylebox_override("normal", sb_c)
+	btn_close.pressed.connect(toggle_story_campaign_modal)
+	m_head.add_child(btn_close)
+	main_vbox.add_child(m_head)
+	
+	var h_div1 = HSeparator.new()
+	main_vbox.add_child(h_div1)
+	
+	# Scopo Dichiarato & Manifesto del Gioco
+	var manifesto_panel = PanelContainer.new()
+	var sb_mf = StyleBoxFlat.new()
+	sb_mf.bg_color = Color(0.10, 0.07, 0.04, 0.95)
+	sb_mf.border_color = Color(0.88, 0.60, 0.18, 0.90)
+	sb_mf.set_border_width_all(1)
+	sb_mf.set_corner_radius_all(6)
+	manifesto_panel.add_theme_stylebox_override("panel", sb_mf)
+	
+	var mf_margin = MarginContainer.new()
+	mf_margin.add_theme_constant_override("margin_left", 12)
+	mf_margin.add_theme_constant_override("margin_right", 12)
+	mf_margin.add_theme_constant_override("margin_top", 8)
+	mf_margin.add_theme_constant_override("margin_bottom", 8)
+	manifesto_panel.add_child(mf_margin)
+	
+	story_manifesto_label = Label.new()
+	story_manifesto_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	story_manifesto_label.add_theme_font_size_override("font_size", 11)
+	story_manifesto_label.add_theme_color_override("font_color", Color(0.94, 0.90, 0.82))
+	story_manifesto_label.text = "🎯 SCOPO DICHIARATO DEL GIOCO:\nSei arrivato a San Cristoforo nell'autunno del 1993 al volante di una Fiat 127 Special (1974) e L. 3.500.000 in tasca. Il tuo obiettivo supremo è vincere la leggendaria 'Coppa del Valico' (quota 2650m) prima che le tempeste invernali chiudano il passo alpino! Per riuscirci devi conquistare la stima dei bottegai, elaborare i Weber da Paolo e sconfiggere i 4 rivali d'epoca lungo il Meridiano."
+	mf_margin.add_child(story_manifesto_label)
+	main_vbox.add_child(manifesto_panel)
+	
+	# ScrollContainer per i 4 Capitoli
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	story_chapters_container = VBoxContainer.new()
+	story_chapters_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	story_chapters_container.add_theme_constant_override("separation", 8)
+	scroll.add_child(story_chapters_container)
+	main_vbox.add_child(scroll)
+	
+	# Active Quest Prominent Footer
+	var quest_panel = PanelContainer.new()
+	var sb_qp = StyleBoxFlat.new()
+	sb_qp.bg_color = Color(0.04, 0.12, 0.06, 0.96)
+	sb_qp.border_color = Color(0.35, 1.0, 0.55, 0.90)
+	sb_qp.set_border_width_all(1)
+	sb_qp.set_corner_radius_all(6)
+	quest_panel.add_theme_stylebox_override("panel", sb_qp)
+	
+	var qp_margin = MarginContainer.new()
+	qp_margin.add_theme_constant_override("margin_left", 12)
+	qp_margin.add_theme_constant_override("margin_right", 12)
+	qp_margin.add_theme_constant_override("margin_top", 6)
+	qp_margin.add_theme_constant_override("margin_bottom", 6)
+	quest_panel.add_child(qp_margin)
+	
+	story_active_objective_label = Label.new()
+	story_active_objective_label.add_theme_font_size_override("font_size", 12)
+	story_active_objective_label.add_theme_color_override("font_color", Color(0.40, 1.0, 0.65))
+	qp_margin.add_child(story_active_objective_label)
+	main_vbox.add_child(quest_panel)
+	
+	story_overlay.add_child(story_modal_box)
+	add_child(story_overlay)
+
+func toggle_story_campaign_modal():
+	if not story_overlay: return
+	story_overlay.visible = not story_overlay.visible
+	if story_overlay.visible:
+		var vp = get_viewport_rect().size
+		story_overlay.size = vp
+		if story_modal_box:
+			story_modal_box.size = Vector2(min(1000.0, vp.x - 40.0), min(600.0, vp.y - 60.0))
+			story_modal_box.position = (vp - story_modal_box.size) * 0.5
+		refresh_story_modal_contents()
+
+func is_story_modal_open() -> bool:
+	return story_overlay != null and story_overlay.visible
+
+func refresh_story_modal_contents():
+	if not story_manager or not story_chapters_container: return
+	
+	for child in story_chapters_container.get_children():
+		child.queue_free()
+		
+	var status = story_manager.get_campaign_status()
+	var cur_chap = status.get("current_chapter", 1)
+	var active_obj_txt = status.get("active_objective_text", "")
+	
+	if story_active_objective_label:
+		story_active_objective_label.text = "🎯 INCARICO ATTIVO: " + active_obj_txt
+		
+	for chap in status.get("all_chapters", []):
+		var c_idx = chap.get("index", 1)
+		var is_done = chap.get("completed", false)
+		var is_cur = (c_idx == cur_chap and not is_done)
+		
+		var card = PanelContainer.new()
+		var sb_c = StyleBoxFlat.new()
+		if is_done:
+			sb_c.bg_color = Color(0.05, 0.09, 0.06, 0.95)
+			sb_c.border_color = Color(0.30, 0.85, 0.45, 0.85)
+		elif is_cur:
+			sb_c.bg_color = Color(0.09, 0.08, 0.04, 0.98)
+			sb_c.border_color = Color(1.0, 0.82, 0.20, 0.95)
+		else:
+			sb_c.bg_color = Color(0.05, 0.06, 0.08, 0.85)
+			sb_c.border_color = Color(0.30, 0.35, 0.42, 0.50)
+		sb_c.set_border_width_all(1)
+		sb_c.set_corner_radius_all(6)
+		card.add_theme_stylebox_override("panel", sb_c)
+		
+		var m = MarginContainer.new()
+		m.add_theme_constant_override("margin_left", 12)
+		m.add_theme_constant_override("margin_right", 12)
+		m.add_theme_constant_override("margin_top", 8)
+		m.add_theme_constant_override("margin_bottom", 8)
+		card.add_child(m)
+		
+		var v = VBoxContainer.new()
+		v.add_theme_constant_override("separation", 4)
+		m.add_child(v)
+		
+		# Title row
+		var h_t = HBoxContainer.new()
+		var l_title = Label.new()
+		l_title.text = chap.get("title", "")
+		l_title.add_theme_font_size_override("font_size", 12)
+		l_title.add_theme_color_override("font_color", Color(1.0, 0.88, 0.30) if is_cur else (Color(0.40, 1.0, 0.60) if is_done else Color(0.60, 0.65, 0.70)))
+		h_t.add_child(l_title)
+		
+		var sp = Control.new()
+		sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		h_t.add_child(sp)
+		
+		var l_badge = Label.new()
+		l_badge.text = "✅ COMPLETATO" if is_done else ("🌟 IN CORSO" if is_cur else "🔒 BLOCCATO")
+		l_badge.add_theme_font_size_override("font_size", 11)
+		l_badge.add_theme_color_override("font_color", Color(0.40, 1.0, 0.60) if is_done else (Color(1.0, 0.85, 0.20) if is_cur else Color(0.60, 0.65, 0.70)))
+		h_t.add_child(l_badge)
+		v.add_child(h_t)
+		
+		# Subtitle & rival
+		var l_sub = Label.new()
+		l_sub.text = "📍 %s | 🏎️ Rivale: %s (%s) | 💰 Premio: L. %s" % [chap.get("location", ""), chap.get("rival_name", ""), chap.get("rival_car", ""), str(chap.get("reward_lire", 0))]
+		l_sub.add_theme_font_size_override("font_size", 10)
+		l_sub.add_theme_color_override("font_color", Color(0.80, 0.85, 0.90))
+		v.add_child(l_sub)
+		
+		# Objectives
+		for obj in chap.get("objectives", []):
+			var obj_done = obj.get("done", false)
+			var l_o = Label.new()
+			l_o.text = "  %s %s" % [("✓ [FATTO]" if obj_done else "○ [ATTIVO]" if is_cur else "- [DA SBLOCCARE]"), obj.get("text", "")]
+			l_o.add_theme_font_size_override("font_size", 10)
+			l_o.add_theme_color_override("font_color", Color(0.45, 0.95, 0.60) if obj_done else (Color(1.0, 0.90, 0.40) if is_cur else Color(0.55, 0.60, 0.68)))
+			v.add_child(l_o)
+			
+		story_chapters_container.add_child(card)
 
 # =========================================================================
 # 6b. 1980s / 1990s AUTOGRILL & SOSTA TECNICA MODAL (GIANNI & SANDRA)
@@ -1820,7 +2121,10 @@ func update_journey(info: Dictionary):
 		var dist_m = info.get("dist_to_next_m", 0.0)
 		label_hud_next.text = "📍 %s [%.0fm]" % [next_name, dist_m]
 	if label_hud_objective:
-		label_hud_objective.text = "🎯 OBIETTIVO: %s" % info.get("objective", "")
+		if story_manager:
+			label_hud_objective.text = "🎯 " + story_manager.get_active_objective_text()
+		else:
+			label_hud_objective.text = "🎯 OBIETTIVO: %s" % info.get("objective", "")
 	if label_hud_score:
 		label_hud_score.text = "🏆 %d PT" % info.get("score", 0)
 
@@ -1916,6 +2220,13 @@ func update_telemetry(speed_kmh: float, rpm_norm: float, gear_str: String, fuel_
 			service_prompt_panel.visible = true
 			service_prompt_label.text = "🔧 " + s_msg
 			service_prompt_label.add_theme_color_override("font_color", Color(0.35, 1.0, 0.55))
+		elif not active_near_poi_data.is_empty():
+			var icon_str = active_near_poi_data.get("icon", "📍")
+			var name_str = active_near_poi_data.get("name", "PUNTO D'INTERESSE")
+			var badge_str = active_near_poi_data.get("badge", "")
+			service_prompt_panel.visible = true
+			service_prompt_label.text = "%s %s [%s] | PREMI [E] O CLICCA PER ENTRARE" % [icon_str, name_str, badge_str]
+			service_prompt_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.25))
 		elif in_service_bay:
 			service_prompt_panel.visible = true
 			service_prompt_label.text = "⛽ %s | PREMI [E] O CLICCA PER RISTORO & TAGLIANDO" % s_name

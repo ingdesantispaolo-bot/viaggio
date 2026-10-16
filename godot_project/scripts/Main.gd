@@ -17,6 +17,9 @@ const StreetRodUI = preload("res://scripts/StreetRodUI.gd")
 const RaceDirector = preload("res://scripts/RaceDirector.gd")
 const CivilianTrafficManager = preload("res://scripts/CivilianTrafficManager.gd")
 const GarageEnvironmentBuilder = preload("res://scripts/GarageEnvironmentBuilder.gd")
+const CityEnvironmentBuilder = preload("res://scripts/CityEnvironmentBuilder.gd")
+const StoryCampaignManager = preload("res://scripts/StoryCampaignManager.gd")
+const WorldPOIManager = preload("res://scripts/WorldPOIManager.gd")
 
 @onready var vehicle: VehicleController = $Vehicle
 @onready var road_gen: RoadGenerator = $RoadGenerator
@@ -32,16 +35,20 @@ var street_rod_manager: StreetRodManager = null
 var street_rod_ui: StreetRodUI = null
 var race_director: RaceDirector = null
 var traffic_manager: CivilianTrafficManager = null
+var story_manager: StoryCampaignManager = null
+var world_poi_manager: WorldPOIManager = null
 
 var is_in_garage: bool = true
 var garage_building: Node3D = null
-const GARAGE_CAR_POS: Vector3 = Vector3(15.5, 0.45, 14.0)
-const GARAGE_CAM_POS: Vector3 = Vector3(12.0, 1.65, 17.5)
-const GARAGE_CAM_LOOK: Vector3 = Vector3(15.2, 0.75, 14.0)
+var city_building: Node3D = null
+const GARAGE_CAR_POS: Vector3 = Vector3(-16.0, 0.45, 8.0)
+const GARAGE_CAM_POS: Vector3 = Vector3(-19.5, 1.65, 4.5)
+const GARAGE_CAM_LOOK: Vector3 = Vector3(-16.0, 0.75, 8.0)
 
 func _ready():
-    # 0. Build 3D Garage & Officina Paolo (1993)
-    garage_building = GarageEnvironmentBuilder.build_paolo_garage(self, Vector3(15.5, 0.0, 14.0))
+    # 0. Build 3D Garage & Officina Paolo (1993) and the Starting City of San Cristoforo
+    garage_building = GarageEnvironmentBuilder.build_paolo_garage(self, Vector3(-16.0, 0.0, 8.0), PI)
+    city_building = CityEnvironmentBuilder.build_starting_city(self)
 
     # 1. Initialize Street Rod 1993 Career & UI
     street_rod_manager = StreetRodManager.new()
@@ -81,6 +88,25 @@ func _ready():
     traffic_manager.street_rod_manager = street_rod_manager
     traffic_manager.dashboard_ui = dashboard_ui
     add_child(traffic_manager)
+    
+    # 4. Initialize Story Campaign Manager & World POI Interaction System
+    story_manager = StoryCampaignManager.new()
+    story_manager.name = "StoryCampaignManager"
+    add_child(story_manager)
+    
+    world_poi_manager = WorldPOIManager.new()
+    world_poi_manager.name = "WorldPOIManager"
+    world_poi_manager.vehicle = vehicle
+    world_poi_manager.camera_controller = camera
+    world_poi_manager.story_manager = story_manager
+    world_poi_manager.street_rod_manager = street_rod_manager
+    add_child(world_poi_manager)
+    
+    if dashboard_ui:
+        if dashboard_ui.has_method("set_story_manager"):
+            dashboard_ui.set_story_manager(story_manager)
+        if dashboard_ui.has_method("set_poi_manager"):
+            dashboard_ui.set_poi_manager(world_poi_manager)
     
     # Wire race start requested from StreetRodUI to RaceDirector
     street_rod_ui.race_start_requested.connect(func(r_id, pink_slip):
@@ -333,6 +359,18 @@ func _process(_delta: float):
     if street_rod_manager:
         street_rod_manager.check_journey_progress(player_z)
 
+    # 8. Chiusura del Cerchio: Giro del Circuito completato (12.000m -> Rientro a San Cristoforo)
+    if player_z >= 12000.0:
+        vehicle.global_position.z -= 12000.0
+        if road_gen and road_gen.has_method("on_circuit_lap_completed"):
+            road_gen.on_circuit_lap_completed()
+        if street_rod_manager and street_rod_manager.has_method("register_circuit_lap_completed"):
+            street_rod_manager.register_circuit_lap_completed()
+        if vehicle and vehicle.audio_engine:
+            vehicle.audio_engine.play_milestone_chime()
+        print("[Main] 🏁 Chiusura del cerchio completata con successo! Rientro a San Cristoforo (Z = %.1fm)" % vehicle.global_position.z)
+
+
 func _unhandled_input(event: InputEvent):
     if event.is_action_pressed("toggle_fullscreen"):
         if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
@@ -344,8 +382,15 @@ func _unhandled_input(event: InputEvent):
         if event.keycode == KEY_M or event.keycode == KEY_TAB:
             if dashboard_ui and dashboard_ui.has_method("toggle_logbook"):
                 dashboard_ui.toggle_logbook()
+        elif event.keycode == KEY_T:
+            if dashboard_ui and dashboard_ui.has_method("toggle_story_campaign_modal"):
+                dashboard_ui.toggle_story_campaign_modal()
         elif event.keycode == KEY_E:
-            if dashboard_ui:
+            if world_poi_manager and world_poi_manager.is_visiting_poi:
+                world_poi_manager.close_poi_visit()
+            elif world_poi_manager and not world_poi_manager.active_poi_near.is_empty():
+                world_poi_manager.open_poi_visit(world_poi_manager.active_poi_near.get("id"))
+            elif dashboard_ui:
                 if dashboard_ui.has_method("is_bar_modal_open") and dashboard_ui.is_bar_modal_open():
                     dashboard_ui.close_bar_service_modal()
                 elif vehicle and (vehicle.get("is_in_service_bay") or vehicle.get("is_in_service_zone")):
@@ -355,7 +400,13 @@ func _unhandled_input(event: InputEvent):
                         s_type = "autogrill_bar"
                     dashboard_ui.open_bar_service_modal(str(s_type), { "name": s_name })
         elif event.keycode == KEY_ESCAPE:
-            if dashboard_ui and dashboard_ui.has_method("is_bar_modal_open") and dashboard_ui.is_bar_modal_open():
+            if world_poi_manager and world_poi_manager.is_visiting_poi:
+                world_poi_manager.close_poi_visit()
+            elif dashboard_ui and dashboard_ui.has_method("is_story_modal_open") and dashboard_ui.is_story_modal_open():
+                dashboard_ui.toggle_story_campaign_modal()
+            elif dashboard_ui and dashboard_ui.has_method("is_logbook_open") and dashboard_ui.is_logbook_open():
+                dashboard_ui.toggle_logbook()
+            elif dashboard_ui and dashboard_ui.has_method("is_bar_modal_open") and dashboard_ui.is_bar_modal_open():
                 dashboard_ui.close_bar_service_modal()
         elif event.keycode == KEY_B:
             toggle_diorama_tilt_shift()

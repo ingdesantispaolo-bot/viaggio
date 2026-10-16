@@ -95,12 +95,13 @@ static func init_materials():
 	mat_carb_brass.metallic = 0.75
 	mat_carb_brass.roughness = 0.28
 
-static func build_paolo_garage(parent: Node3D, pos: Vector3 = Vector3(15.5, 0.0, 14.0)) -> Node3D:
+static func build_paolo_garage(parent: Node3D, pos: Vector3 = Vector3(-16.0, 0.0, 8.0), rot_y: float = PI) -> Node3D:
 	init_materials()
 	
 	var garage_root = Node3D.new()
 	garage_root.name = "GaragePaolo3D"
 	garage_root.position = pos
+	garage_root.rotation.y = rot_y
 	parent.add_child(garage_root)
 	
 	# 1. FLOOR & DRIVEWAY APRON TO MAIN ROAD
@@ -155,9 +156,22 @@ static func build_paolo_garage(parent: Node3D, pos: Vector3 = Vector3(15.5, 0.0,
 	var lintel = create_box(Vector3(0.45, 1.1, 8.4), mat_brick, Vector3(-6.8, 3.7, 0))
 	garage_root.add_child(front_l); garage_root.add_child(front_r); garage_root.add_child(lintel)
 	
-	# Industrial Corrugated Pitched Roof
-	var roof = create_box(Vector3(14.4, 0.20, 16.4), mat_steel, Vector3(0, 4.3, 0))
-	garage_root.add_child(roof)
+	# Handcrafted Terracotta Pitched Gable Roof with Cornice Overhangs
+	var roof_eaves = create_box(Vector3(14.8, 0.22, 16.8), mat_concrete, Vector3(0, 4.4, 0))
+	garage_root.add_child(roof_eaves)
+	var pm = PrismMesh.new()
+	pm.left_to_right = 0.5
+	pm.size = Vector3(15.2, 2.5, 17.2)
+	var p_mi = MeshInstance3D.new()
+	p_mi.mesh = pm
+	var t_mat = StandardMaterial3D.new()
+	t_mat.albedo_color = Color(0.74, 0.38, 0.22)
+	t_mat.roughness = 0.88
+	p_mi.material_override = t_mat
+	p_mi.position = Vector3(0, 4.5 + 1.25, 0)
+	garage_root.add_child(p_mi)
+	var ridge = create_box(Vector3(0.35, 0.18, 17.4), mat_concrete, Vector3(0, 4.5 + 2.55, 0))
+	garage_root.add_child(ridge)
 	
 	# 3. VINTAGE ITALIAN ENAMEL SIGN OVER PORTAL: "OFFICINA MECCANICA PAOLO"
 	var sign_board = create_box(Vector3(0.12, 0.85, 6.5), mat_sign_enamel, Vector3(-7.05, 3.65, 0))
